@@ -318,16 +318,18 @@ export function parseParams({
                 }
 
                 if (
-                  operator === 'like' &&
+                  (operator === 'like' || operator === 'not_like') &&
                   (field.type === 'number' ||
                     field.type === 'relationship' ||
                     field.type === 'upload' ||
                     table[columnName].columnType === 'PgUUID')
                 ) {
-                  operator = 'equals'
+                  operator = operator === 'like' ? 'equals' : 'not_equals'
                 }
 
-                if (operator === 'like') {
+                if (operator === 'like' || operator === 'not_like') {
+                  const resolvedOperator = operator
+
                   constraints.push(
                     and(
                       ...val.split(' ').map((word) =>
@@ -338,7 +340,7 @@ export function parseParams({
                           locale,
                           originalOperator,
                           path: relationOrPath,
-                          resolvedOperator: 'like',
+                          resolvedOperator,
                           value: `%${word}%`,
                         }),
                       ),
