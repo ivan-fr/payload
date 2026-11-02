@@ -104,7 +104,7 @@ runs:
     - name: Run pnpm install
       if: ${{ inputs.pnpm-run-install == 'true' && inputs.restore-build != 'true' }}
       shell: bash
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
 
       # Set the cache key output
     - run: |
@@ -159,7 +159,7 @@ runs:
       shell: bash
       run: |
         echo "::warning::Build cache miss — running full build as fallback"
-        pnpm install
+        pnpm install --frozen-lockfile
         pnpm run build:all
       env:
         DO_NOT_TRACK: 1

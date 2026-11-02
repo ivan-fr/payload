@@ -9,9 +9,11 @@
 
 import type { TestConfig } from './utilities/e2e-matrix.ts'
 
+import { discoverE2ESuites } from '../scripts/ci/discover-e2e-suites.mjs'
+
 import { createE2EConfig } from './utilities/e2e-matrix.ts'
 
-const nextSuites: TestConfig[] = [
+const configuredNextSuites: TestConfig[] = [
   { file: '_community', shards: 1 },
   { file: 'access-control', shards: 2 },
   { file: 'admin__e2e__general', shards: 3 },
@@ -108,6 +110,12 @@ const nextSuites: TestConfig[] = [
   { file: 'uploads', shards: 3 },
   { file: 'upload-transformers', shards: 1 },
 ]
+
+// Include newly added specs automatically. Keep each GitHub matrix below 256 jobs.
+const nextSuites: TestConfig[] = [
+  ...configuredNextSuites,
+  ...discoverE2ESuites({ configuredSuites: configuredNextSuites, testDir: 'test' }),
+].map((suite) => ({ ...suite, shards: Math.min(suite.shards, 2) }))
 
 const tanstackSuites: TestConfig[] = nextSuites.map((suite) => ({
   ...suite,
