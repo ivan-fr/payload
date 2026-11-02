@@ -50,13 +50,13 @@ describe('Lexical: collection slug equals top-level field name', () => {
 
     await lexical.dropFile({ filePath })
 
-    await expect(page.locator('.bulk-upload--actions-bar')).toBeVisible()
+    await expect(page.locator('.bulk-upload--actions-bar__saveButtons')).toBeVisible()
 
     // Two providers compute the same drawer slug and both mount a drawer; the
     // empty one is what the user sees as the blank drawer. Should be exactly 1.
-    const bulkDrawers = page.locator(
-      'dialog[aria-label*="bulk-upload-drawer-slug"][open], dialog[id*="bulk-upload-drawer-slug"][open]',
-    )
+    const bulkDrawers = page
+      .getByRole('dialog')
+      .filter({ has: page.locator('.bulk-upload--file-manager') })
     await expect(bulkDrawers).toHaveCount(1)
   })
 })

@@ -30,13 +30,23 @@ test.describe('Authorship', () => {
   let serverURL: string
   let payload: PayloadTestSDK<Config>
   let devUserAuth: AuthUser
+  let devUserToken: string
 
   test.beforeAll(async ({ browser }, testInfo) => {
     testInfo.setTimeout(TEST_TIMEOUT_LONG)
     ;({ payload, serverURL } = await initPayloadE2ENoConfig<Config>({ dirname }))
 
+    const authentication = (await payload.login({
+      collection: usersSlug,
+      data: devUser,
+      overrideAccess: false,
+    })) as unknown as { token?: string }
+    expect(authentication.token).toBeTruthy()
+    devUserToken = authentication.token!
+
     const devUserDoc = (
       await payload.find({
+        jwt: devUserToken,
         collection: usersSlug,
         depth: 0,
         limit: 1,
@@ -52,12 +62,14 @@ test.describe('Authorship', () => {
 
   test('renders createdBy and updatedBy labels in the version compare view', async () => {
     const doc = await payload.create({
+      jwt: devUserToken,
       collection: draftPostsSlug,
       data: { title: 'version one' },
       depth: 0,
     })
 
     await payload.update({
+      jwt: devUserToken,
       id: doc.id,
       collection: draftPostsSlug,
       data: { title: 'version two' },
@@ -66,6 +78,7 @@ test.describe('Authorship', () => {
     })
 
     const versions = await payload.findVersions({
+      jwt: devUserToken,
       collection: draftPostsSlug,
       depth: 0,
       limit: 1,
@@ -110,6 +123,7 @@ test.describe('Authorship', () => {
   }) => {
     // Author the post as devUser, whom the restricted reader cannot read.
     const post = await payload.create({
+      jwt: devUserToken,
       collection: postsSlug,
       data: {
         createdBy: { relationTo: usersSlug, value: devUserAuth.id as string },
@@ -119,8 +133,11 @@ test.describe('Authorship', () => {
     })
 
     const restrictedContext = await browser.newContext()
-    const restrictedPage = await restrictedContext.newPage()
-    initPageConsoleErrorCatch(restrictedPage)
+    const { page: restrictedPage } = await initPage({
+      context: restrictedContext,
+      noAutoLogin: true,
+      serverURL,
+    })
     await login({
       data: { email: otherUserEmail, password: otherUserPassword },
       page: restrictedPage,
@@ -145,6 +162,7 @@ test.describe('Authorship', () => {
   }) => {
     // Author the versioned doc as devUser, whom the restricted reader cannot read.
     const doc = await payload.create({
+      jwt: devUserToken,
       collection: draftPostsSlug,
       data: {
         createdBy: { relationTo: usersSlug, value: devUserAuth.id as string },
@@ -154,6 +172,7 @@ test.describe('Authorship', () => {
     })
 
     await payload.update({
+      jwt: devUserToken,
       id: doc.id,
       collection: draftPostsSlug,
       data: { title: 'restricted version two' },
@@ -162,6 +181,7 @@ test.describe('Authorship', () => {
     })
 
     const versions = await payload.findVersions({
+      jwt: devUserToken,
       collection: draftPostsSlug,
       depth: 0,
       limit: 1,
@@ -170,8 +190,11 @@ test.describe('Authorship', () => {
     const versionID = versions.docs[0]?.id
 
     const restrictedContext = await browser.newContext()
-    const restrictedPage = await restrictedContext.newPage()
-    initPageConsoleErrorCatch(restrictedPage)
+    const { page: restrictedPage } = await initPage({
+      context: restrictedContext,
+      noAutoLogin: true,
+      serverURL,
+    })
     await login({
       data: { email: otherUserEmail, password: otherUserPassword },
       page: restrictedPage,
@@ -228,12 +251,14 @@ test.describe('Authorship', () => {
 
   test('shows only the Created By label in the version compare view when updatedBy is disabled', async () => {
     const doc = await payload.create({
+      jwt: devUserToken,
       collection: createdOnlySlug,
       data: { title: 'created only v1' },
       depth: 0,
     })
 
     await payload.update({
+      jwt: devUserToken,
       id: doc.id,
       collection: createdOnlySlug,
       data: { title: 'created only v2' },
@@ -242,6 +267,7 @@ test.describe('Authorship', () => {
     })
 
     const versions = await payload.findVersions({
+      jwt: devUserToken,
       collection: createdOnlySlug,
       depth: 0,
       limit: 1,
@@ -260,12 +286,14 @@ test.describe('Authorship', () => {
 
   test('shows only the Updated By label in the version compare view when createdBy is disabled', async () => {
     const doc = await payload.create({
+      jwt: devUserToken,
       collection: updatedOnlySlug,
       data: { title: 'updated only v1' },
       depth: 0,
     })
 
     await payload.update({
+      jwt: devUserToken,
       id: doc.id,
       collection: updatedOnlySlug,
       data: { title: 'updated only v2' },
@@ -274,6 +302,7 @@ test.describe('Authorship', () => {
     })
 
     const versions = await payload.findVersions({
+      jwt: devUserToken,
       collection: updatedOnlySlug,
       depth: 0,
       limit: 1,
