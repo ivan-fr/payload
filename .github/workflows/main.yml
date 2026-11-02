@@ -18,7 +18,7 @@ on:
       suites:
         description: JSON array of E2E suite names for targeted mode
         type: string
-        default: '["auth-api-key","authorship","base-path","lexical__collections__LexicalSlugFieldNameCollision","trailing-slash"]'
+        default: '["trailing-slash"]'
   merge_group:
 
 concurrency:
@@ -268,7 +268,7 @@ jobs:
           TARGETED_E2E_SUITES: ${{ inputs.suites }}
         run: |
           if [ -z "$TARGETED_E2E_SUITES" ]; then
-            export TARGETED_E2E_SUITES='["auth-api-key","authorship","base-path","lexical__collections__LexicalSlugFieldNameCollision","trailing-slash"]'
+            export TARGETED_E2E_SUITES='["trailing-slash"]'
           fi
           node .github/workflows/e2e.config.ts > "$RUNNER_TEMP/e2e-matrix.json"
           matrix=$(node .github/scripts/ci/select-e2e-matrix.mjs "$RUNNER_TEMP/e2e-matrix.json")
