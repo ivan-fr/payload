@@ -1928,6 +1928,34 @@ test.suite('Fields', { config: './config.ts', resetBetweenTests: false }, () => 
       expect(missResult).toBeFalsy()
     })
 
+    test('should exclude partial word matches with not_like', async ({ payload }) => {
+      const match = await payload.create({
+        collection: 'text-fields',
+        data: { text: 'prefix NEEDLE suffix' },
+        overrideAccess: true,
+      })
+      const otherWord = await payload.create({
+        collection: 'text-fields',
+        data: { text: 'another token' },
+        overrideAccess: true,
+      })
+      const miss = await payload.create({
+        collection: 'text-fields',
+        data: { text: 'unrelated content' },
+        overrideAccess: true,
+      })
+      const { docs } = await payload.find({
+        collection: 'text-fields',
+        overrideAccess: true,
+        where: {
+          id: { in: [match.id, otherWord.id, miss.id] },
+          text: { not_like: 'needle token' },
+        },
+      })
+
+      expect(docs.map(({ id }) => id)).toEqual([miss.id])
+    })
+
     test('should query hasMany within an array', async ({ payload }) => {
       const docFirst = await payload.create({
         collection: 'text-fields',
