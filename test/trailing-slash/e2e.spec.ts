@@ -6,13 +6,10 @@ import { fileURLToPath } from 'url'
 
 import { login } from '../__helpers/e2e/auth/login.js'
 import { goToListDoc } from '../__helpers/e2e/goToListDoc.js'
-import {
-  ensureCompilationIsDone,
-  initPageConsoleErrorCatch,
-  saveDocAndAssert,
-} from '../__helpers/e2e/helpers.js'
+import { saveDocAndAssert } from '../__helpers/e2e/helpers.js'
 import { AdminUrlUtil } from '../__helpers/shared/adminUrlUtil.js'
 import { initPayloadE2ENoConfig } from '../__helpers/shared/initPayloadE2ENoConfig.js'
+import { initPage } from '../__setup/e2e/initPage.js'
 import { TEST_TIMEOUT_LONG } from '../playwright.config.js'
 
 const filename = fileURLToPath(import.meta.url)
@@ -55,16 +52,13 @@ test.describe('Trailing Slash', () => {
     url = new AdminUrlUtil(serverURL, 'posts')
 
     const context = await browser.newContext()
-    page = await context.newPage()
-    initPageConsoleErrorCatch(page)
-    page.on('response', recordResponse)
-
-    await ensureCompilationIsDone({
+    ;({ page } = await initPage({
+      context,
       noAutoLogin: true,
-      page,
-      readyURL: `${serverURL}/admin/login/**`,
+      readyURL: `${url.login}**`,
       serverURL,
-    })
+    }))
+    page.on('response', recordResponse)
   })
 
   test.beforeEach(() => {

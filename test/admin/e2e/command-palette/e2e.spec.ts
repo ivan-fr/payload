@@ -66,11 +66,11 @@ test.describe('Command Palette', () => {
 
     await page.goto(`${serverURL}${adminRoute}`)
     await ensureCompilationIsDone({ customAdminRoutes, page, serverURL })
-    // Wait for the sidebar nav and the account link to be visible. The account link is rendered
+    // Wait for the sidebar nav and the account trigger to be visible. The account trigger is rendered
     // only after the client-side auth fetch resolves, which is after full React hydration and
     // useEffect execution — ensuring the useHotkey listener is registered.
     await expect(page.locator('nav.nav__wrap')).toBeVisible()
-    await expect(page.locator('a[href*="/account"]')).toBeVisible()
+    await expect(page.getByRole('button', { name: /^Account/ })).toBeVisible()
     // Ensure the page body has focus so keyboard events reach document listeners.
     await page.locator('body').click()
   })
