@@ -32,7 +32,7 @@ GitHub repository settings, rather than a YAML file alone, enforce the required 
 
 ## Targeted diagnosis after a failure
 
-Manual runs default to `mode: targeted`; `suites` is a JSON array of failed Next.js suite names. All shards of those suites run, with a fresh build and E2E preparation, while unrelated test jobs are omitted. The default selection records the five remaining failed suites from PR #2 targeted run 41471783392. Select `mode: full` to run the merge validation manually. PR, push-to-main and merge-group events always use full coverage.
+Manual runs default to `mode: targeted`; `suites` is a JSON array of failed Next.js suite names. All shards of those suites run, with a fresh build and E2E preparation, while unrelated test jobs are omitted. The default selection contains only `trailing-slash`, the last failed suite from targeted run 41479599196. Select `mode: full` to run the merge validation manually. PR, push-to-main and merge-group events always use full coverage.
 
 Targeted runs report **`Payload 4 targeted tests`**, never the required `Payload 4 required tests` context (even as a skipped check). They cannot satisfy branch protection or reuse another commit's green results. A retry via GitHub's **Re-run failed jobs** is appropriate for the same code revision; it does not load newly pushed fixes. A corrective commit may intentionally use `[skip ci]` during diagnosis to avoid starting the complete PR matrix, but merge stays blocked until the new revision passes a full run.
 
@@ -55,3 +55,9 @@ After seven of the twelve E2E suites passed, diagnosis is narrowed to `auth-api-
 - Lexical assertions target the current upload action container and one visible dialog, preserving the one-dialog regression.
 
 Validation: actionlint and 20 CI helper tests pass; Playwright discovers 27 tests in the five selected files. Remote E2E results are pending.
+
+## Last-suite follow-up
+
+Run 41479599196 passed `auth-api-key`, `authorship`, `base-path`, and the Lexical collision suite. Only `trailing-slash` failed: its initial reset returned HTTP 500 before Playwright started because the trusted seed used Local API creates without `overrideAccess: true`. Both seed writes now explicitly bypass access control for test initialization, consistent with other fixtures. Production access rules are unchanged.
+
+A shared-fixture integration regression reproduced the exact Forbidden error before the change and passed afterward on SQLite. It verifies that the login user and sample post exist without any signed-in request and restores the fixture's routing environment afterward. The diagnostic matrix now contains only `trailing-slash` (six E2E tests); the eleven successful suites are not repeated.
