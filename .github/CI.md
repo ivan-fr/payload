@@ -32,7 +32,7 @@ GitHub repository settings, rather than a YAML file alone, enforce the required 
 
 ## Targeted diagnosis after a failure
 
-Manual runs default to `mode: targeted`; `suites` is a JSON array of failed Next.js suite names. All shards of those suites run, with a fresh build and E2E preparation, while unrelated test jobs are omitted. The default selection records the 12 failed suites from PR #2 run 41455083629. Select `mode: full` to run the merge validation manually. PR, push-to-main and merge-group events always use full coverage.
+Manual runs default to `mode: targeted`; `suites` is a JSON array of failed Next.js suite names. All shards of those suites run, with a fresh build and E2E preparation, while unrelated test jobs are omitted. The default selection records the five remaining failed suites from PR #2 targeted run 41471783392. Select `mode: full` to run the merge validation manually. PR, push-to-main and merge-group events always use full coverage.
 
 Targeted runs report **`Payload 4 targeted tests`**, never the required `Payload 4 required tests` context (even as a skipped check). They cannot satisfy branch protection or reuse another commit's green results. A retry via GitHub's **Re-run failed jobs** is appropriate for the same code revision; it does not load newly pushed fixes. A corrective commit may intentionally use `[skip ci]` during diagnosis to avoid starting the complete PR matrix, but merge stays blocked until the new revision passes a full run.
 
@@ -43,3 +43,15 @@ Before this workflow is installed on the default branch, GitHub does not expose 
 The corrective revision updates stale E2E helper imports and dialog/tab selectors, the e-commerce fixture's source exports, explicit localized-slug regeneration, native Lexical file-drop acceptance, group leaf-column fixtures, lazy-field scrolling, Monaco popup geometry, and production fixture routing flags. Direct API-key requests disable development auto-login so they test the supplied key. No test is disabled by these corrections.
 
 Local evidence: 20 CI helper tests pass, actionlint passes, and Playwright discovers 71 tests in the 12 selected files. A local UI server could not start in this executor (`listen EPERM`); rendered behavior must be validated by the targeted GitHub run. For the Lexical change, WCAG 2.2 A/AA criteria 2.1.1 and 2.5.7 (existing keyboard/non-drag upload alternatives), 2.4.3 (drawer focus), and 4.1.2 (drawer semantics) were considered. Only the native file-drag acceptance handler changes; browser and assistive-technology verification of those outcomes is pending. No accessibility conformance claim is made.
+
+## Five-suite follow-up
+
+After seven of the twelve E2E suites passed, diagnosis is narrowed to `auth-api-key`, `authorship`, `base-path`, `lexical__collections__LexicalSlugFieldNameCollision`, and `trailing-slash`. The seven successful suites are not repeated by this diagnostic run.
+
+- The API-key fixture explicitly permits admin reads and API-key users to read only themselves. A REST regeneration regression verifies the new key, revokes the old key, and rejects cross-user and anonymous reads. The core default access policy is unchanged. All 12 API-key integration tests pass locally on SQLite.
+- Authorship fixture SDK requests authenticate with the seeded user's JWT; secondary browser pages use the current initialization helper.
+- The base-path fixture resets/seeds through its actual prefixed endpoint before opening the browser.
+- The trailing-slash config uses the current config/seed/suite wrapper, explicitly logs in for authenticated cases, and avoids double slashes in URLs.
+- Lexical assertions target the current upload action container and one visible dialog, preserving the one-dialog regression.
+
+Validation: actionlint and 20 CI helper tests pass; Playwright discovers 27 tests in the five selected files. Remote E2E results are pending.

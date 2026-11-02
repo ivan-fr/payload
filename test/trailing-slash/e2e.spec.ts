@@ -68,12 +68,12 @@ test.describe('Trailing Slash', () => {
   test('should render the login page when accessing the admin while logged out', async () => {
     await page.goto(url.admin)
 
-    await expect(page.locator('.login')).toBeVisible()
-    expect(page.url()).toBe(url.login)
+    await expect(page.locator('form.login__form')).toBeVisible()
+    await expect(page).toHaveURL(url.login)
   })
 
   test('should render forgot-password form action with trailing slash', async () => {
-    await page.goto(`${url.admin}/forgot`)
+    await page.goto(`${url.admin}forgot/`)
 
     await expect(async () => {
       const formAction = await page.locator('form').getAttribute('action')
@@ -94,6 +94,7 @@ test.describe('Trailing Slash', () => {
   })
 
   test('should navigate dashboard, list, edit and account without any /api 3xx', async () => {
+    await login({ page, serverURL })
     apiResponses.length = 0
 
     await page.goto(url.admin)
@@ -110,7 +111,7 @@ test.describe('Trailing Slash', () => {
     })
     await expect(page.locator('#field-title')).toBeVisible()
 
-    await page.goto(`${url.admin}/account`)
+    await page.goto(url.account)
     await expect(page.locator('#field-email')).toBeVisible()
 
     await expect(() => {
@@ -120,6 +121,7 @@ test.describe('Trailing Slash', () => {
   })
 
   test('should save edits to existing doc with trailing-slash URL', async () => {
+    await login({ page, serverURL })
     apiResponses.length = 0
     page.on('request', recordRequest)
 
@@ -145,9 +147,10 @@ test.describe('Trailing Slash', () => {
   })
 
   test('should create new doc and POST to trailing-slash URL', async () => {
+    await login({ page, serverURL })
     apiResponses.length = 0
 
-    await page.goto(`${url.list}/create`)
+    await page.goto(url.create)
     await page.locator('#field-title').fill('Created Under Trailing Slash')
     await saveDocAndAssert(page)
 
