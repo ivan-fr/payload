@@ -14,6 +14,8 @@ const withBundleAnalyzer = bundleAnalyzer({
 export default withBundleAnalyzer(
   withPayload(
     {
+      basePath: process.env.NEXT_BASE_PATH || undefined,
+      trailingSlash: process.env.NEXT_TRAILING_SLASH === 'true',
       cacheComponents: process.env.PAYLOAD_DISABLE_CACHE_COMPONENTS !== 'true',
       partialPrefetching: process.env.PAYLOAD_DISABLE_CACHE_COMPONENTS !== 'true',
       devIndicators: {

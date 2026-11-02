@@ -20,6 +20,7 @@ const dirname = path.dirname(filename)
 
 const headers = {
   'Content-Type': 'application/json',
+  DisableAutologin: 'true',
 }
 
 let apiURL: string
