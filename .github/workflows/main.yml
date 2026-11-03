@@ -18,7 +18,7 @@ on:
       suites:
         description: JSON array of suite names (Next) or objects with suite and framework
         type: string
-        default: '["plugin-multi-tenant#config.conditionalProvider.ts", {"suite":"v4","framework":"tanstack-start"}]'
+        default: '[{"suite":"v4","framework":"tanstack-start"}]'
   merge_group:
 
 concurrency:
@@ -268,7 +268,7 @@ jobs:
           TARGETED_E2E_SUITES: ${{ inputs.suites }}
         run: |
           if [ -z "$TARGETED_E2E_SUITES" ]; then
-            export TARGETED_E2E_SUITES='["plugin-multi-tenant#config.conditionalProvider.ts", {"suite":"v4","framework":"tanstack-start"}]'
+            export TARGETED_E2E_SUITES='[{"suite":"v4","framework":"tanstack-start"}]'
           fi
           node .github/workflows/e2e.config.ts > "$RUNNER_TEMP/e2e-matrix.json"
           matrix=$(node .github/scripts/ci/select-e2e-matrix.mjs "$RUNNER_TEMP/e2e-matrix.json")

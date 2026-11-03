@@ -32,7 +32,7 @@ GitHub repository settings, rather than a YAML file alone, enforce the required 
 
 ## Targeted diagnosis after a failure
 
-Manual runs default to `mode: targeted`; `suites` is a JSON array of failed Next.js suite names or `{ "suite": "v4", "framework": "tanstack-start" }` objects to select another framework. All shards of those suites run, with a fresh build and E2E preparation, while unrelated test jobs are omitted. The default selection contains the conditional-provider multi-tenant suite on Next and `v4` on TanStack, the two applicable failures from full run 41580885019. Select `mode: full` to run the merge validation manually. PR, push-to-main and merge-group events always use full coverage.
+Manual runs default to `mode: targeted`; `suites` is a JSON array of failed Next.js suite names or `{ "suite": "v4", "framework": "tanstack-start" }` objects to select another framework. All shards of those suites run, with a fresh build and E2E preparation, while unrelated test jobs are omitted. The default selection contains only `v4` on TanStack, the remaining applicable failure after targeted run 41596871640. Select `mode: full` to run the merge validation manually. PR, push-to-main and merge-group events always use full coverage.
 
 Targeted runs report **`Payload 4 targeted tests`**, never the required `Payload 4 required tests` context (even as a skipped check). They cannot satisfy branch protection or reuse another commit's green results. A retry via GitHub's **Re-run failed jobs** is appropriate for the same code revision; it does not load newly pushed fixes. A corrective commit may intentionally use `[skip ci]` during diagnosis to avoid starting the complete PR matrix, but merge stays blocked until the new revision passes a full run.
 
@@ -71,3 +71,5 @@ The full run passed build, lint, unit/component tests, types, type/schema genera
 - `base-path` and `trailing-slash` on TanStack: discovery incorrectly duplicated Next-config-only suites onto TanStack, whose fixture does not configure either option. Both suites remain mandatory on Next; every shared suite remains mandatory on both frameworks. A coverage regression checks this distinction and ensures no optional jobs are introduced.
 
 Diagnosis selects only the two applicable failed suite/framework pairs. The corrected PR revision still requires a fresh full validation before merge; neither the old successful jobs nor the diagnostic gate satisfies that requirement.
+
+Targeted run 41596871640 passed the conditional-provider multi-tenant suite. The v4 source asset fix succeeded, exposing an initialization mismatch: the fixture uses `prefillOnly: true`, so its browser must wait for the login page before explicitly logging in. Its initialization now sets `noAutoLogin: true`, and cleanup closes the context even if page initialization fails. Diagnosis is narrowed to v4 on TanStack only.

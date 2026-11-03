@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import type { BrowserContext, Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 import path from 'node:path'
@@ -15,16 +15,17 @@ const dirname = path.dirname(filename)
 test.describe('v4 custom navigation', () => {
   let page: Page
   let serverURL: string
+  let context: BrowserContext
 
   test.beforeAll(async ({ browser }) => {
     ;({ serverURL } = await initPayloadE2ENoConfig({ dirname }))
-    const context = await browser.newContext()
-    ;({ page } = await initPage({ context, serverURL }))
+    context = await browser.newContext()
+    ;({ page } = await initPage({ context, noAutoLogin: true, serverURL }))
     await login({ page, serverURL })
   })
 
   test.afterAll(async () => {
-    await page.context().close()
+    await context?.close()
   })
 
   test('should align a custom sidebar row with built-in navigation links', async () => {
