@@ -25,8 +25,28 @@ type OperationType =
 type AccessScopes = 'docAccess' | undefined
 
 type ObjectTypeFields = {
-  [key in 'fields' | OperationType]?: { type: GraphQLObjectType }
+  [key in 'fields' | OperationType]?: {
+    resolve?: (source: unknown) => unknown
+    type: GraphQLObjectType
+  }
 }
+
+const resolveMember =
+  ({ key, shouldUnwrapFields = false }: { key: string; shouldUnwrapFields?: boolean }) =>
+  (source: unknown): unknown => {
+    if (source === true) {
+      return true
+    }
+    const value = source && typeof source === 'object' ? (Reflect.get(source, key) ?? false) : false
+
+    return shouldUnwrapFields && value && typeof value === 'object'
+      ? (Reflect.get(value, 'fields') ?? value)
+      : value
+  }
+
+const resolvePermission = (source: unknown): boolean =>
+  source === true ||
+  Boolean(source && typeof source === 'object' && Reflect.get(source, 'permission') === true)
 
 const buildFields = (label, fieldsToBuild) =>
   fieldsToBuild.reduce((builtFields, field) => {
@@ -52,9 +72,11 @@ const buildFields = (label, fieldsToBuild) =>
                 fields: {
                   permission: {
                     type: new GraphQLNonNull(GraphQLBoolean),
+                    resolve: resolvePermission,
                   },
                 },
               }),
+              resolve: resolveMember({ key: operation }),
             },
           }
         }, {})
@@ -67,6 +89,7 @@ const buildFields = (label, fieldsToBuild) =>
               name: `${label}_${fieldName}_Fields`,
               fields: subFields,
             }),
+            resolve: resolveMember({ key: 'fields' }),
           }
         }
 
@@ -77,6 +100,7 @@ const buildFields = (label, fieldsToBuild) =>
               name: `${label}_${fieldName}`,
               fields: objectTypeFields,
             }),
+            resolve: resolveMember({ key: field.name }),
           },
         }
       }
@@ -103,6 +127,7 @@ const buildFields = (label, fieldsToBuild) =>
                     name: `${label}_${tabName}`,
                     fields: subFields,
                   }),
+                  resolve: resolveMember({ key: tab.name, shouldUnwrapFields: true }),
                 }
               }
               return fieldsWithTabFields
@@ -138,6 +163,7 @@ export const buildEntityPolicy = (args: BuildEntityPolicy) => {
         name: fieldsTypeName,
         fields: policyFields,
       }),
+      resolve: resolveMember({ key: 'fields' }),
     }
   }
 
@@ -148,10 +174,11 @@ export const buildEntityPolicy = (args: BuildEntityPolicy) => {
       type: new GraphQLObjectType({
         name: operationTypeName,
         fields: {
-          permission: { type: new GraphQLNonNull(GraphQLBoolean) },
+          permission: { type: new GraphQLNonNull(GraphQLBoolean), resolve: resolvePermission },
           where: { type: GraphQLJSONObject },
         },
       }),
+      resolve: resolveMember({ key: operation }),
     }
   })
 
@@ -236,6 +263,7 @@ export function buildPoliciesType(config: SanitizedConfig): GraphQLObjectType {
   const fields = {
     canAccessAdmin: {
       type: new GraphQLNonNull(GraphQLBoolean),
+      resolve: (source: { canAccessAdmin?: boolean }) => source.canAccessAdmin ?? false,
     },
   }
 
@@ -251,6 +279,7 @@ export function buildPoliciesType(config: SanitizedConfig): GraphQLObjectType {
 
     fields[formatName(collection.slug)] = {
       type: collectionPolicyType,
+      resolve: resolveMember({ key: formatName(collection.slug) }),
     }
   })
 
@@ -266,6 +295,7 @@ export function buildPoliciesType(config: SanitizedConfig): GraphQLObjectType {
 
     fields[formatName(global.slug)] = {
       type: globalPolicyType,
+      resolve: resolveMember({ key: formatName(global.slug) }),
     }
   })
 

@@ -52,6 +52,7 @@ describe('getPayload reload failures', () => {
     }
     keys.length = 0
     vi.unstubAllGlobals()
+    vi.unstubAllEnvs()
   })
 
   it.each(['config', 'reload'])(
@@ -84,5 +85,31 @@ describe('getPayload reload failures', () => {
     ).resolves.toEqual([payload, payload])
     expect(payload.db.init).toHaveBeenCalledOnce()
     expect(payload.db.connect).toHaveBeenCalledOnce()
+  })
+  it('should queue a change reported during an active reload (#19053)', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    const { cached, key, payload } = createCachedInstance()
+    let notify: () => void
+    const strategy = {
+      connect: (callback: () => void) => {
+        notify = callback
+        return () => {}
+      },
+    }
+    let resolveConfig: (value: SanitizedConfig) => void
+    const pendingConfig = new Promise<SanitizedConfig>((resolve) => {
+      resolveConfig = resolve
+    })
+    const first = getPayload({ config: pendingConfig, devReloadStrategy: strategy, key })
+    const waiting = getPayload({ config: pendingConfig, devReloadStrategy: strategy, key })
+
+    notify!()
+    notify!()
+    resolveConfig!(config)
+    await Promise.all([first, waiting])
+    expect(cached.reload).toBe(true)
+    await getPayload({ config, devReloadStrategy: strategy, key })
+    expect(payload.db.init).toHaveBeenCalledTimes(2)
+    expect(cached.reload).toBe(false)
   })
 })

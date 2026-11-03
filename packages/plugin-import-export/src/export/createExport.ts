@@ -134,6 +134,18 @@ export const createExport = async (args: CreateExportArgs) => {
   const baseName = nameArg ?? getFilename()
   const name = `${baseName}-${collectionSlug}.${format}`
   const isCSV = format === 'csv'
+  const inferCSVColumns = ({ dataColumns }: { dataColumns?: string[] } = {}) =>
+    getSchemaColumns({
+      collectionConfig,
+      dataColumns,
+      disabledFields,
+      fields,
+      locale,
+      localeCodes:
+        locale === 'all' && payload.config.localization
+          ? payload.config.localization.localeCodes
+          : undefined,
+    })
   const select = Array.isArray(fields) && fields.length > 0 ? getSelect(fields) : undefined
 
   if (debug) {
@@ -261,18 +273,7 @@ export const createExport = async (args: CreateExportArgs) => {
     // Get schema-based columns first (provides base ordering and handles empty exports)
     let schemaColumns: string[] = []
     if (isCSV) {
-      const localeCodes =
-        locale === 'all' && payload.config.localization
-          ? payload.config.localization.localeCodes
-          : undefined
-
-      schemaColumns = getSchemaColumns({
-        collectionConfig,
-        disabledFields,
-        fields,
-        locale,
-        localeCodes,
-      })
+      schemaColumns = inferCSVColumns()
 
       if (debug) {
         req.payload.logger.debug({
@@ -378,7 +379,7 @@ export const createExport = async (args: CreateExportArgs) => {
             // Merge schema columns with data-discovered columns.
             // When a before hook is active and rows exist, restrict to columns actually present
             // in the data so that the hook can remove fields by not returning them.
-            const mergedColumns = mergeColumns(schemaColumns, dataColumns)
+            const mergedColumns = mergeColumns(inferCSVColumns({ dataColumns }), dataColumns)
             allColumns =
               Boolean(exportHooks?.before) && batchRowsToWrite.length > 0
                 ? mergedColumns.filter((col) => dataColumns.includes(col))
@@ -559,18 +560,7 @@ export const createExport = async (args: CreateExportArgs) => {
   // Prepare final output
   if (isCSV) {
     // Get schema-based columns for consistent ordering
-    const localeCodes =
-      locale === 'all' && payload.config.localization
-        ? payload.config.localization.localeCodes
-        : undefined
-
-    const schemaColumns = getSchemaColumns({
-      collectionConfig,
-      disabledFields,
-      fields,
-      locale,
-      localeCodes,
-    })
+    const schemaColumns = inferCSVColumns({ dataColumns })
 
     // Merge schema columns with data-discovered columns
     // Schema provides ordering, data provides additional columns (e.g., array indices > 0)

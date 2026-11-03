@@ -7,6 +7,8 @@ export type GetSchemaColumnsArgs = {
    * The collection configuration to derive columns from
    */
   collectionConfig: SanitizedCollectionConfig
+  /** Flattened data columns after field hooks have run. */
+  dataColumns?: string[]
   /**
    * Array of disabled field paths from plugin config
    */
@@ -39,6 +41,7 @@ export type GetSchemaColumnsArgs = {
  */
 export const getSchemaColumns = ({
   collectionConfig,
+  dataColumns,
   disabledFields = [],
   fields: selectedFields,
   locale,
@@ -46,11 +49,10 @@ export const getSchemaColumns = ({
 }: GetSchemaColumnsArgs): string[] => {
   const expandLocales = locale === 'all' && localeCodes && localeCodes.length > 0
 
-  let schemaColumns = getFlattenedFieldKeys(
-    collectionConfig.flattenedFields,
-    '',
-    expandLocales ? { localeCodes } : {},
-  )
+  let schemaColumns = getFlattenedFieldKeys(collectionConfig.flattenedFields, '', {
+    ...(expandLocales ? { localeCodes } : {}),
+    dataColumns: dataColumns ? new Set(dataColumns) : undefined,
+  })
 
   // Add id if not present in schema
   const hasIdField = schemaColumns.includes('id')

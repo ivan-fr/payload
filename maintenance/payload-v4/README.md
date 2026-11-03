@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes thirty reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes thirty-six reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) records **565 open issues**, excluding pull requests. Twenty-nine snapshot issues have scoped fixes here; **536 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **30 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) records **565 open issues**, excluding pull requests. Thirty-five snapshot issues have scoped fixes here; **530 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **36 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -122,7 +122,7 @@ Local PostgreSQL execution stopped before running tests because localhost:5433 w
 
 ## Remaining mission
 
-The requested resolution of every open issue is unfinished. Continue from the 536 unassessed snapshot entries: establish v4 applicability, inspect related fixes/PRs, reproduce the problem, add a meaningful regression test, then implement and validate. Feature requests and reports requiring a design decision or missing reproduction need separate treatment.
+The requested resolution of every open issue is unfinished. Continue from the 530 unassessed snapshot entries: establish v4 applicability, inspect related fixes/PRs, reproduce the problem, add a meaningful regression test, then implement and validate. Feature requests and reports requiring a design decision or missing reproduction need separate treatment.
 
 High-impact candidates for subsequent investigation include scheduled-publish document access (#19192), bulk-operation base filters (#19189), and tenant isolation during bulk deletes (#16325). These are priorities to investigate, not claims of confirmed vulnerabilities on this branch.
 
@@ -149,3 +149,7 @@ Validation on this revision:
 - The integration test TypeScript project still includes existing cross-adapter/workspace diagnostics; no diagnostics reference the new fixture files.
 
 A live MongoDB/Cosmos DB or PostgreSQL result is not established by these local checks. The full required Actions matrix must validate the final PR commit before merge. The new shared-fixture suite is discovered by that matrix; no required checks have been removed or relaxed. The separate PostgreSQL max=1 regression was already green on the preceding commit and runs again on the updated PR.
+
+## Sixth batch
+
+Six further reproduced reports are covered in [batch-6.md](batch-6.md), on top of the merged PR #1 baseline.
