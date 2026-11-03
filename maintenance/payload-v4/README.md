@@ -102,6 +102,24 @@ Final local validation:
 
 Live MongoDB and PostgreSQL outcomes must be established by remote CI; pipeline generation and a fake failing driver are not equivalent to live database integration. The full required CI must pass on the final revision before merge. No upstream issue is closed by this fork.
 
+## PostgreSQL single-connection pool regression (#18406)
+
+The dedicated `test/locked-documents-pool/int.spec.ts` suite uses the shared Payload integration fixture and a real `postgresAdapter` configured with `pool.max: 1` and a 2-second connection-acquisition timeout. It is selected only for `PAYLOAD_DATABASE=postgres`.
+
+Five cases cover:
+
+- A negative control: a raw lock read without req times out while the sole connection is held by a transaction, then rolls back cleanly. This proves the harness exercises the original second-connection failure mode.
+- Three concurrent lock-checked document updates complete and persist their values.
+- Three concurrent lock-checked document deletions complete and remove their records.
+- Active foreign locks still reject single-document updates/deletes with 423; bulk deletion removes only unlocked documents.
+- File rename completes inside its transaction, persists the new filename and preserves the stored bytes.
+
+Successful cases also assert that no transaction sessions or pool waiters remain, the single connection is idle, and `SELECT 1` still succeeds. All operations are awaited, the negative-control transaction is rolled back in finally, and test file/pool resources are cleaned up.
+
+The normal required integration matrix discovers this suite automatically. `.github/workflows/postgres-lock-pool.yml` additionally runs these five cases as a focused PR check with a PostgreSQL 18 service, avoiding a wait for the full integration shard. That focused check does not replace the required full PR gate.
+
+Local PostgreSQL execution stopped before running tests because localhost:5433 was unreachable. SQLite discovery finds all five cases and correctly skips them; this is not a PostgreSQL pass. Fixture types were generated successfully. The test TypeScript project reports existing cross-adapter/workspace errors, with no diagnostics in the new fixture files after correction. Formatting, workflow YAML and all 24 CI helper checks pass. The real PostgreSQL result is reported by GitHub Actions on the new PR revision.
+
 ## Remaining mission
 
 The requested resolution of every open issue is unfinished. Continue from the 542 unassessed snapshot entries: establish v4 applicability, inspect related fixes/PRs, reproduce the problem, add a meaningful regression test, then implement and validate. Feature requests and reports requiring a design decision or missing reproduction need separate treatment.

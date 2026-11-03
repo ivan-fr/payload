@@ -1,0 +1,57 @@
+name: PostgreSQL lock pool regression
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/postgres-lock-pool.yml'
+      - '.github/actions/setup/**'
+      - 'packages/payload/src/utilities/checkDocumentLockStatus.ts'
+      - 'packages/payload/src/collections/operations/**'
+      - 'packages/db-postgres/**'
+      - 'packages/drizzle/**'
+      - 'test/locked-documents/**'
+      - 'test/locked-documents-pool/**'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: postgres-lock-pool-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  postgres-lock-pool:
+    name: PostgreSQL pool max=1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: payload
+          POSTGRES_PASSWORD: payload
+          POSTGRES_DB: payload_lock_pool
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U payload -d payload_lock_pool"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PAYLOAD_DATABASE: postgres
+      POSTGRES_URL: postgresql://payload:payload@localhost:5432/payload_lock_pool
+      DO_NOT_TRACK: '1'
+      NEXT_TELEMETRY_DISABLED: '1'
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup
+      - name: Compile Payload CLI
+        run: pnpm --filter payload build:swc
+      - name: Run real PostgreSQL connection-pool regressions
+        run: pnpm test:int test/locked-documents-pool/int.spec.ts
