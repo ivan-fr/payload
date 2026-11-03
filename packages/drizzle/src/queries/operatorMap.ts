@@ -46,7 +46,7 @@ export type Operators = Record<OperatorKeys, (column: Column | SQL, value: unkno
 export const withLikeEscape =
   ({ operator }: { operator: typeof ilike }): Operators['like'] =>
   (column, value) =>
-    sql`${operator(column, value as Parameters<typeof ilike>[1])} ${sql.raw("ESCAPE '\\'")}`
+    sql`${operator(column, value as Parameters<typeof ilike>[1])} ${sql.raw(String.raw`ESCAPE '\'`)}`
 
 export const operatorMap: Operators = {
   and,
