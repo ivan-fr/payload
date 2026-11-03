@@ -8,15 +8,25 @@ export const countDistinct: CountDistinct = async function countDistinct(
   this: BasePostgresAdapter,
   { column, db, joins, tableName, where },
 ) {
-  // When we don't have any joins - use a simple COUNT(*) query.
-  if (joins.length === 0) {
-    const countResult = await db
+  // Unknown cardinality stays on the grouped path. Only proven to-one joins are safe here.
+  if (
+    joins.length === 0 ||
+    (!column &&
+      joins.every(({ type, isOneToMany }) => isOneToMany === false && type !== 'rightJoin'))
+  ) {
+    let query = db
       .select({
         count: column ? count(sql`DISTINCT ${column}`) : count(),
       })
       .from(this.tables[tableName])
       .where(where)
+      .$dynamic()
 
+    for (const { type, condition, table } of joins) {
+      query = query[type ?? 'leftJoin'](table as PgTableWithColumns<any>, condition)
+    }
+
+    const countResult = await query
     return Number(countResult?.[0]?.count ?? 0)
   }
 
@@ -34,7 +44,7 @@ export const countDistinct: CountDistinct = async function countDistinct(
     query = query[type ?? 'leftJoin'](table as PgTableWithColumns<any>, condition)
   })
 
-  // When we have any joins, we need to count each individual ID only once.
+  // Potentially multiplying joins require counting each individual ID only once.
   // COUNT(*) doesn't work for this well in this case, as it also counts joined tables.
   // SELECT (COUNT DISTINCT id) has a very slow performance on large tables.
   // Instead, COUNT (GROUP BY id) can be used which is still slower than COUNT(*) but acceptable.

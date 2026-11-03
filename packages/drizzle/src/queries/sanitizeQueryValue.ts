@@ -86,9 +86,15 @@ export const sanitizeQueryValue = ({
     }
   }
 
-  if (isUUID && typeof formattedValue === 'string') {
-    if (!uuidValidate(val)) {
+  if (isUUID && operator !== 'exists') {
+    if (formattedValue === 'null') {
       formattedValue = null
+    }
+    const values = Array.isArray(formattedValue) ? formattedValue : [formattedValue]
+    for (const value of values) {
+      if (typeof value === 'string' && value !== 'null' && !uuidValidate(value)) {
+        throw new APIError(`Invalid UUID query value: ${value}`, 400)
+      }
     }
   }
 
