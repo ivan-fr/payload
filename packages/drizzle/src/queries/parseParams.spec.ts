@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { DrizzleAdapter } from '../types.js'
 
-import { operatorMap } from './operatorMap.js'
+import { operatorMap, withLikeEscape } from './operatorMap.js'
 import { parseParams } from './parseParams.js'
 
 describe('SQL like query parsing', () => {
@@ -23,7 +23,11 @@ describe('SQL like query parsing', () => {
     const table = sqliteTable('posts', { id: integer('id'), title: text('title') })
     const adapter = {
       name: 'sqlite',
-      operators: { ...operatorMap, like, not_like: notLike },
+      operators: {
+        ...operatorMap,
+        like: withLikeEscape({ operator: like }),
+        not_like: withLikeEscape({ operator: notLike }),
+      },
       payload: { config: {} },
       tables: { posts: table },
     } as unknown as DrizzleAdapter
@@ -108,6 +112,94 @@ describe('SQL like query parsing', () => {
       expect(query.sql).toContain('<>')
       expect(query.sql).not.toContain('like')
       expect(query.params).toEqual([value])
+    },
+  )
+})
+
+describe('literal SQL search characters (#18325)', () => {
+  it.each(['like', 'not_like', 'contains'] as const)(
+    'should treat wildcard characters literally for %s',
+    (operator) => {
+      const table = sqliteTable('posts', { id: integer('id'), title: text('title') })
+      const adapter = {
+        name: 'sqlite',
+        operators: {
+          ...operatorMap,
+          contains: withLikeEscape({ operator: like }),
+          like: withLikeEscape({ operator: like }),
+          not_like: withLikeEscape({ operator: notLike }),
+        },
+        payload: { config: {} },
+        tables: { posts: table },
+      } as unknown as DrizzleAdapter
+      const db = new DatabaseSync(':memory:')
+      const titles = ['50% off', '500 off', 'a_b', 'axb', 'a\\b', 'ab']
+
+      try {
+        db.exec('CREATE TABLE posts (id integer, title text)')
+        titles.forEach((title, index) =>
+          db.prepare('INSERT INTO posts VALUES (?, ?)').run(index, title),
+        )
+        for (const [value, expected] of [
+          ['50%', '50% off'],
+          ['a_b', 'a_b'],
+          ['a\\b', 'a\\b'],
+        ]) {
+          const constraint = parseParams({
+            adapter,
+            context: { sort: undefined },
+            fields: [{ name: 'title', type: 'text' }],
+            joins: [],
+            parentIsLocalized: false,
+            selectFields: {},
+            tableName: 'posts',
+            where: { title: { [operator]: value } },
+          })
+          const query = new SQLiteSyncDialect().sqlToQuery(constraint)
+          const rows = db
+            .prepare(`SELECT title FROM posts WHERE ${query.sql}`)
+            .all(...(query.params as string[]))
+
+          expect(rows.map((row) => row.title).sort()).toEqual(
+            (operator === 'not_like'
+              ? titles.filter((title) => title !== expected)
+              : [expected]
+            ).sort(),
+          )
+        }
+      } finally {
+        db.close()
+      }
+    },
+  )
+})
+
+describe('Postgres literal search SQL (#18325)', () => {
+  it.each(['like', 'not_like', 'contains'] as const)(
+    'should bind escaped %s patterns and declare the escape character',
+    (operator) => {
+      const table = pgTable('posts', { title: pgText('title') })
+      const adapter = {
+        name: 'postgres',
+        operators: operatorMap,
+        payload: { config: {} },
+        tables: { posts: table },
+      } as unknown as DrizzleAdapter
+      const constraint = parseParams({
+        adapter,
+        context: { sort: undefined },
+        fields: [{ name: 'title', type: 'text' }],
+        joins: [],
+        parentIsLocalized: false,
+        selectFields: {},
+        tableName: 'posts',
+        where: { title: { [operator]: '50%_a\\b' } },
+      })
+      const query = new PgDialect().sqlToQuery(constraint)
+
+      expect(query.params).toEqual(['%50\\%\\_a\\\\b%'])
+      expect(query.sql).toContain(`ESCAPE '\\'`)
+      expect(query.sql).not.toContain('50%')
     },
   )
 })

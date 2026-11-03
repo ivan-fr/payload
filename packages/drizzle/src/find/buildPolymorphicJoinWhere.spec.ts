@@ -10,7 +10,7 @@ import { afterAll, describe, expect, it, vi } from 'vitest'
 import type { DrizzleAdapter, DrizzleOperandTransformHandler } from '../types.js'
 import type { PolymorphicJoinWherePlan } from './createPolymorphicJoinWherePlan.js'
 
-import { operatorMap } from '../queries/operatorMap.js'
+import { operatorMap, withLikeEscape } from '../queries/operatorMap.js'
 import { createJSONQuery } from '../sqlite/createJSONQuery/index.js'
 import { buildPolymorphicJoinWhere } from './buildPolymorphicJoinWhere.js'
 
@@ -46,9 +46,9 @@ const adapter = {
   operatorHandlers: [],
   operators: {
     ...operatorMap,
-    contains: like,
-    like,
-    not_like: notLike,
+    contains: withLikeEscape({ operator: like }),
+    like: withLikeEscape({ operator: like }),
+    not_like: withLikeEscape({ operator: notLike }),
   },
   payload: { collections: {} },
   tableNameMap: new Map([
@@ -291,7 +291,7 @@ describe('buildPolymorphicJoinWhere', () => {
       wherePlan: scalarPlan({ columnPath: 'title' }),
     })
 
-    expect(query.sql).toContain('"join_articles"."title" like ? and')
+    expect(query.sql).toContain(`"join_articles"."title" like ? ESCAPE '\\' and`)
     expect(query.params).toEqual(['%available%', '%child%'])
   })
 
@@ -554,4 +554,19 @@ describe('buildPolymorphicJoinWhere', () => {
       }),
     ).toThrow(operator)
   })
+})
+
+describe('polymorphic join literal search (#18325)', () => {
+  it.each(['like', 'contains'] as const)(
+    'should escape %s wildcard characters in joined text',
+    (operator) => {
+      const query = renderWhere({
+        where: { title: { [operator]: '50%_a\\b' } },
+        wherePlan: scalarPlan({ columnPath: 'title' }),
+      })
+
+      expect(query.params).toEqual(['%50\\%\\_a\\\\b%'])
+      expect(query.sql).toContain(`ESCAPE '\\'`)
+    },
+  )
 })

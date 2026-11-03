@@ -34,6 +34,7 @@ import { isValidStringID } from '../utilities/isValidStringID.js'
 import { DistinctSymbol, isRawConstraint } from '../utilities/rawConstraint.js'
 import { buildAndOrConditions } from './buildAndOrConditions.js'
 import { buildOperatorConstraint } from './buildOperatorConstraint.js'
+import { escapeLike } from './escapeLike.js'
 import { getTableAlias } from './getTableAlias.js'
 import { getTableColumnFromPath } from './getTableColumnFromPath.js'
 import { resolveRelationshipPath } from './resolveRelationshipPath.js'
@@ -341,7 +342,7 @@ export function parseParams({
                           originalOperator,
                           path: relationOrPath,
                           resolvedOperator,
-                          value: `%${word}%`,
+                          value: `%${escapeLike({ value: word })}%`,
                         }),
                       ),
                     ),

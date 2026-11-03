@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes twenty-four reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes thirty reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) records **565 open issues**, excluding pull requests. Twenty-three snapshot issues have scoped fixes here; **542 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **24 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) records **565 open issues**, excluding pull requests. Twenty-nine snapshot issues have scoped fixes here; **536 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **30 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -122,6 +122,30 @@ Local PostgreSQL execution stopped before running tests because localhost:5433 w
 
 ## Remaining mission
 
-The requested resolution of every open issue is unfinished. Continue from the 542 unassessed snapshot entries: establish v4 applicability, inspect related fixes/PRs, reproduce the problem, add a meaningful regression test, then implement and validate. Feature requests and reports requiring a design decision or missing reproduction need separate treatment.
+The requested resolution of every open issue is unfinished. Continue from the 536 unassessed snapshot entries: establish v4 applicability, inspect related fixes/PRs, reproduce the problem, add a meaningful regression test, then implement and validate. Feature requests and reports requiring a design decision or missing reproduction need separate treatment.
 
 High-impact candidates for subsequent investigation include scheduled-publish document access (#19192), bulk-operation base filters (#19189), and tenant isolation during bulk deletes (#16325). These are priorities to investigate, not claims of confirmed vulnerabilities on this branch.
+
+## Fifth batch: six additional open issues
+
+All six reports were checked open on the official repository on 2026-11-03 and reproduced against this v4 branch. The prior 24 fixes and fork main are preserved.
+
+| Official issue                                               | Result                                                                                                                              | Regression evidence                                                                                                                                                                                                                    |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#18584](https://github.com/payloadcms/payload/issues/18584) | Reject duplicate global slugs and collection/global slug collisions before database initialization, including internal collections. | Actual config sanitization; duplicate globals, user/internal collection collisions, and equal-label/distinct-slug controls.                                                                                                            |
+| [#19184](https://github.com/payloadcms/payload/issues/19184) | Prefix MongoDB draft default sorts with version paths and map document IDs to parent IDs; preserve explicitly supplied sorts.       | Actual draft query builder through the paginate boundary, scalar/multiple/missing defaults and explicit-sort control. A live MongoDB draft-read case is committed for CI.                                                              |
+| [#19056](https://github.com/payloadcms/payload/issues/19056) | Mark named GraphQL tabs with required subfields NonNull on create.                                                                  | Actual GraphQL input construction and coercion; direct/nested required fields, optional/hidden-only tabs, nullable updates.                                                                                                            |
+| [#18325](https://github.com/payloadcms/payload/issues/18325) | Escape literal %, _ and backslashes in SQL like/not_like/contains patterns, with an explicit common escape character.               | Real SQLite queries against matching and decoy records; PostgreSQL bound SQL and polymorphic-join query construction; Local API integration for all three operators. Custom operator-handler boundary tests remain unchanged and pass. |
+| [#19251](https://github.com/payloadcms/payload/issues/19251) | Resolve virtual references before populating relationship/upload values; respect denied field access.                               | Actual Local API reads at depths 0–3, uploads, hasMany, maxDepth, scalar aliases, denied aliases and explicit selection.                                                                                                               |
+| [#18494](https://github.com/payloadcms/payload/issues/18494) | Skip the outer bulk-update transaction when each document must use its own transaction.                                             | Real transaction-enabled SQLite: middle hook failure preserves earlier/later successful writes and returned results; bulk delete control and empty session registry. The already-correct v4 delete implementation is unchanged.        |
+
+The initial four-file unit baseline had **9 failures and 14 passing controls**. The integration baseline with real SQLite transactions had **5 failures and 1 passing delete control**: unpopulated relationships, denied virtual data reappearing, and earlier bulk updates being rolled back despite being returned as successes. Tests now cover the fixes plus additional controls.
+
+Validation on this revision:
+
+- **2,055 unit tests passed across 206 files**, with two pre-existing skips, including core, GraphQL, Drizzle, MongoDB, PostgreSQL, SQLite and the previously covered plugins/storage packages.
+- **9 SQLite integration tests passed**, with one MongoDB-only draft-read case skipped. SQLite transactions are explicitly enabled for this fixture. The SQL searches use decoys so overmatching cannot pass unnoticed.
+- TypeScript builds for PostgreSQL, MongoDB, SQLite and GraphQL pass; package/tool lint, repository formatting and all 24 CI helper tests pass.
+- The integration test TypeScript project still includes existing cross-adapter/workspace diagnostics; no diagnostics reference the new fixture files.
+
+A live MongoDB/Cosmos DB or PostgreSQL result is not established by these local checks. The full required Actions matrix must validate the final PR commit before merge. The new shared-fixture suite is discovered by that matrix; no required checks have been removed or relaxed. The separate PostgreSQL max=1 regression was already green on the preceding commit and runs again on the updated PR.

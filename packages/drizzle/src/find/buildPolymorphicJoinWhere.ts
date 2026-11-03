@@ -13,6 +13,7 @@ import type {
 } from './createPolymorphicJoinWherePlan.js'
 
 import { buildOperatorConstraint } from '../queries/buildOperatorConstraint.js'
+import { escapeLike } from '../queries/escapeLike.js'
 import { sanitizeQueryValue } from '../queries/sanitizeQueryValue.js'
 
 const supportedJSONQueryOperators = new Set(['contains', 'equals', 'exists', 'in', 'like'])
@@ -241,7 +242,9 @@ export const buildPolymorphicJoinWhere = ({
       }
 
       if (payloadOperator === 'like' && typeof value === 'string') {
-        const wordConstraints = value.split(' ').map((word) => buildColumnConstraint(`%${word}%`))
+        const wordConstraints = value
+          .split(' ')
+          .map((word) => buildColumnConstraint(`%${escapeLike({ value: word })}%`))
         const wordCondition = and(...wordConstraints)
 
         if (wordCondition) {

@@ -348,28 +348,6 @@ export const promise = async ({
       }
     }
 
-    if (
-      'virtual' in field &&
-      typeof field.virtual === 'string' &&
-      (!field.hidden || showHiddenFields)
-    ) {
-      populationPromises.push(
-        virtualFieldPopulationPromise({
-          name: field.name,
-          draft,
-          fallbackLocale: fallbackLocale!,
-          fields: (collection || global)!.flattenedFields,
-          locale: locale!,
-          overrideAccess,
-          ref: doc,
-          req,
-          segments: field.virtual.split('.'),
-          showHiddenFields,
-          siblingDoc,
-        }),
-      )
-    }
-
     // Execute access control
     let allowDefaultValue = true
     if (triggerAccessControl && field.access && field.access.read) {
@@ -420,22 +398,49 @@ export const promise = async ({
       })
     }
 
+    let virtualPopulationPromise: Promise<void> | undefined
+
+    if (
+      allowDefaultValue &&
+      !removedFieldValue &&
+      'virtual' in field &&
+      typeof field.virtual === 'string' &&
+      (!field.hidden || showHiddenFields)
+    ) {
+      virtualPopulationPromise = virtualFieldPopulationPromise({
+        name: field.name,
+        draft,
+        fallbackLocale: fallbackLocale!,
+        fields: (collection || global)!.flattenedFields,
+        locale: locale!,
+        overrideAccess,
+        ref: doc,
+        req,
+        segments: field.virtual.split('.'),
+        showHiddenFields,
+        siblingDoc,
+      })
+      populationPromises.push(virtualPopulationPromise)
+    }
+
     if (field.type === 'relationship' || field.type === 'upload' || field.type === 'join') {
       populationPromises.push(
-        relationshipPopulationPromise({
-          currentDepth,
-          depth,
-          draft,
-          fallbackLocale,
-          field,
-          locale,
-          overrideAccess,
-          parentIsLocalized: parentIsLocalized!,
-          populate,
-          req,
-          showHiddenFields,
-          siblingDoc,
-        }),
+        (virtualPopulationPromise ?? Promise.resolve()).then(() =>
+          relationshipPopulationPromise({
+            currentDepth,
+            depth,
+            draft,
+            fallbackLocale,
+            field,
+            locale,
+            overrideAccess,
+            parentIsLocalized: parentIsLocalized!,
+            populate,
+            req,
+            showHiddenFields,
+            siblingDoc,
+          }),
+        ),
       )
     }
   }

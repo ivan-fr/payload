@@ -40,6 +40,7 @@ import {
   updateOne,
   updateVersion,
   upsert,
+  withLikeEscape,
 } from '@payloadcms/drizzle'
 import {
   columnToCodeConverter,
@@ -86,9 +87,9 @@ export function sqliteAdapter(args: Args): DatabaseAdapterObj<SQLiteAdapter> {
     // sqlite's like operator is case-insensitive, so we overwrite the DrizzleAdapter operators to not use ilike
     const operators = {
       ...operatorMap,
-      contains: like,
-      like,
-      not_like: notLike,
+      contains: withLikeEscape({ operator: like }),
+      like: withLikeEscape({ operator: like }),
+      not_like: withLikeEscape({ operator: notLike }),
     } as unknown as Operators
 
     let wal: false | WalConfig = false

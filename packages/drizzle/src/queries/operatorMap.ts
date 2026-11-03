@@ -15,6 +15,7 @@ import {
   notInArray,
   or,
   type SQL,
+  sql,
 } from 'drizzle-orm'
 
 export type OperatorKeys =
@@ -42,9 +43,14 @@ export type DrizzleResolvedOperator = Exclude<OperatorKeys, 'and' | 'or'>
 
 export type Operators = Record<OperatorKeys, (column: Column | SQL, value: unknown) => SQL>
 
+export const withLikeEscape =
+  ({ operator }: { operator: typeof ilike }): Operators['like'] =>
+  (column, value) =>
+    sql`${operator(column, value as Parameters<typeof ilike>[1])} ${sql.raw("ESCAPE '\\'")}`
+
 export const operatorMap: Operators = {
   and,
-  contains: ilike,
+  contains: withLikeEscape({ operator: ilike }),
   equals: eq,
   exists: isNotNull,
   greater_than: gt,
@@ -53,9 +59,9 @@ export const operatorMap: Operators = {
   isNull, // handles exists: false
   less_than: lt,
   less_than_equal: lte,
-  like: ilike,
+  like: withLikeEscape({ operator: ilike }),
   not_equals: ne,
-  not_like: notIlike,
+  not_like: withLikeEscape({ operator: notIlike }),
   // TODO: support this
   // all: all,
   not_in: notInArray,
