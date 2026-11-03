@@ -59,6 +59,21 @@ describe('isolateObjectProperty', () => {
     })
   })
 
+  it('should preserve Request constructors and custom method receivers', () => {
+    const request = Object.assign(new Request('https://cms.example'), {
+      locale: 'fr',
+      getLocale() {
+        return this.locale
+      },
+    })
+    const scoped = isolateObjectProperty(request, 'locale')
+    scoped.locale = 'en'
+
+    expect(scoped.constructor).toBe(Request)
+    expect(scoped.getLocale()).toBe('en')
+    expect(request.locale).toBe('fr')
+  })
+
   describe('private field access (Node 24+ compatibility)', () => {
     /**
      * Class with private fields to test that the proxy correctly handles

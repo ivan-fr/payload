@@ -4,6 +4,7 @@ import type { PayloadRequest } from '../types/index.js'
 import { getDataLoader } from '../collections/dataloader.js'
 import { getLocalI18n } from '../translations/getLocalI18n.js'
 import { sanitizeFallbackLocale } from '../utilities/sanitizeFallbackLocale.js'
+import { isolateObjectProperty } from './isolateObjectProperty.js'
 
 function getRequestContext(
   req: Partial<PayloadRequest> = { context: null } as unknown as PayloadRequest,
@@ -104,10 +105,23 @@ export const createPayloadRequest: CreatePayloadRequest = async ({
   fallbackLocale,
   locale: localeArg,
   payload,
-  req = {},
+  req: incomingReq,
   urlSuffix,
   user,
 }): Promise<PayloadRequest> => {
+  let req = incomingReq || {}
+  const requestedLocale = localeArg === '*' ? 'all' : localeArg
+  const shouldIsolateScope =
+    Boolean(incomingReq) &&
+    ((localeArg !== undefined && requestedLocale !== req.locale) ||
+      (fallbackLocale !== undefined && fallbackLocale !== req.fallbackLocale) ||
+      (depth !== undefined && depth !== req.query?.depth))
+
+  if (shouldIsolateScope) {
+    req = isolateObjectProperty(req, ['locale', 'fallbackLocale', 'query', 'payloadDataLoader'])
+    req.query = isolateObjectProperty(req.query || {}, 'depth')
+  }
+
   const localization = payload.config?.localization
 
   if (localization) {
@@ -148,7 +162,9 @@ export const createPayloadRequest: CreatePayloadRequest = async ({
     req.user = { ...req.user, collection: payload.config.admin.user }
   }
 
-  req.payloadDataLoader = req?.payloadDataLoader || getDataLoader(req as PayloadRequest)
+  req.payloadDataLoader = shouldIsolateScope
+    ? getDataLoader(req as PayloadRequest)
+    : req?.payloadDataLoader || getDataLoader(req as PayloadRequest)
   req.routeParams = req?.routeParams || {}
   req.query = req?.query || {}
 

@@ -4,6 +4,7 @@
 export function isolateObjectProperty<T extends object>(object: T, key: (keyof T)[] | keyof T): T {
   const keys = Array.isArray(key) ? key : [key]
   const delegate = {} as T
+  const requestMethods = new Map<PropertyKey, { bound: unknown; original: unknown }>()
 
   // Initialize delegate with the keys, if they exist in the original object
   for (const k of keys) {
@@ -21,7 +22,27 @@ export function isolateObjectProperty<T extends object>(object: T, key: (keyof T
         return Reflect.get(delegate, p, receiver)
       }
       // Use target as receiver to preserve private field access (e.g., Request#headers in Node 24+)
-      return Reflect.get(target, p, target)
+      const value = Reflect.get(target, p, target)
+
+      // Native Request body methods also require their original receiver for private fields.
+      // Leave application methods unbound so they can still read isolated properties.
+      if (
+        p !== 'constructor' &&
+        typeof Request !== 'undefined' &&
+        target instanceof Request &&
+        typeof value === 'function' &&
+        Reflect.getOwnPropertyDescriptor(Request.prototype, p)?.value === value
+      ) {
+        const cached = requestMethods.get(p)
+        if (cached?.original === value) {
+          return cached.bound
+        }
+        const bound = value.bind(target)
+        requestMethods.set(p, { bound, original: value })
+        return bound
+      }
+
+      return value
     },
     has(target, p) {
       return Reflect.has(keys.includes(p as keyof T) ? delegate : target, p)

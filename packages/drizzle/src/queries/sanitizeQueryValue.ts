@@ -8,7 +8,6 @@ import type { DrizzleAdapter } from '../types.js'
 
 import { getCollectionIdType } from '../utilities/getCollectionIdType.js'
 import { isPolymorphicRelationship } from '../utilities/isPolymorphicRelationship.js'
-import { isUUIDType } from '../utilities/isUUIDType.js'
 import { isRawConstraint } from '../utilities/rawConstraint.js'
 import { escapeLike } from './escapeLike.js'
 
@@ -36,7 +35,6 @@ export const sanitizeQueryValue = ({
   field,
   isUUID,
   operator: operatorArg,
-  relationOrPath,
   val,
 }: SanitizeQueryValueArgs): {
   columns?: SanitizedColumn[]
@@ -54,24 +52,6 @@ export const sanitizeQueryValue = ({
   if (isRawConstraint(val)) {
     return { operator, value: val.value }
   }
-  if (
-    (field.type === 'relationship' || field.type === 'upload') &&
-    !relationOrPath.endsWith('relationTo') &&
-    Array.isArray(formattedValue)
-  ) {
-    const allPossibleIDTypes: (number | string)[] = []
-    formattedValue.forEach((val) => {
-      if (!isUUIDType(adapter.idType) && typeof val === 'string') {
-        allPossibleIDTypes.push(val, parseInt(val))
-      } else if (typeof val === 'string') {
-        allPossibleIDTypes.push(val)
-      } else {
-        allPossibleIDTypes.push(val, String(val))
-      }
-    })
-    formattedValue = allPossibleIDTypes
-  }
-
   // Cast incoming values as proper searchable types
   if (field.type === 'checkbox' && typeof val === 'string') {
     if (val.toLowerCase() === 'true') {
@@ -214,21 +194,27 @@ export const sanitizeQueryValue = ({
 
             return {
               rawColumn,
-              value: formattedValue,
+              value: Array.isArray(formattedValue)
+                ? [...new Set<number | string>(formattedValue)]
+                : formattedValue,
             }
           })
           .filter(Boolean)
       }
       if (Array.isArray(formattedValue)) {
-        formattedValue = formattedValue.map((value) => {
-          if (idType === 'number') {
-            return Number(value)
-          }
-          if (idType === 'text') {
-            return String(value)
-          }
-          return value
-        })
+        formattedValue = [
+          ...new Set(
+            formattedValue.map((value) => {
+              if (idType === 'number') {
+                return Number(value)
+              }
+              if (idType === 'text') {
+                return String(value)
+              }
+              return value
+            }),
+          ),
+        ]
       } else {
         if (idType === 'number') {
           formattedValue = Number(val)

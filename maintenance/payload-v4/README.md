@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes forty-eight reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes fifty-four reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) records **565 open issues**, excluding pull requests. Forty-seven snapshot issues have scoped fixes here; **518 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **48 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) records **565 open issues**, excluding pull requests. Fifty-three snapshot issues have scoped fixes here; **512 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **54 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -161,3 +161,7 @@ PR #3 now adds twelve scoped fixes to the thirty already merged on main. The lat
 ## Eighth batch: six further issues on PR #3
 
 PR #3 now adds eighteen scoped fixes to the thirty already merged on main. The latest six are #17201, #17904, #17906, #18623, #18874 and #19021. See [batch-8.md](batch-8.md) for scope, reproduction, validation and remaining runtime/browser/install checks. Header scoping is opt-in through `withPayload(nextConfig, { clientHintHeaders: '/admin/:path*' })`; omitting it preserves the existing all-route behavior.
+
+## Ninth batch: six additional data and lifecycle regressions
+
+PR #3 now adds twenty-four scoped fixes to the thirty already merged on main. The latest six are #16485, #17760, #17762, #18251, #18285 and #18844. See [batch-9.md](batch-9.md) for reproduction, regression coverage and validation limits. This includes both defects reported in #18251; it is counted as one issue.
