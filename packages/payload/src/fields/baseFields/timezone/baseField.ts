@@ -11,6 +11,9 @@ export const baseTimezoneField: (
       hidden: true,
     },
     defaultValue,
+    hooks: {
+      beforeValidate: [({ value }) => (value === '' ? null : value)],
+    },
     label,
     options: options!,
     required,

@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes sixty reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes sixty-six reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) records **565 open issues**, excluding pull requests. Fifty-nine snapshot issues have scoped fixes here; **506 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **60 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) records **565 open issues**, excluding pull requests. Sixty-five snapshot issues have scoped fixes here; **500 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **66 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -169,3 +169,7 @@ PR #3 now adds twenty-four scoped fixes to the thirty already merged on main. Th
 ## PR #3: six additional plugin reports
 
 PR #3 now adds thirty scoped fixes to the thirty already merged on main. The latest six are #16517, #17658, #14328, #19253, #9226 and #18311. See [batch-10.md](batch-10.md) for reproduction and validation. The SEO change covers manual global fields; manual collection fields already work in this base. Internal numeric link IDs no longer abort email delivery, but mapping IDs to site URLs remains application-specific. The fork remains public.
+
+## PR #3: six additional validation and synchronization reports
+
+PR #3 now adds thirty-six scoped fixes to the thirty already merged on main. The latest six are #15334, #16283, #16980, #17699, #17882 and #19231. See [batch-11.md](batch-11.md) for reproduction, coverage and limits. These cover rollback order, optional timezone normalization, rejected invalid blocks/select queries, surfaced search synchronization failures and export labels. The fork remains public.

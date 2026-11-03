@@ -11,6 +11,9 @@ export const syncDocAsSearchIndex = async ({
   req,
 }: SyncDocArgs) => {
   const { id, _status: status, title } = doc || {}
+  const transactionID = await req.transactionID
+  const hasParentTransaction =
+    typeof transactionID === 'string' || typeof transactionID === 'number'
 
   const { beforeSync, defaultPriorities, deleteDrafts, searchOverrides, syncDrafts } = pluginConfig
 
@@ -112,10 +115,7 @@ export const syncDocAsSearchIndex = async ({
     if (operation === 'create' && doSync) {
       await payload.create({
         collection: searchSlug,
-        data: {
-          ...dataToSave,
-          priority: defaultPriority,
-        },
+        data: { ...dataToSave, priority: defaultPriority },
         depth: 0,
         locale: syncLocale,
         overrideAccess: true,
@@ -124,59 +124,68 @@ export const syncDocAsSearchIndex = async ({
     }
 
     if (operation === 'update') {
-      try {
-        // find the correct doc to sync with
-        const searchDocQuery = await payload.find({
+      const searchDocQuery = await payload.find({
+        collection: searchSlug,
+        depth: 0,
+        locale: syncLocale,
+        overrideAccess: true,
+        req,
+        where: {
+          'doc.relationTo': { equals: collection },
+          'doc.value': { equals: id },
+        },
+      })
+      const docs: Array<{ id: number | string; priority?: number }> = searchDocQuery?.docs || []
+      const [foundDoc, ...duplicativeDocs] = docs
+
+      if (duplicativeDocs.length > 0) {
+        await payload.delete({
           collection: searchSlug,
           depth: 0,
-          locale: syncLocale,
           overrideAccess: true,
           req,
-          where: {
-            'doc.relationTo': {
-              equals: collection,
-            },
-            'doc.value': {
-              equals: id,
-            },
-          },
+          where: { id: { in: duplicativeDocs.map(({ id }) => id) } },
         })
+      }
 
-        const docs: Array<{
-          id: number | string
-          priority?: number
-        }> = searchDocQuery?.docs || []
-
-        const [foundDoc, ...duplicativeDocs] = docs
-
-        // delete all duplicative search docs (docs that reference the same page)
-        // to ensure the same, out-of-date result does not appear twice (where only syncing the first found doc)
-        if (duplicativeDocs.length > 0) {
-          try {
-            const duplicativeDocIDs = duplicativeDocs.map(({ id }) => id)
-            await payload.delete({
+      if (foundDoc) {
+        const searchDocID = foundDoc.id
+        const isTrashDocument = doc && 'deletedAt' in doc && doc.deletedAt
+        if (isTrashDocument) {
+          await payload.delete({
+            id: searchDocID,
+            collection: searchSlug,
+            depth: 0,
+            overrideAccess: true,
+            req,
+          })
+        } else {
+          if (doSync) {
+            await payload.update({
+              id: searchDocID,
               collection: searchSlug,
+              data: { ...dataToSave, priority: foundDoc.priority || defaultPriority },
               depth: 0,
+              locale: syncLocale,
               overrideAccess: true,
               req,
-              where: { id: { in: duplicativeDocIDs } },
-            })
-          } catch (err: unknown) {
-            payload.logger.error({
-              err,
-              msg: `Error deleting duplicative ${searchSlug} documents.`,
             })
           }
-        }
-
-        if (foundDoc) {
-          const { id: searchDocID } = foundDoc
-
-          // Check if document is trashed and delete from search
-          const isTrashDocument = doc && 'deletedAt' in doc && doc.deletedAt
-
-          if (isTrashDocument) {
-            try {
+          if (deleteDrafts && status === 'draft') {
+            const {
+              docs: [docWithPublish],
+            } = await payload.find({
+              collection,
+              depth: 0,
+              draft: false,
+              limit: 1,
+              locale: syncLocale,
+              overrideAccess: true,
+              pagination: false,
+              req,
+              where: { and: [{ _status: { equals: 'published' } }, { id: { equals: id } }] },
+            })
+            if (!docWithPublish) {
               await payload.delete({
                 id: searchDocID,
                 collection: searchSlug,
@@ -184,108 +193,31 @@ export const syncDocAsSearchIndex = async ({
                 overrideAccess: true,
                 req,
               })
-            } catch (err: unknown) {
-              payload.logger.error({
-                err,
-                msg: `Error deleting ${searchSlug} document for trashed doc.`,
-              })
             }
-          } else {
-            if (doSync) {
-              // update the doc normally
-              try {
-                await payload.update({
-                  id: searchDocID,
-                  collection: searchSlug,
-                  data: {
-                    ...dataToSave,
-                    priority: foundDoc.priority || defaultPriority,
-                  },
-                  depth: 0,
-                  locale: syncLocale,
-                  overrideAccess: true,
-                  req,
-                })
-              } catch (err: unknown) {
-                payload.logger.error({ err, msg: `Error updating ${searchSlug} document.` })
-              }
-            }
-
-            if (deleteDrafts && status === 'draft') {
-              // Check to see if there's a published version of the doc
-              // We don't want to remove the search doc if there is a published version but a new draft has been created
-              const {
-                docs: [docWithPublish],
-              } = await payload.find({
-                collection,
-                depth: 0,
-                draft: false,
-                limit: 1,
-                locale: syncLocale,
-                overrideAccess: true,
-                pagination: false,
-                req,
-                where: {
-                  and: [
-                    {
-                      _status: {
-                        equals: 'published',
-                      },
-                    },
-                    {
-                      id: {
-                        equals: id,
-                      },
-                    },
-                  ],
-                },
-              })
-
-              if (!docWithPublish) {
-                // do not include draft docs in search results, so delete the record
-                try {
-                  await payload.delete({
-                    id: searchDocID,
-                    collection: searchSlug,
-                    depth: 0,
-                    overrideAccess: true,
-                    req,
-                  })
-                } catch (err: unknown) {
-                  payload.logger.error({ err, msg: `Error deleting ${searchSlug} document.` })
-                }
-              }
-            }
-          }
-        } else if (doSync) {
-          try {
-            await payload.create({
-              collection: searchSlug,
-              data: {
-                ...dataToSave,
-                priority: defaultPriority,
-              },
-              depth: 0,
-              locale: syncLocale,
-              overrideAccess: true,
-              req,
-            })
-          } catch (err: unknown) {
-            payload.logger.error({ err, msg: `Error creating ${searchSlug} document.` })
           }
         }
-      } catch (err: unknown) {
-        payload.logger.error({ err, msg: `Error finding ${searchSlug} document.` })
+      } else if (doSync) {
+        await payload.create({
+          collection: searchSlug,
+          data: { ...dataToSave, priority: defaultPriority },
+          depth: 0,
+          locale: syncLocale,
+          overrideAccess: true,
+          req,
+        })
       }
     }
   } catch (err: unknown) {
+    syncedDocsSet.delete(docKey)
     payload.logger.error({
       err,
       msg: `Error syncing ${searchSlug} document related to ${collection} with id: '${id}'.`,
     })
-
-    if (onSyncError) {
-      onSyncError()
+    onSyncError?.()
+    // Standalone reindexing explicitly collects failures. A shared transaction
+    // cannot recover after a failed write, so its caller must always see the error.
+    if (!onSyncError || hasParentTransaction) {
+      throw err
     }
   }
 

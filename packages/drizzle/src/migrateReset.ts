@@ -30,7 +30,6 @@ export async function migrateReset(this: DrizzleAdapter): Promise<MigrationResul
 
   const req = await createPayloadRequest({ payload })
 
-  existingMigrations.reverse()
   const rolledBack: string[] = []
 
   // Rollback all migrations in order
@@ -63,7 +62,7 @@ export async function migrateReset(this: DrizzleAdapter): Promise<MigrationResul
       await commitTransaction(req)
       rolledBack.push(migrationFile.name)
     } catch (err: unknown) {
-      let msg = `Error running migration ${migrationFile.name}.`
+      let msg = `Error running migration ${migration.name}.`
 
       if (err instanceof Error) {
         msg += ` ${err.message}`
