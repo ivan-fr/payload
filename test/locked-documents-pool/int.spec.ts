@@ -85,7 +85,9 @@ test.suite(
             pagination: false,
             where: {},
           }),
-        ).rejects.toThrow(/timeout|timed out/i)
+        ).rejects.toMatchObject({
+          cause: expect.objectContaining({ message: expect.stringMatching(/timeout|timed out/i) }),
+        })
       } finally {
         await killTransaction(req)
       }
