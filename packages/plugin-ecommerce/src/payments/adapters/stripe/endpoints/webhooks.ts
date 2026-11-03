@@ -28,6 +28,7 @@ export const webhooksEndpoint: (props: Props) => Endpoint = (props) => {
           name: 'Stripe Payload Plugin',
           url: 'https://payloadcms.com',
         },
+        httpClient: Stripe.createFetchHttpClient(),
       })
 
       const body = await req.text()

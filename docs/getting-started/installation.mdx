@@ -168,6 +168,16 @@ export default withPayload(nextConfig) // highlight-line
   `withPayload` function is an ECMAScript module.
 </Banner>
 
+By default, `withPayload` sends theme client-hint headers on every route. To avoid a cold-navigation retry on public pages, scope the headers to your configured Admin route:
+
+```js
+export default withPayload(nextConfig, {
+  clientHintHeaders: '/admin/:path*',
+})
+```
+
+Use your custom Admin path instead of `/admin` when applicable. Next.js adds `basePath` automatically, so do not include it twice. Set `clientHintHeaders: false` to disable theme hints, or omit the option to retain the default on all routes. Scoping the hints to the Admin retains its server-side theme detection. Existing custom headers and the global `X-Powered-By` setting are preserved.
+
 To import the Payload Plugin, you need to make sure your `next.config` file is set up to use ESM.
 
 You can do this in one of two ways:

@@ -144,7 +144,7 @@ Review the results afterwards. Leave the property off, or set it to `overrideAcc
 
 #### Cases the codemod leaves behind
 
-Run a typecheck after the codemod. Three patterns it cannot resolve:
+Review the codemod notes as well as running a typecheck. For recognized Payload calls with spread or non-literal arguments, notes include the file, original line, callee and reason. These optional arguments still typecheck without an explicit access decision. Three patterns it cannot resolve:
 
 - **Spread arguments** — `payload.find({ ...args })`. The codemod cannot tell whether `args` already supplies the property.
 - **Aliased or cast receivers** — `const db = payload; db.find({ ... })` and `(payload as any).find({ ... })`. It matches `payload`, `.payload`, and their `.jobs` properties only.

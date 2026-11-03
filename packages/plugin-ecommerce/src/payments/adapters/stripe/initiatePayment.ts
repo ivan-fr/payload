@@ -51,6 +51,7 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
         name: 'Stripe Payload Plugin',
         url: 'https://payloadcms.com',
       },
+      httpClient: Stripe.createFetchHttpClient(),
     })
 
     try {

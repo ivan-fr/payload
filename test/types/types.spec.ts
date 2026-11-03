@@ -969,8 +969,8 @@ describe('Types testing', () => {
   })
 
   describe('joins', () => {
-    test('join query for pages should have type never as pages does not define any joins', () => {
-      expect<JoinQuery<'pages'>>().type.toBe<never>()
+    test('join query for pages should allow only false as pages does not define any joins', () => {
+      expect<JoinQuery<'pages'>>().type.toBe<false>()
     })
 
     test('join query for pages-categories should be defined with the relatedPages key', () => {

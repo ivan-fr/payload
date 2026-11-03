@@ -58,6 +58,44 @@ test.suite('Server regressions batch 7', { config: './config.ts' }, () => {
     ).rejects.toThrow()
   })
 
+  test('should return a translated duplicate error in the real REST response (#19021)', async ({
+    payload,
+    restClient,
+  }) => {
+    const product = await payload.create({
+      collection: productsSlug,
+      data: { title: 'Shirt', variantTypes: ['size'] },
+    })
+    await payload.create({
+      collection: variantsSlug,
+      data: { product: product.id, options: ['small'] },
+    })
+    const response = await restClient.POST(`/${variantsSlug}`, {
+      body: JSON.stringify({ product: product.id, options: ['small'] }),
+    })
+
+    expect(response.status).toBe(400)
+    const result = await response.json()
+    expect(result).toMatchObject({
+      errors: [
+        {
+          name: 'ValidationError',
+          data: {
+            collection: variantsSlug,
+            errors: [
+              {
+                path: 'options',
+                message:
+                  'This variant combo is already in use by another variant. Please select different options.',
+              },
+            ],
+          },
+        },
+      ],
+    })
+    expect(JSON.stringify(result)).not.toContain('ecommerce:variantOptionsAlreadyExists')
+  })
+
   test('should omit all joins through real REST reads using joins=false (#17929)', async ({
     payload,
     restClient,

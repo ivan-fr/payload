@@ -19,10 +19,17 @@ const poweredByHeader = {
 /**
  * @param {import('next').NextConfig} nextConfig
  * @param {Object} [options] - Optional configuration options
+ * @param {false | string} [options.clientHintHeaders] - Route pattern for theme client-hint headers, or false to disable. Defaults to '/:path*'. Next.js applies basePath to the pattern automatically.
  * @param {boolean} [options.devBundleServerPackages] - Whether to bundle server packages in development mode. @default false
  * */
 export const withPayload = (nextConfig = {}, options = {}) => {
   const env = { ...nextConfig.env }
+  const clientHintSource = options.clientHintHeaders ?? '/:path*'
+  const themeHintHeaders = [
+    { key: 'Accept-CH', value: 'Sec-CH-Prefers-Color-Scheme' },
+    { key: 'Vary', value: 'Sec-CH-Prefers-Color-Scheme' },
+    { key: 'Critical-CH', value: 'Sec-CH-Prefers-Color-Scheme' },
+  ]
   // Adds `export const instant = false` to the admin layout and page. See `instantLoader.js` for
   // why this cannot live in the generated admin files.
   const instantLoader = nextConfig.cacheComponents
@@ -125,24 +132,20 @@ export const withPayload = (nextConfig = {}, options = {}) => {
 
       return [
         ...(headersFromConfig || []),
-        {
-          headers: [
-            {
-              key: 'Accept-CH',
-              value: 'Sec-CH-Prefers-Color-Scheme',
-            },
-            {
-              key: 'Vary',
-              value: 'Sec-CH-Prefers-Color-Scheme',
-            },
-            {
-              key: 'Critical-CH',
-              value: 'Sec-CH-Prefers-Color-Scheme',
-            },
-            ...(nextConfig.poweredByHeader !== false ? [poweredByHeader] : []),
-          ],
-          source: '/:path*',
-        },
+        ...(clientHintSource === '/:path*' || nextConfig.poweredByHeader !== false
+          ? [
+              {
+                headers: [
+                  ...(clientHintSource === '/:path*' ? themeHintHeaders : []),
+                  ...(nextConfig.poweredByHeader !== false ? [poweredByHeader] : []),
+                ],
+                source: '/:path*',
+              },
+            ]
+          : []),
+        ...(clientHintSource && clientHintSource !== '/:path*'
+          ? [{ headers: themeHintHeaders, source: clientHintSource }]
+          : []),
       ]
     },
     serverExternalPackages: [

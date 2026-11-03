@@ -11,7 +11,7 @@ vi.mock('stripe', () => {
     }
   }
 
-  return { default: MockStripe }
+  return { default: Object.assign(MockStripe, { createFetchHttpClient: () => ({}) }) }
 })
 
 import { confirmOrder } from './confirmOrder.js'

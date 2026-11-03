@@ -42,7 +42,7 @@ describe('legacy sibling variant options (#16368)', () => {
     const { options } = harness([{ id: 'legacy' }, { id: 'valid', options: ['small'] }])
 
     expect(await validateOptions()(['small'], options)).toBe(
-      'ecommerce:variantOptionsAlreadyExists',
+      'plugin-ecommerce:variantOptionsAlreadyExists',
     )
   })
 })

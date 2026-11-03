@@ -57,6 +57,7 @@ export const addOverrideAccessTrue: Transform = {
   name: 'add-override-access-true',
   apply: ({ project }) => {
     const filesChanged = new Set<string>()
+    const notes: string[] = []
 
     for (const sourceFile of project.getSourceFiles()) {
       const insertions: Insertion[] = []
@@ -93,6 +94,9 @@ export const addOverrideAccessTrue: Transform = {
         const object = firstArg && getObjectLiteral({ node: firstArg })
 
         if (!object) {
+          notes.push(
+            `${sourceFile.getFilePath()}:${node.getStartLineNumber()}: ${callee.getText()} options are not an object literal. Review overrideAccess manually; the v4 default is false.`,
+          )
           return
         }
 
@@ -102,6 +106,9 @@ export const addOverrideAccessTrue: Transform = {
 
         // A spread may already carry the property. Refuse to guess.
         if (object.getProperties().some((property) => Node.isSpreadAssignment(property))) {
+          notes.push(
+            `${sourceFile.getFilePath()}:${node.getStartLineNumber()}: ${callee.getText()} options contain a spread that may supply overrideAccess. Review it manually; the v4 default is false.`,
+          )
           return
         }
 
@@ -121,7 +128,7 @@ export const addOverrideAccessTrue: Transform = {
       filesChanged.add(sourceFile.getFilePath())
     }
 
-    return { filesChanged: [...filesChanged] }
+    return { filesChanged: [...filesChanged], ...(notes.length > 0 ? { notes } : {}) }
   },
   description:
     'Add an explicit `overrideAccess: true` to Local API calls that omit it. Payload 4 changes the default to `false`; `true` preserves the Payload 3 default of skipping access control. Review each inserted value and switch to `false` wherever the operation acts on behalf of a user.',

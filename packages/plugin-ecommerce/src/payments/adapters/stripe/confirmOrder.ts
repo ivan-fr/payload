@@ -43,6 +43,7 @@ export const confirmOrder: (props: Props) => NonNullable<PaymentAdapter>['confir
         name: 'Stripe Payload Plugin',
         url: 'https://payloadcms.com',
       },
+      httpClient: Stripe.createFetchHttpClient(),
     })
 
     try {
