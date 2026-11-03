@@ -6,13 +6,10 @@ import { fileURLToPath } from 'url'
 
 import { login } from '../__helpers/e2e/auth/login.js'
 import { goToListDoc } from '../__helpers/e2e/goToListDoc.js'
-import {
-  ensureCompilationIsDone,
-  initPageConsoleErrorCatch,
-  saveDocAndAssert,
-} from '../__helpers/e2e/helpers.js'
+import { saveDocAndAssert } from '../__helpers/e2e/helpers.js'
 import { AdminUrlUtil } from '../__helpers/shared/adminUrlUtil.js'
 import { initPayloadE2ENoConfig } from '../__helpers/shared/initPayloadE2ENoConfig.js'
+import { initPage } from '../__setup/e2e/initPage.js'
 import { TEST_TIMEOUT_LONG } from '../playwright.config.js'
 
 const filename = fileURLToPath(import.meta.url)
@@ -55,16 +52,13 @@ test.describe('Trailing Slash', () => {
     url = new AdminUrlUtil(serverURL, 'posts')
 
     const context = await browser.newContext()
-    page = await context.newPage()
-    initPageConsoleErrorCatch(page)
-    page.on('response', recordResponse)
-
-    await ensureCompilationIsDone({
+    ;({ page } = await initPage({
+      context,
       noAutoLogin: true,
-      page,
-      readyURL: `${serverURL}/admin/login/**`,
+      readyURL: `${url.login}**`,
       serverURL,
-    })
+    }))
+    page.on('response', recordResponse)
   })
 
   test.beforeEach(() => {
@@ -74,12 +68,12 @@ test.describe('Trailing Slash', () => {
   test('should render the login page when accessing the admin while logged out', async () => {
     await page.goto(url.admin)
 
-    await expect(page.locator('.login')).toBeVisible()
-    expect(page.url()).toBe(url.login)
+    await expect(page.locator('form.login__form')).toBeVisible()
+    await expect(page).toHaveURL(url.login)
   })
 
   test('should render forgot-password form action with trailing slash', async () => {
-    await page.goto(`${url.admin}/forgot`)
+    await page.goto(`${url.admin}forgot/`)
 
     await expect(async () => {
       const formAction = await page.locator('form').getAttribute('action')
@@ -100,6 +94,7 @@ test.describe('Trailing Slash', () => {
   })
 
   test('should navigate dashboard, list, edit and account without any /api 3xx', async () => {
+    await login({ page, serverURL })
     apiResponses.length = 0
 
     await page.goto(url.admin)
@@ -116,7 +111,7 @@ test.describe('Trailing Slash', () => {
     })
     await expect(page.locator('#field-title')).toBeVisible()
 
-    await page.goto(`${url.admin}/account`)
+    await page.goto(url.account)
     await expect(page.locator('#field-email')).toBeVisible()
 
     await expect(() => {
@@ -126,6 +121,7 @@ test.describe('Trailing Slash', () => {
   })
 
   test('should save edits to existing doc with trailing-slash URL', async () => {
+    await login({ page, serverURL })
     apiResponses.length = 0
     page.on('request', recordRequest)
 
@@ -151,9 +147,10 @@ test.describe('Trailing Slash', () => {
   })
 
   test('should create new doc and POST to trailing-slash URL', async () => {
+    await login({ page, serverURL })
     apiResponses.length = 0
 
-    await page.goto(`${url.list}/create`)
+    await page.goto(url.create)
     await page.locator('#field-title').fill('Created Under Trailing Slash')
     await saveDocAndAssert(page)
 

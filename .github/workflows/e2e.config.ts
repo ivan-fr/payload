@@ -9,9 +9,11 @@
 
 import type { TestConfig } from './utilities/e2e-matrix.ts'
 
+import { discoverE2ESuites } from '../scripts/ci/discover-e2e-suites.mjs'
+
 import { createE2EConfig } from './utilities/e2e-matrix.ts'
 
-const nextSuites: TestConfig[] = [
+const configuredNextSuites: TestConfig[] = [
   { file: '_community', shards: 1 },
   { file: 'access-control', shards: 2 },
   { file: 'admin__e2e__general', shards: 3 },
@@ -109,11 +111,22 @@ const nextSuites: TestConfig[] = [
   { file: 'upload-transformers', shards: 1 },
 ]
 
-const tanstackSuites: TestConfig[] = nextSuites.map((suite) => ({
-  ...suite,
-  framework: 'tanstack-start',
-  optional: false,
-}))
+// Include newly added specs automatically. Keep each GitHub matrix below 256 jobs.
+const nextSuites: TestConfig[] = [
+  ...configuredNextSuites,
+  ...discoverE2ESuites({ configuredSuites: configuredNextSuites, testDir: 'test' }),
+].map((suite) => ({ ...suite, shards: Math.min(suite.shards, 2) }))
+
+// These suites exercise next.config options. The TanStack fixture has neither
+// a Next basePath nor Next's trailing-slash redirects; retain both on Next only.
+const nextConfigSuites = new Set(['base-path', 'trailing-slash'])
+const tanstackSuites: TestConfig[] = nextSuites
+  .filter(({ file }) => !nextConfigSuites.has(file.split('#')[0]))
+  .map((suite) => ({
+    ...suite,
+    framework: 'tanstack-start',
+    optional: false,
+  }))
 
 export default createE2EConfig([
   ...nextSuites,

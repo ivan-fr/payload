@@ -20,6 +20,7 @@ const dirname = path.dirname(filename)
 
 const headers = {
   'Content-Type': 'application/json',
+  DisableAutologin: 'true',
 }
 
 let apiURL: string
@@ -311,7 +312,7 @@ test.describe('revealable keys', () => {
     await page.goto(url.edit(apiKeyUser.id))
     await page.route(updateURL, (route) => route.abort())
     await page.locator('#regenerate-api-key').click()
-    await page.locator('#confirm-action').click()
+    await page.getByRole('button', { name: 'Generate', exact: true }).click()
 
     await expect(page.getByText('Failed to update the API key.')).toBeVisible()
     await page.unroute(updateURL)

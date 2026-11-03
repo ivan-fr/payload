@@ -27,11 +27,6 @@ outputs:
 runs:
   using: composite
   steps:
-    # https://github.com/actions/virtual-environments/issues/1187
-    - name: tune linux network
-      shell: bash
-      run: sudo ethtool -K eth0 tx off rx off
-
     - name: Get versions from .tool-versions or use overrides
       shell: bash
       run: |
@@ -104,7 +99,7 @@ runs:
     - name: Run pnpm install
       if: ${{ inputs.pnpm-run-install == 'true' && inputs.restore-build != 'true' }}
       shell: bash
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
 
       # Set the cache key output
     - run: |
@@ -159,7 +154,7 @@ runs:
       shell: bash
       run: |
         echo "::warning::Build cache miss — running full build as fallback"
-        pnpm install
+        pnpm install --frozen-lockfile
         pnpm run build:all
       env:
         DO_NOT_TRACK: 1

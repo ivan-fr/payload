@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url'
 
 import type { SessionScenario } from './sessionScenario.js'
 
-import { ensureCompilationIsDone } from '../__helpers/e2e/helpers.js'
+import { ensureCompilationIsDone } from '../__setup/e2e/ensureCompilationIsDone.js'
 import { initPayloadE2ENoConfig } from '../__helpers/shared/initPayloadE2ENoConfig.js'
 import { createSessionScenario } from './sessionScenario.js'
 import {

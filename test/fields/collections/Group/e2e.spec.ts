@@ -60,9 +60,9 @@ describe('Group', () => {
     test('should display field in list view', async () => {
       await page.goto(url.list)
 
-      const textCell = page.locator('.row-1 .cell-group')
+      const textCell = page.locator('.row-1 .cell-group__text')
 
-      await expect(textCell).toContainText(JSON.stringify(namedGroupDoc.group?.text), {
+      await expect(textCell).toContainText(namedGroupDoc.group?.text ?? '', {
         useInnerText: true,
       })
     })
@@ -82,18 +82,23 @@ describe('Group', () => {
     test('should display field in list view deeply nested', async () => {
       await page.goto(url.list)
 
-      const textCell = page.locator('.row-1 .cell-deeplyNestedGroup')
+      const textCell = page.locator('.row-1 .cell-deeplyNestedGroup__insideNestedUnnamedGroup')
 
-      await expect(textCell).toContainText(JSON.stringify(namedGroupDoc.deeplyNestedGroup), {
-        useInnerText: true,
-      })
+      await expect(textCell).toContainText(
+        namedGroupDoc.deeplyNestedGroup?.insideNestedUnnamedGroup ?? '',
+        {
+          useInnerText: true,
+        },
+      )
     })
 
     test('should display field visually within nested groups', async () => {
       await page.goto(url.create)
 
       // Makes sure the fields are rendered
-      await page.mouse.wheel(0, 2000)
+      await page
+        .getByRole('heading', { name: 'Unnamed group', exact: true })
+        .scrollIntoViewIfNeeded()
 
       const unnamedGroupSelector = `.field-type.group-field #field-insideUnnamedGroup`
       const unnamedGroupField = page.locator(unnamedGroupSelector)
@@ -101,7 +106,10 @@ describe('Group', () => {
       await expect(unnamedGroupField).toBeVisible()
 
       // Makes sure the fields are rendered
-      await page.mouse.wheel(0, 2000)
+      await page
+        .getByRole('heading', { name: 'Deeply nested group', exact: true })
+        .first()
+        .scrollIntoViewIfNeeded()
 
       // A bit repetitive but this selector should fail if the group is not nested
       const unnamedNestedGroupSelector = `.field-type.group-field .field-type.group-field .field-type.group-field .field-type.group-field .field-type.group-field #field-deeplyNestedGroup__insideNestedUnnamedGroup`

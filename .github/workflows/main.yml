@@ -1,11 +1,25 @@
-name: ci
+name: Payload 4 CI
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review, edited]
 
   push:
-    branches: [main]
+    branches: [main, ci/targeted-pr2]
+
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Full merge validation or targeted E2E diagnosis
+        type: choice
+        options: [targeted, full]
+        default: targeted
+      suites:
+        description: JSON array of suite names (Next) or objects with suite and framework
+        type: string
+        default: '[{"suite":"plugin-multi-tenant#config.conditionalProvider.ts","framework":"tanstack-start"}]'
+  merge_group:
 
 concurrency:
   # <workflow_name>-<branch_name>-<true || commit_sha if branch is protected>
@@ -22,184 +36,24 @@ permissions:
   contents: read
 
 jobs:
+  # Every PR runs every public suite, including documentation-only changes.
   changes:
-    runs-on: ubuntu-26.04
-    permissions:
-      contents: read
-      pull-requests: read
+    runs-on: ubuntu-24.04
     outputs:
-      needs_build: ${{ steps.filter.outputs.needs_build }}
-      needs_tests: ${{ steps.filter.outputs.needs_tests }}
-      needs_visual: ${{ steps.filter.outputs.needs_visual }}
-      needs_a11y: ${{ steps.a11y_filter.outputs.needs_a11y }}
-      a11y_files: ${{ steps.a11y_report_files.outputs.files }}
-      templates: ${{ steps.filter.outputs.templates }}
-      build_approvals: ${{ steps.filter.outputs.build_approvals }}
-      needs_sbom: ${{ steps.filter.outputs.needs_sbom }}
+      needs_build: 'true'
+      needs_tests: 'true'
+      needs_visual: 'true'
+      needs_a11y: 'true'
+      a11y_files: '[]'
+      templates: 'true'
+      build_approvals: 'true'
+      needs_sbom: 'true'
     steps:
-      # https://github.com/actions/virtual-environments/issues/1187
-      - name: tune linux network
-        run: sudo ethtool -K eth0 tx off rx off
-
-      - uses: actions/checkout@v5
-      - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
-        id: filter
-        with:
-          filters: |
-            needs_build:
-              - '.github/filters/a11y.yml'
-              - '.github/scripts/a11y/**'
-              - '.github/workflows/main.yml'
-              - '.github/actions/start-services/**'
-              - '.github/actions/setup/**'
-              - '.github/scripts/visual/**'
-              - '.github/actions/setup-playwright/**'
-              - 'packages/**'
-              - 'test/**'
-              - 'pnpm-lock.yaml'
-              - 'package.json'
-              - 'templates/**'
-              - 'vitest.config.ts'
-            needs_tests:
-              - '.github/filters/a11y.yml'
-              - '.github/scripts/a11y/**'
-              - '.github/workflows/main.yml'
-              - '.github/actions/start-services/**'
-              - 'packages/**'
-              - 'test/**'
-              - 'pnpm-lock.yaml'
-              - 'package.json'
-              - 'vitest.config.ts'
-            templates:
-              - 'templates/**'
-            # Also gates tests-unit via its own `if`. Excludes plain `packages/**/*.ts` changes on
-            # purpose: matching all `.ts` would fire on nearly every PR.
-            needs_visual:
-              - '.github/workflows/main.yml'
-              - '.github/scripts/visual/**'
-              - 'packages/**/*.css'
-              - 'packages/**/*.scss'
-              - 'packages/**/*.tsx'
-              - 'packages/**/*.jsx'
-              - 'packages/**/*.svg'
-              - 'test/**/*.css'
-              - 'test/**/*.scss'
-              - 'test/**/*.tsx'
-              - 'test/**/*.jsx'
-              - 'test/**/e2e.spec.ts'
-              - 'test/**/__snapshots__/**'
-              - 'test/__helpers/e2e/expectScreenshot.ts'
-              - 'test/__helpers/e2e/visual.ts'
-              - 'test/playwright.config.ts'
-              - 'test/buildConfigWithDefaults.ts'
-              # `test/admin/e2e/visual/e2e.spec.ts` renders the posts list view with the full admin
-              # sidebar nav, which test/admin/config.ts assembles from every collection/global here
-              # (labels, grouping, visibility) — plain .ts, so not caught by the *.tsx/*.scss
-              # patterns above. Scoped to config-defining files rather than all of `test/admin/**`
-              # (100+ files spanning unrelated e2e suites) for the same reason `packages/**/*.ts`
-              # is excluded above: a blanket match would fire on nearly every admin-suite PR.
-              # seed.ts generates the post titles shown in the posts-list-view baseline.
-              - 'test/admin/config.ts'
-              - 'test/admin/slugs.ts'
-              - 'test/admin/seed.ts'
-              - 'test/admin/collections/**'
-              - 'test/admin/globals/**'
-            build_approvals:
-              - '.github/workflows/main.yml'
-              # Any dependency-graph change (packages/* or the blank workspace member) lands in
-              # the root lockfile; that, plus the allowlist itself, is what can introduce drift.
-              - 'pnpm-lock.yaml'
-              - 'packages/create-payload-app/src/lib/configure-pnpm-builds.ts'
-            # Inputs of the release SBOMs (the dependency graph, the pnpm version, the generator) and this job.
-            needs_sbom:
-              - 'pnpm-lock.yaml'
-              - 'pnpm-workspace.yaml'
-              - 'packages/*/package.json'
-              - '.tool-versions'
-              - 'tools/releaser/src/release-sbom.ts'
-              - 'tools/releaser/src/lib/sbom/**'
-              - 'tools/releaser/src/lib/publishList.ts'
-              - 'tools/releaser/src/lib/getPackageDetails.ts'
-              - 'tools/releaser/package.json'
-              - 'tools/constants/**'
-              - 'package.json'
-              - '.github/actions/setup/**'
-              - '.github/workflows/main.yml'
-      - name: Filter accessibility changes
-        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
-        id: a11y_filter
-        with:
-          list-files: json
-          filters: .github/filters/a11y.yml
-
-      - name: Bound accessibility report file list
-        id: a11y_report_files
-        continue-on-error: true
-        # The full JSON list travels through stdin, never an argument or environment variable.
-        run: |
-          node .github/scripts/a11y/matched-files.mjs <<'A11Y_MATCHED_FILES_JSON'
-          ${{ steps.a11y_filter.outputs.needs_a11y_files }}
-          A11Y_MATCHED_FILES_JSON
-
-      - name: Log filter results
-        run: |
-          echo "needs_build: ${{ steps.filter.outputs.needs_build }}"
-          echo "needs_tests: ${{ steps.filter.outputs.needs_tests }}"
-          echo "needs_visual: ${{ steps.filter.outputs.needs_visual }}"
-          echo "needs_a11y: ${{ steps.a11y_filter.outputs.needs_a11y }}"
-          echo "templates: ${{ steps.filter.outputs.templates }}"
-          echo "build_approvals: ${{ steps.filter.outputs.build_approvals }}"
-          echo "needs_sbom: ${{ steps.filter.outputs.needs_sbom }}"
-
-  # Detects upstream Next.js canary publishes that are missing `@next/env` or
-  # `@next/eslint-plugin-next` for the same version (would break
-  # `pnpm create next-app@canary` with `ERR_PNPM_NO_MATCHING_VERSION`).
-  probe-next-canary:
-    name: probe-next-canary
-    runs-on: ubuntu-26.04
-    needs: changes
-    if: needs.changes.outputs.needs_tests == 'true'
-    outputs:
-      healthy: ${{ steps.probe.outputs.healthy }}
-      next_version: ${{ steps.probe.outputs.next_version }}
-    steps:
-      - name: Probe registry for complete canary publish
-        id: probe
-        run: |
-          retry_npm_view() {
-            local spec="$1"
-            for attempt in 1 2 3; do
-              if npm view "$spec" version >/dev/null 2>&1; then
-                return 0
-              fi
-              sleep $((attempt * 2))
-            done
-            return 1
-          }
-
-          NEXT_VERSION=""
-          for attempt in 1 2 3; do
-            NEXT_VERSION="$(npm view next@canary version 2>/dev/null || true)"
-            if [ -n "$NEXT_VERSION" ]; then
-              break
-            fi
-            sleep $((attempt * 2))
-          done
-          echo "Resolved next@canary version: ${NEXT_VERSION:-<empty>}"
-          echo "next_version=${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
-          if [ -z "$NEXT_VERSION" ]; then
-            echo "healthy=unknown" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          if retry_npm_view "@next/env@${NEXT_VERSION}" \
-            && retry_npm_view "@next/eslint-plugin-next@${NEXT_VERSION}"; then
-            echo "healthy=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "healthy=false" >> "$GITHUB_OUTPUT"
-          fi
+      - run: echo 'Running the complete public Payload 4 test suite.'
 
   lint:
-    runs-on: ubuntu-26.04
+    if: ((github.event_name != 'workflow_dispatch' || inputs.mode == 'full') && !(github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2'))
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
         with:
@@ -207,6 +61,9 @@ jobs:
 
       - name: Node setup
         uses: ./.github/actions/setup
+
+      - name: Test CI discovery and required-job gate
+        run: node --test .github/scripts/ci/*.test.mjs
 
       - name: Check formatting
         run: pnpm format:check
@@ -222,7 +79,7 @@ jobs:
   build:
     needs: changes
     if: needs.changes.outputs.needs_build == 'true' || needs.changes.outputs.needs_a11y == 'true'
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v5
@@ -254,8 +111,8 @@ jobs:
   # Catches SBOM generation regressions before a release. Push to main only, not part of all-green.
   sbom:
     needs: changes
-    if: github.event_name == 'push' && needs.changes.outputs.needs_sbom == 'true'
-    runs-on: ubuntu-26.04
+    if: github.event_name == 'push' && github.ref_name == 'main' && needs.changes.outputs.needs_sbom == 'true'
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v5
@@ -272,9 +129,9 @@ jobs:
     permissions:
       actions: read
       contents: read
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     needs: [changes, build]
-    if: needs.changes.outputs.needs_tests == 'true' || needs.changes.outputs.needs_visual == 'true'
+    if: ((github.event_name != 'workflow_dispatch' || inputs.mode == 'full') && !(github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2')) && (needs.changes.outputs.needs_tests == 'true' || needs.changes.outputs.needs_visual == 'true')
     steps:
       - uses: actions/checkout@v5
 
@@ -298,9 +155,9 @@ jobs:
     permissions:
       actions: read
       contents: read
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     needs: [changes, build]
-    if: needs.changes.outputs.needs_tests == 'true'
+    if: ((github.event_name != 'workflow_dispatch' || inputs.mode == 'full') && !(github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2')) && (needs.changes.outputs.needs_tests == 'true')
     steps:
       - uses: actions/checkout@v5
 
@@ -316,8 +173,9 @@ jobs:
 
   # Generate the integration test matrix from TypeScript config
   int-matrix:
+    if: ((github.event_name != 'workflow_dispatch' || inputs.mode == 'full') && !(github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2'))
     name: Setup Int Matrix
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate.outputs.matrix }}
     steps:
@@ -341,13 +199,14 @@ jobs:
     permissions:
       actions: read
       contents: read
-    runs-on: ubuntu-26.04
-    needs: [changes, build, int-matrix, probe-next-canary]
-    if: needs.changes.outputs.needs_tests == 'true'
+    runs-on: ubuntu-24.04
+    needs: [changes, build, int-matrix]
+    if: ((github.event_name != 'workflow_dispatch' || inputs.mode == 'full') && !(github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2')) && (needs.changes.outputs.needs_tests == 'true')
     name: int-${{ matrix.database }}${{ matrix.total-shards > 1 && format(' ({0}/{1})', matrix.shard, matrix.total-shards) || '' }}
     timeout-minutes: 45
     strategy:
       fail-fast: false
+      max-parallel: 4
       matrix: ${{ fromJson(needs.int-matrix.outputs.matrix) }}
 
     env:
@@ -381,18 +240,12 @@ jobs:
           POSTGRES_URL: ${{ steps.db.outputs.POSTGRES_URL }}
           MONGODB_URL: ${{ steps.db.outputs.MONGODB_URL }}
           MONGODB_ATLAS_URL: ${{ steps.db.outputs.MONGODB_ATLAS_URL }}
-        run: |
-          if [ "${{ needs.probe-next-canary.outputs.healthy }}" = "false" ]; then
-            echo "::warning::Next.js canary publish is incomplete on npm (next@${{ needs.probe-next-canary.outputs.next_version }}); skipping Canary tests for this run."
-            pnpm test:int --shard=${{ matrix.shard }}/${{ matrix.total-shards }} -t '^(?!.*Canary).*$'
-          else
-            pnpm test:int --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
-          fi
+        run: pnpm test:int --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
 
   # Generate the E2E test matrix from TypeScript config
   e2e-matrix:
     name: Setup E2E Matrix
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate.outputs.matrix }}
     steps:
@@ -400,6 +253,8 @@ jobs:
         with:
           sparse-checkout: |
             .github/workflows
+            .github/scripts
+            test
             .tool-versions
 
       - uses: actions/setup-node@v6
@@ -408,8 +263,15 @@ jobs:
 
       - name: Generate matrix
         id: generate
+        env:
+          TARGETED_E2E: ${{ ((github.event_name == 'workflow_dispatch' && inputs.mode != 'full') || (github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2')) }}
+          TARGETED_E2E_SUITES: ${{ inputs.suites }}
         run: |
-          matrix=$(node .github/workflows/e2e.config.ts)
+          if [ -z "$TARGETED_E2E_SUITES" ]; then
+            export TARGETED_E2E_SUITES='[{"suite":"plugin-multi-tenant#config.conditionalProvider.ts","framework":"tanstack-start"}]'
+          fi
+          node .github/workflows/e2e.config.ts > "$RUNNER_TEMP/e2e-matrix.json"
+          matrix=$(node .github/scripts/ci/select-e2e-matrix.mjs "$RUNNER_TEMP/e2e-matrix.json")
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
   # Prepare prod test environment once, shared by all E2E shards
@@ -418,7 +280,7 @@ jobs:
       actions: read
       contents: read
     name: E2E Prep
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     needs: [changes, build]
     if: needs.changes.outputs.needs_tests == 'true' || needs.changes.outputs.needs_a11y == 'true'
     steps:
@@ -448,16 +310,16 @@ jobs:
     permissions:
       actions: read
       contents: read
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     needs: [changes, e2e-matrix, e2e-prep]
     if: needs.changes.outputs.needs_tests == 'true'
     name: E2E - ${{ matrix.suite || 'all suites' }} [${{ matrix.framework }}]${{ matrix.total-shards > 1 && format(' ({0}/{1})', matrix.shard, matrix.total-shards) || '' }}${{ matrix.disableCacheComponents && ' [without cacheComponents]' || '' }}
     timeout-minutes: 45
-    # TanStack Start suites are optional for now: their failures must not block the
-    # `all-green` gate. `matrix.optional` is true for tanstack-start entries (see e2e-matrix.ts).
-    continue-on-error: ${{ matrix.optional }}
+    # Every Next.js and TanStack suite blocks the required gate.
+    continue-on-error: false
     strategy:
       fail-fast: false
+      max-parallel: 8
       matrix: ${{ fromJson(needs.e2e-matrix.outputs.matrix) }}
     env:
       SUITE_NAME: ${{ matrix.suite }}
@@ -567,9 +429,9 @@ jobs:
       actions: read
       contents: read
     name: Accessibility [${{ matrix.framework }}]
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     needs: [changes, e2e-prep]
-    if: needs.changes.outputs.needs_a11y == 'true'
+    if: ((github.event_name != 'workflow_dispatch' || inputs.mode == 'full') && !(github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2')) && (needs.changes.outputs.needs_a11y == 'true')
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -653,9 +515,9 @@ jobs:
   # `packages/*/dist` (plain compiled JS, no native bindings) from the `build` job's cache.
   visual-regression:
     name: Visual Regression
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     needs: [changes, build]
-    if: needs.changes.outputs.needs_visual == 'true'
+    if: ((github.event_name != 'workflow_dispatch' || inputs.mode == 'full') && !(github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2')) && (needs.changes.outputs.needs_visual == 'true')
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
@@ -759,9 +621,9 @@ jobs:
     permissions:
       actions: read
       contents: read
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     needs: [changes, build]
-    if: needs.changes.outputs.needs_build == 'true'
+    if: ((github.event_name != 'workflow_dispatch' || inputs.mode == 'full') && !(github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2')) && (needs.changes.outputs.needs_build == 'true')
     name: build-template-${{ matrix.template }}-${{ matrix.database }}
     strategy:
       fail-fast: false
@@ -839,9 +701,9 @@ jobs:
   # Fails if create-payload-app's build-script allowlist drifts from the blank template's deps:
   # scaffolds blank, installs it standalone under pnpm v11, and asserts no ERR_PNPM_IGNORED_BUILDS.
   check-template-build-approvals:
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     needs: [changes, build]
-    if: needs.changes.outputs.build_approvals == 'true'
+    if: ((github.event_name != 'workflow_dispatch' || inputs.mode == 'full') && !(github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2')) && (needs.changes.outputs.build_approvals == 'true')
     steps:
       - uses: actions/checkout@v5
 
@@ -855,9 +717,9 @@ jobs:
     permissions:
       actions: read
       contents: read
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     needs: [changes, build]
-    if: needs.changes.outputs.needs_tests == 'true'
+    if: ((github.event_name != 'workflow_dispatch' || inputs.mode == 'full') && !(github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2')) && (needs.changes.outputs.needs_tests == 'true')
     steps:
       - uses: actions/checkout@v5
 
@@ -879,10 +741,10 @@ jobs:
   # concurrent CI runs and removing the need for shared credentials.
   tests-content-api:
     name: Content API Tests
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     needs: [changes, build]
     # Skip fork PRs: this job uses credentials fork workflows must not reach.
-    if: needs.changes.outputs.needs_tests == 'true' && github.event.pull_request.head.repo.fork == false
+    if: github.repository == 'payloadcms/payload' && needs.changes.outputs.needs_tests == 'true' && github.event.pull_request.head.repo.fork == false
     # Non-blocking while adapter coverage is incomplete. Once the full suite
     # passes, migrate to the `tests-int` matrix pattern (`pnpm test:int`
     # with --shard); `test:int:summary` cannot shard.
@@ -1010,14 +872,18 @@ jobs:
         run: docker logs content-api || true
 
   all-green:
-    name: All Green
-    if: always()
-    runs-on: ubuntu-26.04
+    name: ${{ ((github.event_name == 'workflow_dispatch' && inputs.mode != 'full') || (github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2')) && 'Full validation omitted for targeted run' || 'Payload 4 required tests' }}
+    if: always() && ((github.event_name != 'workflow_dispatch' || inputs.mode == 'full') && !(github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2'))
+    runs-on: ubuntu-24.04
     needs:
       [
+        changes,
         lint,
         build,
+        int-matrix,
+        e2e-matrix,
         build-and-test-templates,
+        check-template-build-approvals,
         tests-unit,
         tests-int,
         e2e-prep,
@@ -1025,18 +891,35 @@ jobs:
         tests-a11y,
         tests-types,
         tests-type-generation,
-        tests-content-api,
         visual-regression,
       ]
-
     steps:
-      - if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
-        run: exit 1
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Reject failed, cancelled, skipped or missing required jobs
+        env:
+          REQUIRED_JOB_RESULTS: ${{ toJSON(needs) }}
+        run: node .github/scripts/ci/required-jobs.mjs
+
+  targeted-green:
+    name: Payload 4 targeted tests
+    if: always() && ((github.event_name == 'workflow_dispatch' && inputs.mode != 'full') || (github.event_name == 'push' && github.ref_name == 'ci/targeted-pr2'))
+    runs-on: ubuntu-24.04
+    needs: [changes, build, e2e-matrix, e2e-prep, tests-e2e]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Validate only the explicitly selected E2E jobs
+        env:
+          REQUIRED_JOB_RESULTS: ${{ toJSON(needs) }}
+        run: node .github/scripts/ci/required-jobs.mjs
 
   publish-canary:
     name: Publish Canary
-    runs-on: ubuntu-26.04
-    if: ${{ needs.all-green.result == 'success' && github.ref_name == 'main' }}
+    runs-on: ubuntu-24.04
+    if: ${{ github.repository == 'payloadcms/payload' && needs.all-green.result == 'success' && github.ref_name == 'main' }}
     needs:
       - all-green
 
@@ -1046,7 +929,8 @@ jobs:
           echo github.ref: ${{ github.ref }}
           echo isV3: ${{ github.ref == 'refs/heads/main' }}
   analyze:
-    runs-on: ubuntu-26.04
+    if: github.repository == 'payloadcms/payload'
+    runs-on: ubuntu-24.04
     needs: [changes, build]
     timeout-minutes: 5
     permissions:
