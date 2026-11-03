@@ -1,9 +1,10 @@
-import { expect } from 'vitest'
+import { expect, vi } from 'vitest'
 
 import { test } from '../__helpers/int/vitest.js'
 import { indexedSlug, postsSlug } from './slugs.js'
 
 test.suite('Server regressions batch 11', { config: './config.ts' }, () => {
+  test.afterEach(() => vi.restoreAllMocks())
   test('should store an empty optional timezone as null and retain valid values (#16283)', async ({
     payload,
   }) => {
@@ -99,9 +100,67 @@ test.suite('Server regressions batch 11', { config: './config.ts' }, () => {
     ])
   })
 
-  test('should reject an index conflict and leave the parent unpublished (#17699)', async ({
+  test.options(
+    'should reject an index conflict and leave the parent unpublished (#17699)',
+    { db: (db) => db !== 'firestore' && db !== 'cosmosdb' },
+    async ({ payload }) => {
+      await payload.create({
+        overrideAccess: true,
+        collection: indexedSlug,
+        data: { title: 'First', _status: 'published' },
+      })
+      await expect(
+        payload.create({
+          overrideAccess: true,
+          collection: indexedSlug,
+          data: { title: 'Second', _status: 'published' },
+        }),
+      ).rejects.toThrow()
+      expect(
+        (await payload.find({ overrideAccess: true, collection: indexedSlug })).docs.map(
+          (doc) => doc.title,
+        ),
+      ).toEqual(['First'])
+    },
+  )
+  test.options(
+    'should fail transactional reindexing instead of reporting a rolled-back index as success (#17699)',
+    { db: (db) => db !== 'firestore' && db !== 'cosmosdb' },
+    async ({ payload, restClient }) => {
+      await payload.create({
+        overrideAccess: true,
+        collection: indexedSlug,
+        data: { title: 'First', _status: 'published' },
+      })
+      await payload.create({
+        overrideAccess: true,
+        collection: indexedSlug,
+        context: { skipSearch: true },
+        data: { title: 'Second', _status: 'published' },
+      })
+      const before = await payload.find({ overrideAccess: true, collection: 'search', depth: 0 })
+      await payload.create({
+        overrideAccess: true,
+        collection: 'users',
+        data: { email: 'admin@example.com', password: 'test' },
+      })
+      await restClient.login({
+        slug: 'users',
+        credentials: { email: 'admin@example.com', password: 'test' },
+      })
+      const response = await restClient.POST('/search/reindex', {
+        body: JSON.stringify({ collections: [indexedSlug] }),
+      })
+      expect(response.status).toBe(500)
+      const after = await payload.find({ overrideAccess: true, collection: 'search', depth: 0 })
+      expect(after.docs).toEqual(before.docs)
+    },
+  )
+  test('should report a failed standalone reindex without promising a rollback', async ({
     payload,
+    restClient,
   }) => {
+    vi.spyOn(payload.db, 'beginTransaction').mockResolvedValue(null)
     await payload.create({
       overrideAccess: true,
       collection: indexedSlug,
@@ -114,28 +173,10 @@ test.suite('Server regressions batch 11', { config: './config.ts' }, () => {
         data: { title: 'Second', _status: 'published' },
       }),
     ).rejects.toThrow()
-    expect(
-      (await payload.find({ overrideAccess: true, collection: indexedSlug })).docs.map(
-        (doc) => doc.title,
-      ),
-    ).toEqual(['First'])
-  })
-  test('should fail transactional reindexing instead of reporting a rolled-back index as success (#17699)', async ({
-    payload,
-    restClient,
-  }) => {
-    await payload.create({
-      overrideAccess: true,
-      collection: indexedSlug,
-      data: { title: 'First', _status: 'published' },
-    })
-    await payload.create({
-      overrideAccess: true,
-      collection: indexedSlug,
-      context: { skipSearch: true },
-      data: { title: 'Second', _status: 'published' },
-    })
-    const before = await payload.find({ overrideAccess: true, collection: 'search', depth: 0 })
+    // Without transactions the source write has already completed before its hook fails.
+    expect((await payload.find({ overrideAccess: true, collection: indexedSlug })).totalDocs).toBe(
+      2,
+    )
     await payload.create({
       overrideAccess: true,
       collection: 'users',
@@ -148,8 +189,8 @@ test.suite('Server regressions batch 11', { config: './config.ts' }, () => {
     const response = await restClient.POST('/search/reindex', {
       body: JSON.stringify({ collections: [indexedSlug] }),
     })
-    expect(response.status).toBe(500)
-    const after = await payload.find({ overrideAccess: true, collection: 'search', depth: 0 })
-    expect(after.docs).toEqual(before.docs)
+    expect(response.status).toBe(200)
+    expect((await response.json()).message).toContain('1 of 2')
+    expect((await payload.find({ overrideAccess: true, collection: 'search' })).totalDocs).toBe(1)
   })
 })

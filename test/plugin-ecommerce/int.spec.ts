@@ -73,6 +73,10 @@ const stripeMock = vi.hoisted(() => {
 
 const stripeMockModule = () => ({
   default: class Stripe {
+    static createFetchHttpClient() {
+      return {}
+    }
+
     customers = {
       create: ({ email }: { email: string }) => Promise.resolve(stripeMock.createCustomer(email)),
       list: ({ email }: { email: string }) =>

@@ -74,6 +74,35 @@ describe('isolateObjectProperty', () => {
     expect(request.locale).toBe('fr')
   })
 
+  it('should read overridden Request bodies through nested scopes without losing the native receiver', async () => {
+    class FrameworkRequest extends Request {
+      #body = '{"title":"Framework body"}'
+
+      text() {
+        return Promise.resolve(this.#body)
+      }
+
+      json() {
+        return this.text().then(JSON.parse)
+      }
+    }
+    const request = Object.assign(new FrameworkRequest('https://cms.example'), {
+      locale: 'fr',
+      getLocale() {
+        return this.locale
+      },
+    })
+    const scoped = isolateObjectProperty(isolateObjectProperty(request, 'locale'), 'locale')
+    scoped.locale = 'en'
+
+    expect(await scoped.text()).toBe('{"title":"Framework body"}')
+    expect(await scoped.json()).toEqual({ title: 'Framework body' })
+    expect(scoped.text).toBe(scoped.text)
+    expect(scoped.getLocale()).toBe('en')
+    expect(request.locale).toBe('fr')
+    expect(scoped.constructor).toBe(FrameworkRequest)
+  })
+
   describe('private field access (Node 24+ compatibility)', () => {
     /**
      * Class with private fields to test that the proxy correctly handles
