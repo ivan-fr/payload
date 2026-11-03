@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes thirty-six reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes forty-two reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) records **565 open issues**, excluding pull requests. Thirty-five snapshot issues have scoped fixes here; **530 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **36 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) records **565 open issues**, excluding pull requests. Forty-one snapshot issues have scoped fixes here; **524 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **42 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -153,3 +153,7 @@ A live MongoDB/Cosmos DB or PostgreSQL result is not established by these local 
 ## Sixth batch
 
 Six further reproduced reports are covered in [batch-6.md](batch-6.md), on top of the merged PR #1 baseline.
+
+## Seventh batch: six more issues on PR #3
+
+PR #3 now adds twelve scoped fixes to the thirty already merged on main. The latest six are #16367, #16368, #16502, #17929, #17938 and #18217. See [batch-7.md](batch-7.md) for implementation, reproduction evidence and validation limits. Locale-resolved traversal uses the new explicit `flattenLocales: true` option; the default continues to traverse all-locale database shapes.

@@ -30,7 +30,6 @@ export const validateOptions: (props?: Props) => Validate =
       joins: {
         variants: {
           where: {
-            deletedAt: { exists: false },
             ...(data.id && {
               id: {
                 not_equals: data.id, // exclude the current variant from the search
@@ -62,7 +61,10 @@ export const validateOptions: (props?: Props) => Validate =
 
       variants.forEach((variant: any) => {
         // Draft joins may return the current variant despite the query-level ID filter.
-        if (data.id === undefined || String(variant.id) !== String(data.id)) {
+        if (
+          Array.isArray(variant.options) &&
+          (data.id === undefined || String(variant.id) !== String(data.id))
+        ) {
           existingOptions.push(variant.options)
         }
       })
