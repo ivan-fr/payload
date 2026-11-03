@@ -160,6 +160,7 @@ describe('SlugField', () => {
 
       await expect(page.locator('#field-localizedTitle')).toBeEmpty()
       await page.locator('#field-localizedTitle').fill('Title in spanish')
+      await regenerateSlug('localizedSlug')
 
       await saveDocAndAssert(page)
 

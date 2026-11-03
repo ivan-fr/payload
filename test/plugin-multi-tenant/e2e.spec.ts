@@ -1173,6 +1173,7 @@ test.describe('Multi Tenant', () => {
         tenant: 'Blue Dog',
         urlUtil: foldersURL,
       })
+      await closeNav(page)
 
       // Switch to By Folder tab
       await page.locator('#hierarchy-view-pill').click()
@@ -1211,9 +1212,15 @@ test.describe('Multi Tenant', () => {
       await expect(moveModal).toBeVisible()
 
       // The miller columns should only show Blue Dog folders
-      await expect(moveModal.getByText('Blue Dog Documents')).toBeVisible()
-      await expect(moveModal.getByText('Steel Cat Documents')).toBeHidden()
-      await expect(moveModal.getByText('Anchor Bar Files')).toBeHidden()
+      await expect(
+        moveModal.getByRole('button', { name: 'Blue Dog Documents', exact: true }),
+      ).toBeVisible()
+      await expect(
+        moveModal.getByRole('button', { name: 'Steel Cat Documents', exact: true }),
+      ).toBeHidden()
+      await expect(
+        moveModal.getByRole('button', { name: 'Anchor Bar Files', exact: true }),
+      ).toBeHidden()
     })
 
     test('should show all tenant folders when tenant selector is cleared', async () => {
@@ -1403,10 +1410,12 @@ async function openAssignTenantModal({
   const assignTenantModal = page.locator('#assign-tenant-field-modal')
 
   const globalTenant = await getSelectedTenantFilterName({ page, payload })
-  if (!globalTenant) {
+  if (!globalTenant || (await assignTenantModal.isVisible())) {
     await expect(assignTenantModal).toBeVisible()
     return
   }
+
+  await closeNav(page)
 
   // Open the assign tenant modal
   const docControlsPopup = page.locator('.popup__content')
@@ -1437,9 +1446,6 @@ async function selectDocumentTenant({
   payload: PayloadTestSDK<Config>
   tenant: string
 }): Promise<void> {
-  if (!(await page.locator('#assign-tenant-field-modal').isVisible())) {
-    await closeNav(page)
-  }
   await openAssignTenantModal({ page, payload })
   await selectInput({
     multiSelect: false,
@@ -1456,6 +1462,7 @@ async function selectDocumentTenant({
     await assignTenantModal.locator('button', { hasText: 'Cancel' }).click()
     await expect(assignTenantModal).toBeHidden()
   }
+  await closeNav(page)
 }
 
 async function getSelectedTenantFilterName({

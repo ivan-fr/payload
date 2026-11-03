@@ -9,6 +9,7 @@ import { login } from '../__helpers/e2e/auth/login.js'
 import { goToListDoc } from '../__helpers/e2e/goToListDoc.js'
 import { saveDocAndAssert } from '../__helpers/e2e/helpers.js'
 import { AdminUrlUtil } from '../__helpers/shared/adminUrlUtil.js'
+import { reInitializeDB } from '../__helpers/shared/clearAndSeed/reInitializeDB.js'
 import { initPayloadE2ENoConfig } from '../__helpers/shared/initPayloadE2ENoConfig.js'
 import { initPage } from '../__setup/e2e/initPage.js'
 import { TEST_TIMEOUT_LONG } from '../playwright.config.js'
@@ -31,6 +32,7 @@ test.describe('Base Path', () => {
       dirname,
     })
     serverURL = payload.serverURL
+    await reInitializeDB({ serverURL })
     url = new AdminUrlUtil(serverURL, 'posts')
 
     const context = await browser.newContext()
@@ -51,7 +53,7 @@ test.describe('Base Path', () => {
     await page.locator('button[type="submit"]').click()
 
     // Verify success state renders — proves the POST went to the correct URL
-    await expect(page.locator('.form-header h1')).toHaveText('Email Sent')
+    await expect(page.getByRole('heading', { name: 'Email Sent', exact: true })).toBeVisible()
 
     const resendButton = page.getByRole('button', { name: /Resend \(\d+:\d{2}\)/ })
     await expect(resendButton).toBeDisabled()
@@ -67,7 +69,7 @@ test.describe('Base Path', () => {
 
     await page.reload()
 
-    await expect(page.locator('.form-header h1')).toHaveText('Email Sent')
+    await expect(page.getByRole('heading', { name: 'Email Sent', exact: true })).toBeVisible()
     const restoredResendButton = page.locator('button.forgot-password__form__submit')
     await expect(restoredResendButton).toHaveText(/Resend \(\d+:\d{2}\)/)
     const restoredCountdown = await restoredResendButton.textContent()

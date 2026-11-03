@@ -4,6 +4,7 @@ import path from 'path'
 import { type CollectionConfig, type Config } from 'payload'
 
 import { resetDB } from '../__helpers/shared/clearAndSeed/reset.js'
+import { getTestSuiteDir } from '../__helpers/shared/getTestSuiteDir.js'
 import { devUser } from '../credentials.js'
 import { blocksSeedData } from './seed/blocksSeedData.js'
 import {
@@ -27,7 +28,7 @@ import {
 } from './slugs.js'
 
 const filename = fileURLToPath(import.meta.url)
-const dirname = path.dirname(filename)
+const dirname = getTestSuiteDir({ fallbackDir: path.dirname(filename), suitePath: 'v4' })
 
 // Load file at module level, manually construct to avoid file-type dynamic import issue
 const imagePath = path.resolve(dirname, '../lexical/collections/Upload/payload.jpg')

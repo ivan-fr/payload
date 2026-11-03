@@ -19,6 +19,62 @@ test.suite('API key reveal access', { config: './config.ts' }, () => {
     })
   }
 
+  test('should authenticate with a regenerated API key after a REST update', async ({
+    payload,
+    restClient,
+  }) => {
+    await loginAdmin({ restClient })
+    const oldKey = uuid()
+    const newKey = uuid()
+    const apiKeyUser = await payload.create({
+      collection: apiKeysSlug,
+      data: { name: 'Regenerated REST key', apiKey: oldKey },
+      overrideAccess: true,
+    })
+
+    const update = await restClient.PATCH(
+      `/${apiKeysSlug}/${apiKeyUser.id}?depth=0&fallback-locale=null&locale=en`,
+      {
+        body: JSON.stringify({ apiKey: newKey }),
+      },
+    )
+    expect(update.status).toBe(200)
+
+    const directAuth = await payload.auth({
+      headers: new Headers({
+        Authorization: `${apiKeysSlug} API-Key ${newKey}`,
+        DisableAutologin: 'true',
+      }),
+    })
+    expect(directAuth.user?.id).toBe(apiKeyUser.id)
+
+    const current = await restClient.GET(`/${apiKeysSlug}/me`, {
+      auth: false,
+      headers: { Authorization: `${apiKeysSlug} API-Key ${newKey}` },
+    })
+    expect(current.status).toBe(200)
+    expect((await current.json()).user?.id).toBe(apiKeyUser.id)
+
+    const anotherUser = await payload.create({
+      collection: apiKeysSlug,
+      data: { name: 'Another API key user', apiKey: uuid() },
+      overrideAccess: true,
+    })
+    const otherRecord = await restClient.GET(`/${apiKeysSlug}/${anotherUser.id}`, {
+      auth: false,
+      headers: { Authorization: `${apiKeysSlug} API-Key ${newKey}` },
+    })
+    expect(otherRecord.status).toBe(404)
+    const anonymous = await restClient.GET(`/${apiKeysSlug}/${apiKeyUser.id}`, { auth: false })
+    expect(anonymous.status).toBe(403)
+
+    const previous = await restClient.GET(`/${apiKeysSlug}/me`, {
+      auth: false,
+      headers: { Authorization: `${apiKeysSlug} API-Key ${oldKey}` },
+    })
+    expect((await previous.json()).user).toBeNull()
+  })
+
   test('should not backfill recognizable characters from short API keys', async ({ payload }) => {
     const apiKey = 'short-key'
     const result = await payload.create({

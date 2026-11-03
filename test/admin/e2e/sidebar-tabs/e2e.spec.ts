@@ -42,8 +42,8 @@ describe('Sidebar Tabs', () => {
       await page.waitForURL(adminUrl.admin)
       await openNav(page)
 
-      const foldersTabButton = page.locator('button[title="Folders"]')
-      const settingsTabButton = page.locator('button[title="Settings"]')
+      const foldersTabButton = page.getByRole('tab', { name: 'Folders', exact: true })
+      const settingsTabButton = page.getByRole('tab', { name: 'Settings', exact: true })
 
       await expect(foldersTabButton).toBeVisible()
       await expect(settingsTabButton).toBeVisible()
@@ -54,7 +54,7 @@ describe('Sidebar Tabs', () => {
       await page.waitForURL(adminUrl.admin)
       await openNav(page)
 
-      const customTabButton = page.locator('button[title="Folders"]').first()
+      const customTabButton = page.getByRole('tab', { name: 'Folders', exact: true }).first()
 
       await customTabButton.click()
 
@@ -68,7 +68,7 @@ describe('Sidebar Tabs', () => {
       await page.waitForURL(adminUrl.admin)
       await openNav(page)
 
-      const customTabButton = page.locator('button[title="Folders"]').first()
+      const customTabButton = page.getByRole('tab', { name: 'Folders', exact: true }).first()
 
       await customTabButton.click()
 
@@ -86,7 +86,7 @@ describe('Sidebar Tabs', () => {
       await page.waitForURL(adminUrl.admin)
       await openNav(page)
 
-      const defaultNavButton = page.locator('button[title="Collections"]')
+      const defaultNavButton = page.getByRole('tab', { name: 'Collections', exact: true })
 
       await expect(defaultNavButton).toBeVisible()
     })
@@ -96,7 +96,7 @@ describe('Sidebar Tabs', () => {
       await page.waitForURL(adminUrl.admin)
       await openNav(page)
 
-      const defaultNavButton = page.locator('button[title="Collections"]')
+      const defaultNavButton = page.getByRole('tab', { name: 'Collections', exact: true })
 
       await defaultNavButton.click()
 

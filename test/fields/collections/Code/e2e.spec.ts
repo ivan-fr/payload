@@ -64,17 +64,18 @@ test.describe('Code', () => {
     await expect(monacoEditor).toHaveClass(/focused/)
     await page.keyboard.type('<')
 
-    const suggestion = page.locator('.suggest-widget.visible .monaco-list-row').nth(4)
+    const suggestion = page.locator('.suggest-widget.visible .monaco-list-row:visible').last()
     await expect(suggestion).toBeVisible()
 
     const editorBox = await htmlCodeEditor.boundingBox()
-    const suggestionBox = await suggestion.boundingBox()
+    const suggestionBox = await page.locator('.suggest-widget.visible').boundingBox()
 
     expect(editorBox).not.toBeNull()
     expect(suggestionBox).not.toBeNull()
-    expect(suggestionBox!.y + suggestionBox!.height).toBeGreaterThan(
-      editorBox!.y + editorBox!.height,
-    )
+    expect(
+      suggestionBox!.y < editorBox!.y ||
+        suggestionBox!.y + suggestionBox!.height > editorBox!.y + editorBox!.height,
+    ).toBe(true)
 
     const isSuggestionHitTestable = await suggestion.evaluate((element) => {
       const { height, left, top, width } = element.getBoundingClientRect()

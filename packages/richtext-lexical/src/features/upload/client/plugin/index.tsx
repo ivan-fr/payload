@@ -15,6 +15,7 @@ import {
   COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_LOW,
   createCommand,
+  DRAGOVER_COMMAND,
   DROP_COMMAND,
   getDOMSelectionFromTarget,
   isHTMLElement,
@@ -44,8 +45,7 @@ function canDropImage(event: DragEvent): boolean {
   return !!(
     isHTMLElement(target) &&
     !target.closest('code, span.editor-image') &&
-    isHTMLElement(target.parentElement) &&
-    target.parentElement.closest('div.ContentEditable__root')
+    target.closest('div.ContentEditable__root')
   )
 }
 
@@ -325,6 +325,23 @@ export const UploadPlugin: PluginComponent<UploadFeaturePropsClient> = ({ client
         },
         COMMAND_PRIORITY_LOW,
       ),
+      editor.registerCommand(
+        DRAGOVER_COMMAND,
+        (event) => {
+          if (
+            !enabledCollectionSlugs.length ||
+            !event.dataTransfer?.types.includes('Files') ||
+            !canDropImage(event)
+          ) {
+            return false
+          }
+
+          // Native file drops are permitted only after dragover accepts the transfer.
+          event.preventDefault()
+          return true
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
       // Handle drag & drop of files from the desktop into the editor
       editor.registerCommand(
         DROP_COMMAND,
@@ -399,7 +416,7 @@ export const UploadPlugin: PluginComponent<UploadFeaturePropsClient> = ({ client
         COMMAND_PRIORITY_LOW,
       ),
     )
-  }, [editor])
+  }, [editor, enabledCollectionSlugs.length])
 
   return <UploadDrawer enabledCollectionSlugs={enabledCollectionSlugs} />
 }
