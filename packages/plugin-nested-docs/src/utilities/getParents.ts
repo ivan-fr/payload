@@ -1,5 +1,7 @@
 import type { CollectionConfig, Document, PayloadRequest } from 'payload'
 
+import { APIError } from 'payload'
+
 import type { NestedDocsPluginConfig } from '../types.js'
 
 export const getParents = async (
@@ -10,13 +12,27 @@ export const getParents = async (
   docs: Array<Record<string, unknown>> = [],
 ): Promise<Document[]> => {
   const parentSlug = pluginConfig?.parentFieldSlug || 'parent'
-  const parent = doc[parentSlug]
-  let retrievedParent: null | Record<string, unknown> = null
+  const visitedIDs = new Set<string>()
+  const visitedDocuments = new Set<Record<string, unknown>>()
+  const ancestors: Array<Record<string, unknown>> = []
+  let current: null | Record<string, unknown> = doc
 
-  if (parent) {
-    // If not auto-populated, and we have an ID
+  while (current) {
+    const id = current.id
+    if (visitedDocuments.has(current) || (id != null && visitedIDs.has(String(id)))) {
+      throw new APIError('Cannot save nested documents: a parent cycle was detected.', 400)
+    }
+    visitedDocuments.add(current)
+    if (id != null) visitedIDs.add(String(id))
+
+    const parent: unknown = current[parentSlug]
     if (typeof parent === 'string' || typeof parent === 'number') {
-      retrievedParent = await req.payload.findByID({
+      if (parent === '') break
+      // Check before fetching so even a missing self-reference cannot become a breadcrumb.
+      if (visitedIDs.has(String(parent))) {
+        throw new APIError('Cannot save nested documents: a parent cycle was detected.', 400)
+      }
+      current = await req.payload.findByID({
         id: parent,
         collection: collection.slug,
         depth: 0,
@@ -24,24 +40,11 @@ export const getParents = async (
         overrideAccess: true,
         req,
       })
+    } else {
+      current = parent && typeof parent === 'object' ? (parent as Record<string, unknown>) : null
     }
-
-    // If auto-populated
-    if (typeof parent === 'object') {
-      retrievedParent = parent as Record<string, unknown>
-    }
-
-    if (retrievedParent) {
-      if (retrievedParent[parentSlug]) {
-        return getParents(req, pluginConfig, collection, retrievedParent, [
-          retrievedParent,
-          ...docs,
-        ])
-      }
-
-      return [retrievedParent, ...docs]
-    }
+    if (current) ancestors.push(current)
   }
 
-  return docs
+  return [...ancestors.reverse(), ...docs]
 }
