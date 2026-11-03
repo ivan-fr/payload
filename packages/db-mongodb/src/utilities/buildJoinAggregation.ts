@@ -112,10 +112,14 @@ export const buildJoinAggregation = async ({
       where: whereJoin,
     })
 
-    const sortProperty = Object.keys(sort)[0]! // assert because buildSortParam always returns at least 1 key.
-    const sortDirection = sort[sortProperty] === 'asc' ? 1 : -1
-
-    const projectSort = sortProperty !== '_id' && sortProperty !== 'relationTo'
+    const sortSpec = Object.fromEntries(
+      Object.entries(sort).map(([key, direction]) => [key, direction === 'asc' ? 1 : -1]),
+    ) as Record<string, -1 | 1>
+    const projectSort = Object.fromEntries(
+      Object.keys(sort)
+        .filter((key) => key !== '_id' && key !== 'relationTo')
+        .map((key) => [key, 1]),
+    )
 
     const aliases: string[] = []
 
@@ -159,9 +163,7 @@ export const buildJoinAggregation = async ({
           pipeline: [
             ...basePipeline,
             {
-              $sort: {
-                [sortProperty]: sortDirection,
-              },
+              $sort: sortSpec,
             },
             ...(limitJoin > 0
               ? [
@@ -174,9 +176,7 @@ export const buildJoinAggregation = async ({
             {
               $project: {
                 value: '$_id',
-                ...(projectSort && {
-                  [sortProperty]: 1,
-                }),
+                ...projectSort,
                 relationTo: 1,
               },
             },
@@ -233,9 +233,7 @@ export const buildJoinAggregation = async ({
         [`${as}.docs`]: {
           $sortArray: {
             input: `$${as}.docs`,
-            sortBy: {
-              [sortProperty]: sortDirection,
-            },
+            sortBy: sortSpec,
           },
         },
       },
@@ -325,8 +323,9 @@ export const buildJoinAggregation = async ({
         sort: useDrafts ? getQueryDraftsSort({ collectionConfig, sort: sortJoin }) : sortJoin,
         timestamps: true,
       })
-      const sortProperty = Object.keys(sort)[0]!
-      const sortDirection = sort[sortProperty] === 'asc' ? 1 : -1
+      const sortSpec = Object.fromEntries(
+        Object.entries(sort).map(([key, direction]) => [key, direction === 'asc' ? 1 : -1]),
+      ) as Record<string, -1 | 1>
 
       const $match = await JoinModel.buildQuery({
         locale,
@@ -343,7 +342,7 @@ export const buildJoinAggregation = async ({
       const pipeline: Exclude<PipelineStage, PipelineStage.Merge | PipelineStage.Out>[] = [
         { $match },
         {
-          $sort: { [sortProperty]: sortDirection },
+          $sort: sortSpec,
         },
       ]
 

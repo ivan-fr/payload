@@ -16,4 +16,6 @@ export const destroy: Destroy = async function destroy(this: DrizzleAdapter) {
     this.resolveInitializing = res
     this.rejectInitializing = rej
   })
+  // Reinitialization can fail before any transaction starts awaiting this promise.
+  void this.initializing.catch(() => undefined)
 }

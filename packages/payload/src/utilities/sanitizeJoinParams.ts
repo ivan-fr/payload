@@ -1,4 +1,4 @@
-import type { JoinQuery } from '../types/index.js'
+import type { JoinQuery, Sort } from '../types/index.js'
 
 import { isNumber } from './isNumber.js'
 
@@ -7,7 +7,7 @@ export type JoinParams =
       [schemaPath: string]:
         | {
             limit?: unknown
-            sort?: string
+            sort?: Sort
             where?: unknown
           }
         | false

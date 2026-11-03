@@ -2,6 +2,12 @@ import type { CollectionConfig } from '../../collections/config/types.js'
 
 export const migrationsCollection: CollectionConfig = {
   slug: 'payload-migrations',
+  access: {
+    create: () => false,
+    delete: () => false,
+    read: () => false,
+    update: () => false,
+  },
   admin: {
     hidden: true,
   },

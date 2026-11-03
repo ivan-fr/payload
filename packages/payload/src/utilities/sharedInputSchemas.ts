@@ -130,7 +130,7 @@ export const joinsSchema = z
             count: z.optional(z.boolean()),
             limit: z.optional(z.number()),
             page: z.optional(z.number()),
-            sort: z.optional(z.string()),
+            sort: sortSchema,
             where: z.optional(whereInputSchema),
           }),
         ]),

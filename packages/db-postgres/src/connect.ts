@@ -113,10 +113,13 @@ export const connect: Connect = async function connect(
       })
     }
 
+    const connectionError = new Error(`Error: cannot connect to Postgres: ${err.message}`, {
+      cause: err,
+    })
     if (typeof this.rejectInitializing === 'function') {
-      this.rejectInitializing()
+      this.rejectInitializing(connectionError)
     }
-    throw new Error(`Error: cannot connect to Postgres: ${err.message}`)
+    throw connectionError
   }
 
   await this.createExtensions()

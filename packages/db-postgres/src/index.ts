@@ -84,6 +84,8 @@ export function postgresAdapter(args: Args): DatabaseAdapterObj<PostgresAdapter>
       resolveInitializing = res
       rejectInitializing = rej
     })
+    // connect() reports failures; observe this promise even when no transaction awaits it.
+    void initializing.catch(() => undefined)
 
     if (args.schemaName) {
       adapterSchema = pgSchema(args.schemaName)

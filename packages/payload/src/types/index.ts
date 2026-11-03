@@ -186,7 +186,7 @@ export type JoinQuery<TSlug extends CollectionSlug = string> =
                   count?: boolean
                   limit?: number
                   page?: number
-                  sort?: string
+                  sort?: Sort
                   where?: Where
                 }
               | false

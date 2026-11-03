@@ -137,7 +137,7 @@ declare module 'payload' {
     }[]
     push: boolean
     readReplicasAfterWriteInterval: number
-    rejectInitializing: () => void
+    rejectInitializing: (reason?: unknown) => void
     relationshipsSuffix?: string
     resolveInitializing: () => void
     schema: Record<string, unknown>

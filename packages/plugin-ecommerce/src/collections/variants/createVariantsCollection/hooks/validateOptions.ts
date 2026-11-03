@@ -26,6 +26,7 @@ export const validateOptions: (props?: Props) => Validate =
       id: productID,
       collection: productsCollectionSlug,
       depth: 1,
+      draft: true,
       joins: {
         variants: {
           where: {
@@ -60,7 +61,10 @@ export const validateOptions: (props?: Props) => Validate =
       const existingOptions: (number | string)[][] = []
 
       variants.forEach((variant: any) => {
-        existingOptions.push(variant.options)
+        // Draft joins may return the current variant despite the query-level ID filter.
+        if (data.id === undefined || String(variant.id) !== String(data.id)) {
+          existingOptions.push(variant.options)
+        }
       })
 
       const exists = existingOptions.some(
