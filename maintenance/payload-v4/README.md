@@ -1,8 +1,8 @@
-# Payload v4 maintenance: server and upload regressions
+# Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes twelve reported server and upload regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes eighteen reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) records **565 open issues**, excluding pull requests. Eleven snapshot issues have scoped fixes here; **554 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **12 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) records **565 open issues**, excluding pull requests. Seventeen snapshot issues have scoped fixes here; **548 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **18 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -53,8 +53,32 @@ Final validation commands:
 - `pnpm lint --quiet`: passed. This is the CI package/tool lint scope; the existing localization integration file has unrelated test-lint violations outside that scope.
 - Repository formatting, the 24 CI helper tests and actionlint are checked before publication. Full remote validation must pass on the final PR revision before merge.
 
+## Third batch: six additional open issues
+
+These official reports were checked open on 2026-11-03. The fixes are additions to the twelve previous fixes on PR #1; the base remains fork main at `dec32f05dcd892b71359909388c78d747eeea03c`. GCS report #18284 was investigated but excluded because v4 already inserts storage fields when disabled.
+
+| Official issue                                               | Result                                                                                                                                                  | Regression evidence                                                                                                                                                                                                                                   |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#18768](https://github.com/payloadcms/payload/issues/18768) | Local API calls inherit the caller's fallback locale when no override is supplied.                                                                      | Locale code, false and fallback-array preservation; explicit override and fresh-request default controls; real SQLite localized document read retaining the request fallback.                                                                         |
+| [#18324](https://github.com/payloadcms/payload/issues/18324) | Config discovery resolves rootDir/outDir against tsconfig; synchronous and asynchronous upward searches normalize relative paths and terminate at root. | Bounded Node subprocesses reproduce both infinite loops, parent-file discovery, and config path selection relative to a tsconfig outside the working directory.                                                                                       |
+| [#19050](https://github.com/payloadcms/payload/issues/19050) | MCP delete accepts trash and forwards true/false to single and bulk deletes.                                                                            | Strict schema accepts trash while rejecting access bypass; actual tool handler forwards trash, request and authorized access to a boundary stub.                                                                                                      |
+| [#18338](https://github.com/payloadcms/payload/issues/18338) | Variant title/option validation and cart subtotal reads reuse the current request transaction.                                                          | Transaction-visibility boundary stubs for product/option/cart reads and duplicate validation; real SQLite product, variant and cart creation in one transaction, rolled back afterward.                                                               |
+| [#18406](https://github.com/payloadcms/payload/issues/18406) | Single and bulk document-lock reads reuse the SQL transaction connection, preserving the MongoDB session exception.                                     | A transaction-aware database stub rejects reads that would acquire another connection; active foreign locks still return 423, bulk locking filters own/expired locks, and overrides skip reads. This is not a live PostgreSQL pool exhaustion test.   |
+| [#18055](https://github.com/payloadcms/payload/issues/18055) | Task/workflow errors retain their cause and original handler stack through function and JSON workflows.                                                 | Actual runners and error persistence functions retain handler frames in job and task-log updates; cancellation/ownership signals and non-Error throws retain behavior. SQLite integration reads persisted task and workflow errors from payload-jobs. |
+
+Before fixing, the final focused unit suite had **27 failing cases across all seven files** (9 controls passed). The localized read and the two persisted job-stack integration cases also fail against the original implementation. External provider/database boundaries are explicitly stubbed in unit tests. A live PostgreSQL pool exhaustion regression remains unverified; SQLite alone does not establish PostgreSQL transaction behavior. The complete remote database suites must also pass.
+
+Final local validation:
+
+- `pnpm exec vitest run --project unit packages/payload packages/plugin-cloud-storage packages/drizzle packages/graphql packages/plugin-ecommerce packages/plugin-mcp packages/storage-s3 packages/storage-gcs packages/storage-azure packages/storage-r2 packages/storage-vercel-blob`: **1,982 passed, 2 pre-existing skips, 192 files**, including all 36 new unit cases and the previous twelve fixes.
+- Selected SQLite integration: **10 passed** across six files, using the isolated `SQLITE_URL=file:/tmp/payload-eighteen-final-20261103.db PAYLOAD_DATABASE=sqlite`. Four new cases cover inherited fallback, the ecommerce transaction, and persisted task/workflow stacks; the six prior selected regressions still pass. The name filter excludes 508 unrelated cases and is not a full integration run.
+- `pnpm exec tsc -b packages/payload packages/plugin-ecommerce packages/plugin-mcp --pretty false`: passed, including referenced projects.
+- `pnpm lint --quiet`, `pnpm format:check`, and the 24 CI helper tests: passed.
+
+Full required CI must pass on the final PR revision before merge. No upstream issue is closed by this fork.
+
 ## Remaining mission
 
-The requested resolution of every open issue is unfinished. Continue from the 554 unassessed snapshot entries: establish v4 applicability, inspect related fixes/PRs, reproduce the problem, add a meaningful regression test, then implement and validate. Feature requests and reports requiring a design decision or missing reproduction need separate treatment.
+The requested resolution of every open issue is unfinished. Continue from the 548 unassessed snapshot entries: establish v4 applicability, inspect related fixes/PRs, reproduce the problem, add a meaningful regression test, then implement and validate. Feature requests and reports requiring a design decision or missing reproduction need separate treatment.
 
 High-impact candidates for subsequent investigation include scheduled-publish document access (#19192), bulk-operation base filters (#19189), and tenant isolation during bulk deletes (#16325). These are priorities to investigate, not claims of confirmed vulnerabilities on this branch.

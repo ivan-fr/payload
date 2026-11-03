@@ -26,8 +26,12 @@ const getTSConfigPaths = (): {
 
   try {
     const rootConfigDir = path.resolve(tsConfigDir, tsConfig.compilerOptions!.baseUrl || '')
-    const srcPath = tsConfig.compilerOptions?.rootDir || path.resolve(process.cwd(), 'src')
-    const outPath = tsConfig.compilerOptions?.outDir || path.resolve(process.cwd(), 'dist')
+    const srcPath = tsConfig.compilerOptions?.rootDir
+      ? path.resolve(tsConfigDir, tsConfig.compilerOptions.rootDir)
+      : path.resolve(process.cwd(), 'src')
+    const outPath = tsConfig.compilerOptions?.outDir
+      ? path.resolve(tsConfigDir, tsConfig.compilerOptions.outDir)
+      : path.resolve(process.cwd(), 'dist')
     let configPath = tsConfig.compilerOptions?.paths?.['@payload-config']?.[0]
 
     if (configPath) {
