@@ -77,7 +77,8 @@ export const getAfterChangeHook =
         return withProxyPrefix(doc)
       }
 
-      req.context.skipCloudStorage = true
+      const originalContext = req.context
+      req.context = { ...originalContext, skipCloudStorage: true }
       req.file = undefined
       req.payloadUploadSizes = undefined
       const originalQuery = req.query
@@ -99,7 +100,7 @@ export const getAfterChangeHook =
         return withProxyPrefix({ ...doc, ...updatedDoc })
       } finally {
         req.query = originalQuery
-        delete req.context.skipCloudStorage
+        req.context = originalContext
       }
     }
 
@@ -146,10 +147,8 @@ export const getAfterChangeHook =
         let docWithMetadata = doc
 
         if (Object.keys(uploadMetadata).length > 0) {
-          if (!req.context) {
-            req.context = {}
-          }
-          req.context.skipCloudStorage = true
+          const originalContext = req.context
+          req.context = { ...originalContext, skipCloudStorage: true }
 
           // Clear to prevent re-processing
           req.file = undefined
@@ -170,7 +169,7 @@ export const getAfterChangeHook =
             // Persist all adapter metadata, but do not add unselected fields to the response.
             docWithMetadata = select ? { ...doc, ...updatedDoc } : { ...doc, ...uploadMetadata }
           } finally {
-            delete req.context.skipCloudStorage
+            req.context = originalContext
           }
         }
 

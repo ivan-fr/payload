@@ -1,8 +1,8 @@
-# Payload v4 maintenance: first server regression batch
+# Payload v4 maintenance: server and upload regressions
 
-This branch fixes six reported server regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes twelve reported server and upload regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) records **565 open issues**, excluding pull requests. Six have scoped fixes here; **559 remain unassessed**. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) records **565 open issues**, excluding pull requests. Eleven snapshot issues have scoped fixes here; **554 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **12 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -30,8 +30,31 @@ The first clean checkout needed Payload's SWC compilation for its CLI subprocess
 
 Live PostgreSQL, MongoDB and Cloudflare D1 integration, full application builds, browser tests, and a full monorepo test run are **not claimed**. In particular, the Postgres query is compiled and the shared transaction code is exercised with a real SQLite driver, but a live Postgres deferred-constraint test remains necessary before treating that adapter as fully verified. No UI components were changed.
 
+## Second batch: six additional open issues
+
+The branch was synchronized with fork `main` at `dec32f05dcd892b71359909388c78d747eeea03c` before these changes. Each issue below was checked open on the official `payloadcms/payload` repository on 2026-11-03 and reproduced on this source revision before fixing it. No upstream issue is closed by this fork.
+
+| Official issue                                               | Result                                                                                                                                                                                  | Regression evidence                                                                                                                                                                      |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#19292](https://github.com/payloadcms/payload/issues/19292) | File URLs keep the object filename without a trailing slash; admin/API routes and external URLs retain their behavior.                                                                  | Relative/absolute URLs with basePath, encoded filenames, transformer/prefix query strings, and route/external URL controls.                                                              |
+| [#19267](https://github.com/payloadcms/payload/issues/19267) | Config reloads retain shared, already-sanitized blocks instead of dropping them.                                                                                                        | Repeated sanitization retains the flattened block and adds no duplicate base ID fields.                                                                                                  |
+| [#19246](https://github.com/payloadcms/payload/issues/19246) | Direct-upload name collision checks use the signed semantic prefix when the filename compound index contains prefix. Global filename uniqueness stays global.                           | Real filename lookup and signed receipt logic with a query-aware database stub: cross-prefix, same-prefix, global, empty-prefix and composite-prefix cases.                              |
+| [#18191](https://github.com/payloadcms/payload/issues/18191) | Internal metadata writes use isolated recursion context and restore the original context even if nested writes replace it or reject. Preserved buffers belong to the current operation. | Reused caller context across two uploads; normal and managed metadata success/failure; request query restoration; stale-buffer replacement. The related upstream PR #17558 remains open. |
+| [#18382](https://github.com/payloadcms/payload/issues/18382) | Downloaded filesize is measured from the bytes read, rather than Content-Length.                                                                                                        | Missing and inaccurate headers with a multibyte body; the returned bytes and size must agree.                                                                                            |
+| [#18180](https://github.com/payloadcms/payload/issues/18180) | An omitted request locale resolves to defaultLocale even when translation fallback is disabled.                                                                                         | Null/undefined/empty locale cases, explicit/wildcard controls, and SQLite REST collection queries, document reads and global reads.                                                      |
+
+Before the fixes, all six focused unit files failed (17 failing cases), and the localized REST query returned 500. After the fixes, the focused cases pass and REST returns 200 with default-locale data. Unit tests stub provider/database boundaries where stated; they do not claim to contact live S3, R2, Azure, GCS or Vercel storage.
+
+Final validation commands:
+
+- `pnpm exec vitest run --project unit packages/payload packages/plugin-cloud-storage packages/drizzle packages/graphql packages/storage-s3 packages/storage-gcs packages/storage-azure packages/storage-r2 packages/storage-vercel-blob`: 1,748 passed, 2 pre-existing skips, 174 files.
+- Selected SQLite integration coverage: **6 passed** (the three first-batch regressions and the three REST locale regressions), using `SQLITE_URL=file:/tmp/payload-twelve-isolated-20261103.db PAYLOAD_DATABASE=sqlite`. A previous run could not initialize the reused local database because it was corrupt; the isolated database run has no unhandled errors.
+- `pnpm exec tsc -b packages/plugin-cloud-storage --pretty false`: passed (including Payload and referenced projects).
+- `pnpm lint --quiet`: passed. This is the CI package/tool lint scope; the existing localization integration file has unrelated test-lint violations outside that scope.
+- Repository formatting, the 24 CI helper tests and actionlint are checked before publication. Full remote validation must pass on the final PR revision before merge.
+
 ## Remaining mission
 
-The requested resolution of every open issue is unfinished. Continue from the 559 unassessed inventory entries: establish v4 applicability, inspect related fixes/PRs, reproduce the problem, add a meaningful regression test, then implement and validate. Feature requests and reports requiring a design decision or missing reproduction need separate treatment.
+The requested resolution of every open issue is unfinished. Continue from the 554 unassessed snapshot entries: establish v4 applicability, inspect related fixes/PRs, reproduce the problem, add a meaningful regression test, then implement and validate. Feature requests and reports requiring a design decision or missing reproduction need separate treatment.
 
 High-impact candidates for subsequent investigation include scheduled-publish document access (#19192), bulk-operation base filters (#19189), and tenant isolation during bulk deletes (#16325). These are priorities to investigate, not claims of confirmed vulnerabilities on this branch.

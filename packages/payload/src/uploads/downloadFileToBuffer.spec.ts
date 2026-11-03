@@ -52,6 +52,25 @@ describe('downloadFileToBuffer', () => {
     vitest.restoreAllMocks()
   })
 
+  test.each([undefined, '1', '999'])(
+    'should measure downloaded bytes instead of Content-Length %s',
+    async (length) => {
+      const bytes = Buffer.from('é🙂')
+      const headers = new Headers({ 'content-type': 'text/plain' })
+      if (length !== undefined) headers.set('content-length', length)
+      vitest.spyOn(global, 'fetch').mockResolvedValue(new Response(bytes, { headers }))
+
+      const file = await downloadFileToBuffer({
+        data: { filename: 'file.txt', url: 'https://files.example.com/file.txt' },
+        req: createRequest(),
+        uploadConfig: { skipSafeFetch: true },
+      })
+
+      expect(file.data).toEqual(bytes)
+      expect(file.size).toBe(bytes.byteLength)
+    },
+  )
+
   test('should resolve relative URLs against the configured server origin', async () => {
     const fetchMock = vitest.spyOn(global, 'fetch').mockResolvedValue(successfulResponse())
     const req = createRequest({

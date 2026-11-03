@@ -3715,8 +3715,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18180",
       "labels": ["area: localization", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-03"
     },
     {
       "number": 18182,
@@ -3733,8 +3735,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18191",
       "labels": ["plugin: cloud-storage", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-03"
     },
     {
       "number": 18192,
@@ -4097,8 +4101,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18382",
       "labels": ["status: needs-triage", "area: core", "Bug", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-03"
     },
     {
       "number": 18383,
@@ -5094,8 +5100,10 @@
       "url": "https://github.com/payloadcms/payload/issues/19246",
       "labels": ["plugin: cloud-storage", "plugin: storage-*", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-03"
     },
     {
       "number": 19251,
@@ -5121,8 +5129,10 @@
       "url": "https://github.com/payloadcms/payload/issues/19267",
       "labels": ["db: postgres", "area: core", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-03"
     },
     {
       "number": 19268,
@@ -5133,5 +5143,18 @@
       "status": "unassessed",
       "verified_source_version": null
     }
-  ]
+  ],
+  "additional_issues": [
+    {
+      "number": 19292,
+      "title": "File URLs get a trailing slash when Next.js trailingSlash is enabled (404 on every upload)",
+      "url": "https://github.com/payloadcms/payload/issues/19292",
+      "labels": ["area: core", "Bug", "area: uploads"],
+      "added_date": "2026-11-03",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6"
+    }
+  ],
+  "branch_fix_count": 12
 }
