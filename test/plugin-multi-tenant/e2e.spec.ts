@@ -1173,6 +1173,7 @@ test.describe('Multi Tenant', () => {
         tenant: 'Blue Dog',
         urlUtil: foldersURL,
       })
+      await closeNav(page)
 
       // Switch to By Folder tab
       await page.locator('#hierarchy-view-pill').click()
@@ -1409,10 +1410,12 @@ async function openAssignTenantModal({
   const assignTenantModal = page.locator('#assign-tenant-field-modal')
 
   const globalTenant = await getSelectedTenantFilterName({ page, payload })
-  if (!globalTenant) {
+  if (!globalTenant || (await assignTenantModal.isVisible())) {
     await expect(assignTenantModal).toBeVisible()
     return
   }
+
+  await closeNav(page)
 
   // Open the assign tenant modal
   const docControlsPopup = page.locator('.popup__content')
@@ -1443,9 +1446,6 @@ async function selectDocumentTenant({
   payload: PayloadTestSDK<Config>
   tenant: string
 }): Promise<void> {
-  if (!(await page.locator('#assign-tenant-field-modal').isVisible())) {
-    await closeNav(page)
-  }
   await openAssignTenantModal({ page, payload })
   await selectInput({
     multiSelect: false,
@@ -1462,6 +1462,7 @@ async function selectDocumentTenant({
     await assignTenantModal.locator('button', { hasText: 'Cancel' }).click()
     await expect(assignTenantModal).toBeHidden()
   }
+  await closeNav(page)
 }
 
 async function getSelectedTenantFilterName({

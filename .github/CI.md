@@ -32,7 +32,7 @@ GitHub repository settings, rather than a YAML file alone, enforce the required 
 
 ## Targeted diagnosis after a failure
 
-Manual runs default to `mode: targeted`; `suites` is a JSON array of failed Next.js suite names or `{ "suite": "v4", "framework": "tanstack-start" }` objects to select another framework. All shards of those suites run, with a fresh build and E2E preparation, while unrelated test jobs are omitted. The default selection contains only `v4` on TanStack, the remaining applicable failure after targeted run 41596871640. Select `mode: full` to run the merge validation manually. PR, push-to-main and merge-group events always use full coverage.
+Manual runs default to `mode: targeted`; `suites` is a JSON array of failed Next.js suite names or `{ "suite": "v4", "framework": "tanstack-start" }` objects to select another framework. All shards of those suites run, with a fresh build and E2E preparation, while unrelated test jobs are omitted. The default selection contains only the conditional-provider multi-tenant suite on TanStack, the remaining failure from full run 41599240289. Select `mode: full` to run the merge validation manually. PR, push-to-main and merge-group events always use full coverage.
 
 Targeted runs report **`Payload 4 targeted tests`**, never the required `Payload 4 required tests` context (even as a skipped check). They cannot satisfy branch protection or reuse another commit's green results. A retry via GitHub's **Re-run failed jobs** is appropriate for the same code revision; it does not load newly pushed fixes. A corrective commit may intentionally use `[skip ci]` during diagnosis to avoid starting the complete PR matrix, but merge stays blocked until the new revision passes a full run.
 
@@ -73,3 +73,9 @@ The full run passed build, lint, unit/component tests, types, type/schema genera
 Diagnosis selects only the two applicable failed suite/framework pairs. The corrected PR revision still requires a fresh full validation before merge; neither the old successful jobs nor the diagnostic gate satisfies that requirement.
 
 Targeted run 41596871640 passed the conditional-provider multi-tenant suite. The v4 source asset fix succeeded, exposing an initialization mismatch: the fixture uses `prefillOnly: true`, so its browser must wait for the login page before explicitly logging in. Its initialization now sets `noAutoLogin: true`, and cleanup closes the context even if page initialization fails. Diagnosis is narrowed to v4 on TanStack only.
+
+## Multi-tenant dialog follow-up (run 41599240289)
+
+All required job families passed except conditional-provider multi-tenant on TanStack. The Lexical BlocksFeature test raced the automatic tenant dialog: its early visibility check was false, then the dialog opened before the sidebar close click. The helper now resolves whether a global tenant is selected first, waits for the automatic dialog when none is selected, and closes the sidebar after confirming or cancelling the dialog. Explicit assignment with an existing selected tenant still closes the sidebar before using the document menu. No forced clicks or increased timeouts are used.
+
+The hierarchy move test also closes the sidebar after selecting its tenant, before interacting with the table, to prevent the sidebar from covering the folder link (the flaky case in the same run). All tenant isolation assertions remain in place. The targeted selection is narrowed to this failed suite on TanStack.
