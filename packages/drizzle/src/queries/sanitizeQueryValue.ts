@@ -10,6 +10,7 @@ import { getCollectionIdType } from '../utilities/getCollectionIdType.js'
 import { isPolymorphicRelationship } from '../utilities/isPolymorphicRelationship.js'
 import { isUUIDType } from '../utilities/isUUIDType.js'
 import { isRawConstraint } from '../utilities/rawConstraint.js'
+import { escapeLike } from './escapeLike.js'
 
 type SanitizeQueryValueArgs = {
   adapter: DrizzleAdapter
@@ -265,10 +266,10 @@ export const sanitizeQueryValue = ({
       ['number', 'text'].includes(field.type)
     ) {
       // For hasMany text/number/select fields with array values, wrap each element with % for LIKE matching
-      formattedValue = formattedValue.map((val) => `%${val}%`)
+      formattedValue = formattedValue.map((val) => `%${escapeLike({ value: String(val) })}%`)
     } else if (!Array.isArray(formattedValue)) {
       // For non-array values, wrap with % for LIKE matching
-      formattedValue = `%${formattedValue}%`
+      formattedValue = `%${escapeLike({ value: String(formattedValue) })}%`
     }
   }
 

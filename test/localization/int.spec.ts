@@ -4319,6 +4319,45 @@ test.suite('Localization', { config: './config.ts', resetBetweenTests: false }, 
       })
     })
 
+    test('should query localized fields over REST without an explicit locale when fallback is disabled', async ({
+      restClient,
+    }) => {
+      const response = await restClient.GET(`/${collection}`, {
+        query: { where: { title: { equals: englishTitle } } },
+      })
+      const result = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(result.docs).toContainEqual(
+        expect.objectContaining({ id: post1.id, title: englishTitle }),
+      )
+    })
+
+    test('should read localized document fields over REST without an explicit locale when fallback is disabled', async ({
+      restClient,
+    }) => {
+      const response = await restClient.GET(`/${collection}/${post1.id}`)
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({ id: post1.id, title: englishTitle })
+    })
+
+    test('should read localized global fields over REST without an explicit locale when fallback is disabled', async ({
+      payload,
+      restClient,
+    }) => {
+      await payload.updateGlobal({
+        slug: global,
+        data: { text: englishTitle },
+        locale: englishLocale,
+        overrideAccess: true,
+      })
+      const response = await restClient.GET(`/globals/${global}`)
+
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({ text: englishTitle })
+    })
+
     test.describe('fallback locale', () => {
       test('create english', async ({ payload }) => {
         const allDocs = await payload.find({

@@ -22,7 +22,7 @@ import { authRootEndpoints } from '../auth/endpoints/index.js'
 import { supportedPasswordHashIterations } from '../auth/strategies/local/generatePasswordSaltHash.js'
 import { sanitizeCollection } from '../collections/config/sanitize.js'
 import { migrationsCollection } from '../database/migrations/migrationsCollection.js'
-import { DuplicateCollection, InvalidConfiguration } from '../errors/index.js'
+import { DuplicateCollection, DuplicateGlobal, InvalidConfiguration } from '../errors/index.js'
 import { defaultTimezones } from '../fields/baseFields/timezone/defaultTimezones.js'
 import { sanitizeGlobal } from '../globals/config/sanitize.js'
 import { resolveHierarchyCollections } from '../hierarchy/resolveHierarchyCollections.js'
@@ -431,6 +431,7 @@ export const sanitizeConfig = (incomingConfig: Config): SanitizedConfig => {
       const sanitizedBlock = block
 
       if (sanitizedBlock._sanitized === true) {
+        config.blocks.push(flattenBlock({ block: sanitizedBlock }))
         continue
       }
       sanitizedBlock._sanitized = true
@@ -716,6 +717,22 @@ export const sanitizeConfig = (incomingConfig: Config): SanitizedConfig => {
 
   for (const sanitizeRichText of richTextSanitizers) {
     sanitizeRichText(config as SanitizedConfig)
+  }
+
+  // Validate the completed namespace, including collections added by sanitization.
+  const finalCollectionSlugs = new Set(config.collections!.map(({ slug }) => slug))
+  const globalSlugs = new Set<string>()
+
+  for (const global of config.globals!) {
+    if (globalSlugs.has(global.slug)) {
+      throw new DuplicateGlobal(global)
+    }
+    if (finalCollectionSlugs.has(global.slug)) {
+      throw new InvalidConfiguration(
+        `Global slug "${global.slug}" is already in use by a collection`,
+      )
+    }
+    globalSlugs.add(global.slug)
   }
 
   return config as SanitizedConfig

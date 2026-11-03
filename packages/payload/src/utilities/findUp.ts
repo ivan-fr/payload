@@ -13,6 +13,7 @@ export function findUpSync({
   dir: string
   fileNames?: string[]
 }): null | string {
+  dir = path.resolve(dir)
   const { root } = path.parse(dir)
 
   while (true) {
@@ -60,6 +61,7 @@ export async function findUp({
   dir: string
   fileNames?: string[]
 }): Promise<null | string> {
+  dir = path.resolve(dir)
   const { root } = path.parse(dir)
 
   while (true) {

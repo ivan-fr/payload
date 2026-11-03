@@ -18,7 +18,9 @@ export const commitTransaction: CommitTransaction = async function commitTransac
 
   try {
     await session.resolve()
-  } catch (_) {
-    await session.reject()
+  } catch (err) {
+    // Cleanup must not replace the error that prevented the commit.
+    await session.reject().catch(() => {})
+    throw err
   }
 }

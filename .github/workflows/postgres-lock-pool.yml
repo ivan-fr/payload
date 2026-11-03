@@ -1,0 +1,68 @@
+name: PostgreSQL lock pool regression
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/postgres-lock-pool.yml'
+      - '.github/actions/setup/**'
+      - 'packages/payload/src/utilities/checkDocumentLockStatus.ts'
+      - 'packages/payload/src/collections/operations/**'
+      - 'packages/db-postgres/**'
+      - 'packages/drizzle/**'
+      - 'test/locked-documents/**'
+      - 'test/locked-documents-pool/**'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: postgres-lock-pool-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  postgres-lock-pool:
+    name: PostgreSQL pool max=1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PAYLOAD_DATABASE: postgres
+      DO_NOT_TRACK: '1'
+      NEXT_TELEMETRY_DISABLED: '1'
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup
+      - name: Start isolated PostgreSQL with an ephemeral password
+        shell: bash
+        run: |
+          set -euo pipefail
+          export POSTGRES_PASSWORD="$(openssl rand -hex 32)"
+          echo "::add-mask::${POSTGRES_PASSWORD}"
+          printf 'POSTGRES_URL=postgresql://payload:%s@127.0.0.1:5432/payload_lock_pool\n' "$POSTGRES_PASSWORD" >> "$GITHUB_ENV"
+          docker run --detach --name payload-lock-pool \
+            --publish 127.0.0.1:5432:5432 \
+            --env POSTGRES_USER=payload \
+            --env POSTGRES_PASSWORD \
+            --env POSTGRES_DB=payload_lock_pool \
+            --health-cmd 'pg_isready -U payload -d payload_lock_pool' \
+            --health-interval 1s --health-timeout 5s --health-retries 30 \
+            postgres:18-alpine
+          for attempt in {1..30}; do
+            if docker exec payload-lock-pool pg_isready -U payload -d payload_lock_pool; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs payload-lock-pool
+          exit 1
+      - name: Compile Payload CLI
+        run: pnpm --filter payload build:swc
+      - name: Run real PostgreSQL connection-pool regressions
+        run: pnpm test:int test/locked-documents-pool/int.spec.ts
+      - name: Stop PostgreSQL
+        if: always()
+        run: docker rm --force payload-lock-pool

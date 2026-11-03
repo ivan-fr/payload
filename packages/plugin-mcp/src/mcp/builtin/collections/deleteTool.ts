@@ -23,7 +23,7 @@ export const deleteDocumentsTool = defineCollectionTool({
   const payload = req.payload
   const logger = getLogger({ payload })
 
-  const { id, depth, fallbackLocale, locale, where } = input
+  const { id, depth, fallbackLocale, locale, trash, where } = input
 
   logger.info(
     `Deleting document from collection: ${slug}${id ? ` with ID: ${id}` : ' with where clause'}${locale ? `, locale: ${locale}` : ''}`,
@@ -39,6 +39,7 @@ export const deleteDocumentsTool = defineCollectionTool({
         req,
         ...(locale && { locale }),
         ...(fallbackLocale !== undefined && { fallbackLocale }),
+        ...(trash !== undefined && { trash }),
       })
 
       return {
@@ -66,6 +67,7 @@ export const deleteDocumentsTool = defineCollectionTool({
       where,
       ...(locale && { locale }),
       ...(fallbackLocale !== undefined && { fallbackLocale }),
+      ...(trash !== undefined && { trash }),
     })
     const docs = result.docs || []
     const errors = result.errors || []

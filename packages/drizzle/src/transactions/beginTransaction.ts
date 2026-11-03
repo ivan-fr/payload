@@ -18,6 +18,7 @@ export const beginTransaction: BeginTransaction = async function beginTransactio
 
     let transactionReady: () => void
     let transactionFailed: (err: unknown) => void
+    let transactionFailure: { error: unknown } | undefined
 
     // Await initialization here
     // Prevent race conditions where the adapter may be
@@ -35,7 +36,11 @@ export const beginTransaction: BeginTransaction = async function beginTransactio
         await new Promise<void>((res, rej) => {
           resolve = () => {
             res()
-            return done
+            return done.then(() => {
+              if (transactionFailure) {
+                throw transactionFailure.error
+              }
+            })
           }
           reject = () => {
             // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
@@ -46,6 +51,8 @@ export const beginTransaction: BeginTransaction = async function beginTransactio
         })
       }, options || this.transactionOptions)
       .catch((err) => {
+        // Preserve errors raised after the callback, including a refused COMMIT.
+        transactionFailure = { error: err }
         // Connection failed before callback ran - reject instead of hanging forever
         transactionFailed(err)
       })

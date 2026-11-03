@@ -34,6 +34,7 @@ import { isValidStringID } from '../utilities/isValidStringID.js'
 import { DistinctSymbol, isRawConstraint } from '../utilities/rawConstraint.js'
 import { buildAndOrConditions } from './buildAndOrConditions.js'
 import { buildOperatorConstraint } from './buildOperatorConstraint.js'
+import { escapeLike } from './escapeLike.js'
 import { getTableAlias } from './getTableAlias.js'
 import { getTableColumnFromPath } from './getTableColumnFromPath.js'
 import { resolveRelationshipPath } from './resolveRelationshipPath.js'
@@ -318,16 +319,18 @@ export function parseParams({
                 }
 
                 if (
-                  operator === 'like' &&
+                  (operator === 'like' || operator === 'not_like') &&
                   (field.type === 'number' ||
                     field.type === 'relationship' ||
                     field.type === 'upload' ||
                     table[columnName].columnType === 'PgUUID')
                 ) {
-                  operator = 'equals'
+                  operator = operator === 'like' ? 'equals' : 'not_equals'
                 }
 
-                if (operator === 'like') {
+                if (operator === 'like' || operator === 'not_like') {
+                  const resolvedOperator = operator
+
                   constraints.push(
                     and(
                       ...val.split(' ').map((word) =>
@@ -338,8 +341,8 @@ export function parseParams({
                           locale,
                           originalOperator,
                           path: relationOrPath,
-                          resolvedOperator: 'like',
-                          value: `%${word}%`,
+                          resolvedOperator,
+                          value: `%${escapeLike({ value: word })}%`,
                         }),
                       ),
                     ),

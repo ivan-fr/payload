@@ -43,7 +43,11 @@ export const deleteOne: DeleteOne = async function deleteOne(
     where,
   })
 
-  if (selectDistinctResult?.[0]?.id) {
+  if (selectDistinctResult) {
+    if (!selectDistinctResult.length) {
+      return null
+    }
+
     docToDelete = await db.query[tableName].findFirst({
       where: eq(this.tables[tableName].id, selectDistinctResult[0].id),
     })

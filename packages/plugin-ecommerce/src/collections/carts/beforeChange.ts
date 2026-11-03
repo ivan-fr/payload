@@ -38,6 +38,7 @@ export const beforeChangeCart: (args: Props) => CollectionBeforeChangeHook =
             collection: variantsSlug,
             depth: 0,
             overrideAccess: true,
+            req,
             select: {
               [priceField]: true,
             },
@@ -52,6 +53,7 @@ export const beforeChangeCart: (args: Props) => CollectionBeforeChangeHook =
             collection: productsSlug,
             depth: 0,
             overrideAccess: true,
+            req,
             select: {
               [priceField]: true,
             },

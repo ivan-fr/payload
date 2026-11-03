@@ -1,6 +1,6 @@
 import type { Config } from '../config/types.js'
 
-import { formatAdminURL } from '../utilities/formatAdminURL.js'
+import { formatAdminURL, stripTrailingSlash } from '../utilities/formatAdminURL.js'
 
 /**
  * Generates a file path or URL based on the provided parameters.
@@ -35,12 +35,14 @@ export function generateFilePathOrURL({
 
   if (filename) {
     // local file url
-    return formatAdminURL({
-      apiRoute: config.routes?.api || '',
-      path: `/${collectionSlug}/file/${encodeURIComponent(filename)}`,
-      relative,
-      serverURL: config.serverURL,
-    })
+    return stripTrailingSlash(
+      formatAdminURL({
+        apiRoute: config.routes?.api || '',
+        path: `/${collectionSlug}/file/${encodeURIComponent(filename)}`,
+        relative,
+        serverURL: config.serverURL,
+      }),
+    )
   }
 
   return null

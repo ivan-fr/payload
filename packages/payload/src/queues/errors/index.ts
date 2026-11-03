@@ -23,21 +23,21 @@ export type WorkflowErrorArgs = {
   workflowConfig: WorkflowConfig
 }
 
-export class TaskError extends Error {
-  args: TaskErrorArgs
-  constructor(args: TaskErrorArgs) {
-    super(args.message)
-    this.args = args
-  }
-}
-export class WorkflowError extends Error {
-  args: WorkflowErrorArgs
+class JobHandlerError<TArgs extends { message: string }> extends Error {
+  args: TArgs
 
-  constructor(args: WorkflowErrorArgs) {
-    super(args.message)
+  constructor(args: TArgs, options?: ErrorOptions) {
+    super(args.message, options)
+    if (options?.cause instanceof Error && typeof options.cause.stack === 'string') {
+      this.stack = options.cause.stack
+    }
     this.args = args
   }
 }
+
+export class TaskError extends JobHandlerError<TaskErrorArgs> {}
+
+export class WorkflowError extends JobHandlerError<WorkflowErrorArgs> {}
 
 /**
  * Stops the current job run after this worker loses ownership.

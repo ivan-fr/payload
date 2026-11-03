@@ -120,3 +120,39 @@ describe('sanitizeConfig', () => {
     })
   })
 })
+
+describe('slug uniqueness (#18584)', () => {
+  it('should reject duplicate global slugs', () => {
+    expect(() =>
+      sanitizeConfig({
+        ...configDefaults,
+        globals: [
+          { slug: 'settings', fields: [] },
+          { slug: 'settings', fields: [] },
+        ],
+      }),
+    ).toThrow(/Global.*already in use/)
+  })
+  it('should reject collection/global collisions including internal collections', () => {
+    for (const slug of ['posts', 'payload-migrations']) {
+      expect(() =>
+        sanitizeConfig({
+          ...configDefaults,
+          collections: [{ slug: 'posts', fields: [] }],
+          globals: [{ slug, fields: [] }],
+        }),
+      ).toThrow(/slug.*already in use/)
+    }
+  })
+  it('should allow distinct slugs with identical labels', () => {
+    expect(() =>
+      sanitizeConfig({
+        ...configDefaults,
+        globals: [
+          { slug: 'settings', label: 'Settings', fields: [] },
+          { slug: 'other', label: 'Settings', fields: [] },
+        ],
+      }),
+    ).not.toThrow()
+  })
+})

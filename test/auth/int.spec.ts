@@ -108,6 +108,28 @@ test.suite('Auth', { config: './config.ts', resetBetweenTests: false }, () => {
       }
     })
 
+    test('should return 404 when deleting a missing preference key', async ({
+      payload,
+      restClient,
+    }) => {
+      const response = await restClient.DELETE(
+        `/${preferencesSlug}/missing-preference-regression`,
+        {
+          headers: { Authorization: `JWT ${ownerToken}` },
+        },
+      )
+
+      expect(response.status).toBe(404)
+
+      const remaining = await payload.find({
+        collection: preferencesSlug,
+        overrideAccess: true,
+        where: { id: { in: createdPreferenceIDs } },
+      })
+
+      expect(remaining.totalDocs).toBe(2)
+    })
+
     test('should update an owned preference by ID', async ({ restClient }) => {
       const response = await restClient.PATCH(`/${preferencesSlug}/${ownerPreferenceID}`, {
         body: JSON.stringify({ value: { theme: 'dark' } }),
