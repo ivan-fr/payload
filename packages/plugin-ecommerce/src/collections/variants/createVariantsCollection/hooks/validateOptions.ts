@@ -29,6 +29,7 @@ export const validateOptions: (props?: Props) => Validate =
       draft: true,
       joins: {
         variants: {
+          limit: 0,
           where: {
             ...(data.id && {
               id: {

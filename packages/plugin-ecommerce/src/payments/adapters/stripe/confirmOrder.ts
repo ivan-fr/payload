@@ -5,6 +5,7 @@ import Stripe from 'stripe'
 import type { PaymentAdapter } from '../../../types/index.js'
 import type { StripeAdapterArgs } from './index.js'
 
+import { getCustomer } from '../../../utilities/getCustomer.js'
 import { normalizeEmail, validateSettlement } from './validateSettlement.js'
 
 type Props = {
@@ -17,8 +18,9 @@ type RecordValue = Record<string, unknown>
 
 export const confirmOrder: (props: Props) => NonNullable<PaymentAdapter>['confirmOrder'] =
   (props) =>
-  async ({ data, finalizeOrder, req, transactionsSlug = 'transactions' }) => {
+  async ({ customersSlug, data, finalizeOrder, req, transactionsSlug = 'transactions' }) => {
     const payload = req.payload
+    const user = getCustomer({ customersSlug, req })
     const { apiVersion, appInfo, secretKey } = props || {}
     const paymentIntentID = data.paymentIntentID
 
@@ -62,12 +64,12 @@ export const confirmOrder: (props: Props) => NonNullable<PaymentAdapter>['confir
         value: paymentIntent.metadata.shippingAddress,
       })
       const purchaser =
-        req.user === null || req.user === undefined
+        user === null || user === undefined
           ? { customerEmail: normalizeEmail(data.customerEmail) }
           : {
               customer: requireDocumentID({
                 fieldName: 'authenticated customer ID',
-                value: req.user.id,
+                value: user.id,
               }),
             }
 
@@ -78,7 +80,7 @@ export const confirmOrder: (props: Props) => NonNullable<PaymentAdapter>['confir
         paymentIntent,
         paymentIntentID,
         transaction,
-        user: req.user,
+        user,
       })
 
       const order = await finalizeOrder({

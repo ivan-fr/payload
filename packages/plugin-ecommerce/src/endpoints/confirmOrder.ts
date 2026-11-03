@@ -21,6 +21,8 @@ type RecordValue = Record<string, unknown>
 const SETTLEMENT_POLL_INTERVAL_MS = 25
 const SETTLEMENT_WAIT_TIMEOUT_MS = 500
 
+import { getCustomer } from '../utilities/getCustomer.js'
+
 type Args = {
   /**
    * The slug of the carts collection, defaults to 'carts'.
@@ -77,7 +79,7 @@ export const confirmOrderHandler: ConfirmOrderHandler =
 
     const data = req.data
     const payload = req.payload
-    const user = req.user as null | UserWithCart
+    const user = getCustomer({ customersSlug, req }) as null | UserWithCart
 
     let currency: string = currenciesConfig.defaultCurrency
     let cartID: DefaultDocumentIDType = data?.cartID

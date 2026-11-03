@@ -9,6 +9,7 @@ import type {
 } from '../types/index.js'
 
 import { defaultProductsValidation } from '../utilities/defaultProductsValidation.js'
+import { getCustomer } from '../utilities/getCustomer.js'
 
 type Args = {
   /**
@@ -65,7 +66,7 @@ export const initiatePaymentHandler: InitiatePayment =
     await addDataAndFileToRequest(req)
     const data = req.data
     const payload = req.payload
-    const user = req.user as null | UserWithCart
+    const user = getCustomer({ customersSlug, req }) as null | UserWithCart
 
     let currency: string = currenciesConfig.defaultCurrency
     let cartID: DefaultDocumentIDType = data?.cartID

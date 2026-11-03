@@ -21,6 +21,7 @@ export const VariantOptionsSelector: React.FC<Props> = async (props) => {
     collection: productsSlug,
     depth: 0,
     draft: true,
+    joins: { variants: { limit: 0 } },
     overrideAccess: true,
     select: {
       variants: true,
@@ -47,6 +48,7 @@ export const VariantOptionsSelector: React.FC<Props> = async (props) => {
         depth: 1,
         joins: {
           options: {
+            limit: 0,
             sort: 'value',
           },
         },

@@ -51,7 +51,7 @@ const createPaymentIntent = (overrides: Record<string, unknown> = {}) => ({
 const createHarness = ({
   transaction = createTransaction(),
   transactionCopies = 1,
-  user = { id: 'user-123' } as null | Record<string, unknown>,
+  user = { id: 'user-123', collection: 'users' } as null | Record<string, unknown>,
 }: {
   transaction?: Record<string, unknown>
   transactionCopies?: number
@@ -230,5 +230,12 @@ describe('confirmOrder', () => {
       err: error,
       msg: 'Error confirming order with Stripe',
     })
+  })
+  it('should reject a non-customer auth principal even when its ID matches the transaction owner (#16377)', async () => {
+    const harness = createHarness({ user: { id: 'user-123', collection: 'api-keys' } })
+    await expect(runConfirmation({ harness })).rejects.toThrow(
+      'Guest transaction belongs to an authenticated customer',
+    )
+    expect(harness.finalizeOrder).not.toHaveBeenCalled()
   })
 })

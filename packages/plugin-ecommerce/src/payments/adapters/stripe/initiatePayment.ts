@@ -3,6 +3,8 @@ import Stripe from 'stripe'
 import type { PaymentAdapter } from '../../../types/index.js'
 import type { InitiatePaymentReturnType, StripeAdapterArgs } from './index.js'
 
+import { getCustomer } from '../../../utilities/getCustomer.js'
+
 type Props = {
   apiVersion?: Stripe.StripeConfig['apiVersion']
   appInfo?: Stripe.StripeConfig['appInfo']
@@ -11,8 +13,9 @@ type Props = {
 
 export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['initiatePayment'] =
   (props) =>
-  async ({ data, req, transactionsSlug }) => {
+  async ({ customersSlug, data, req, transactionsSlug }) => {
     const payload = req.payload
+    const authenticatedCustomer = getCustomer({ customersSlug, req })
     const { apiVersion, appInfo, secretKey } = props || {}
 
     const customerEmail = data.customerEmail
@@ -77,7 +80,7 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
 
         // Preserve any additional custom properties (e.g., deliveryOption, customizations)
         // that may have been added via cartItemMatcher
-        const { product: _product, variant: _variant, ...customProperties } = item
+        const { id: _id, product: _product, variant: _variant, ...customProperties } = item
 
         return {
           ...customProperties,
@@ -107,7 +110,7 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
       const transaction = await payload.create({
         collection: transactionsSlug,
         data: {
-          ...(req.user ? { customer: req.user.id } : { customerEmail }),
+          ...(authenticatedCustomer ? { customer: authenticatedCustomer.id } : { customerEmail }),
           amount: paymentIntent.amount,
           billingAddress: billingAddressFromData,
           cart: cart.id,

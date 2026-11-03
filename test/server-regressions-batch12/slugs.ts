@@ -1,0 +1,8 @@
+export const productsSlug = 'batch12-products'
+export const variantsSlug = 'batch12-variants'
+export const typesSlug = 'batch12-types'
+export const optionsSlug = 'batch12-options'
+export const cartsSlug = 'batch12-carts'
+export const transactionsSlug = 'batch12-transactions'
+export const machinesSlug = 'batch12-machines'
+export const usersSlug = 'users'

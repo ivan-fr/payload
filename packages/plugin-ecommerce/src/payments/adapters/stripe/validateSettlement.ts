@@ -74,6 +74,10 @@ export const normalizeCartItems = (items: unknown): unknown[] => {
 
     return Object.fromEntries(
       Object.entries(item).flatMap(([key, value]) => {
+        if (key === 'id') {
+          return []
+        }
+
         if (key === 'product') {
           return [[key, productID]]
         }
@@ -124,7 +128,7 @@ export const validateSettlement = ({
 
   const metadata = isRecord(paymentIntent.metadata) ? paymentIntent.metadata : undefined
 
-  if (normalizedCartID !== getRelationshipID(metadata?.cartID)) {
+  if (String(normalizedCartID) !== String(getRelationshipID(metadata?.cartID))) {
     throw new Error('Canonical cart does not match the PaymentIntent cart')
   }
 

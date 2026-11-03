@@ -23,7 +23,10 @@ export const queryDrafts: QueryDrafts = async function queryDrafts(
     adapter: this,
     collectionSlug: collection,
     fields,
-    joins,
+    // Draft joins live under the version group in both SQL selection and read transformation.
+    joins:
+      joins &&
+      Object.fromEntries(Object.entries(joins).map(([path, query]) => [`version.${path}`, query])),
     limit,
     locale,
     page,
