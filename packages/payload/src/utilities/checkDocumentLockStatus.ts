@@ -112,9 +112,33 @@ type BulkLockArgs = {
   req: PayloadRequest
 }
 
-const buildBulkLockedDocumentQuery = (collectionSlug: string, ids: (number | string)[]): Where => ({
-  and: [{ 'document.relationTo': { equals: collectionSlug } }, { 'document.value': { in: ids } }],
-})
+/** Keep each polymorphic equality on the requested collection's column. */
+const buildBulkLockedDocumentQuery = ({ collectionSlug, ids, req }: BulkLockArgs): Where =>
+  !('limitedBoundParameters' in req.payload.db) || !req.payload.db.limitedBoundParameters
+    ? {
+        and: [
+          { 'document.relationTo': { equals: collectionSlug } },
+          { 'document.value': { in: ids } },
+        ],
+      }
+    : { or: ids.map((id) => ({ document: { equals: { relationTo: collectionSlug, value: id } } })) }
+
+const getLockQueryBatches = ({
+  ids,
+  req,
+}: Pick<BulkLockArgs, 'ids' | 'req'>): (number | string)[][] => {
+  const uniqueIds = [...new Set(ids)]
+  if (!('limitedBoundParameters' in req.payload.db) || !req.payload.db.limitedBoundParameters) {
+    return [uniqueIds]
+  }
+
+  // D1 allows 100 parameters. Leave room for relationship paths and read projections.
+  const batches: (number | string)[][] = []
+  for (let offset = 0; offset < uniqueIds.length; offset += 40) {
+    batches.push(uniqueIds.slice(offset, offset + 40))
+  }
+  return batches
+}
 
 const isLockingAvailable = (collectionSlug: string, req: PayloadRequest): boolean => {
   const { payload } = req
@@ -127,8 +151,8 @@ const isLockingAvailable = (collectionSlug: string, req: PayloadRequest): boolea
 }
 
 /**
- * Batched counterpart to `checkDocumentLockStatus`. Resolves the lock state of every id with a
- * single query instead of one per document, and returns the ids that are locked by another user.
+ * Batched counterpart to `checkDocumentLockStatus`. Resolves the lock state of every id with
+ * bounded queries instead of one per document, and returns the ids that are locked by another user.
  * Callers are expected to report those ids as errors and leave them alone.
  */
 export const getLockedDocumentIds = async ({
@@ -150,15 +174,6 @@ export const getLockedDocumentIds = async ({
   const { payload } = req
   const lockDocumentsProp = payload.collections?.[collectionSlug]?.config?.lockDocuments
 
-  const lockedDocumentResult: PaginatedDocs<JsonObject & TypeWithID> = await payload.db.find({
-    collection: lockedDocumentsCollectionSlug,
-    limit: 0,
-    pagination: false,
-    req: payload.db.name === 'mongoose' ? undefined : req,
-    sort: '-updatedAt',
-    where: buildBulkLockedDocumentQuery(collectionSlug, ids),
-  })
-
   const lockDuration =
     typeof lockDocumentsProp === 'object' ? lockDocumentsProp.duration : lockDurationDefault
 
@@ -167,23 +182,34 @@ export const getLockedDocumentIds = async ({
   const now = new Date().getTime()
   const resolved = new Set<string>()
 
-  for (const lockedDoc of lockedDocumentResult?.docs ?? []) {
-    const documentId = String(lockedDoc.document?.value)
+  for (const batch of getLockQueryBatches({ ids, req })) {
+    const lockedDocumentResult: PaginatedDocs<JsonObject & TypeWithID> = await payload.db.find({
+      collection: lockedDocumentsCollectionSlug,
+      limit: 0,
+      pagination: false,
+      req: payload.db.name === 'mongoose' ? undefined : req,
+      sort: '-updatedAt',
+      where: buildBulkLockedDocumentQuery({ collectionSlug, ids: batch, req }),
+    })
 
-    // Sorted by -updatedAt, so the first row seen for an id is its most recent lock
-    if (resolved.has(documentId)) {
-      continue
-    }
-    resolved.add(documentId)
+    for (const lockedDoc of lockedDocumentResult?.docs ?? []) {
+      const documentId = String(lockedDoc.document?.value)
 
-    const lastEditedAt = new Date(lockedDoc?.updatedAt).getTime()
+      // Sorted by -updatedAt, so the first row seen for an id is its most recent lock
+      if (resolved.has(documentId)) {
+        continue
+      }
+      resolved.add(documentId)
 
-    // document is locked by another user and the lock hasn't expired
-    if (
-      lockedDoc.user?.value !== currentUserId &&
-      now - lastEditedAt <= lockDurationInMilliseconds
-    ) {
-      lockedIds.add(documentId)
+      const lastEditedAt = new Date(lockedDoc?.updatedAt).getTime()
+
+      // document is locked by another user and the lock hasn't expired
+      if (
+        lockedDoc.user?.value !== currentUserId &&
+        now - lastEditedAt <= lockDurationInMilliseconds
+      ) {
+        lockedIds.add(documentId)
+      }
     }
   }
 
@@ -192,7 +218,7 @@ export const getLockedDocumentIds = async ({
 
 /**
  * Batched counterpart to the lock cleanup `checkDocumentLockStatus` performs, so that bulk
- * operations release every lock in one query instead of one per document.
+ * operations release locks in bounded queries instead of one per document.
  */
 export const deleteDocumentLocks = async ({
   collectionSlug,
@@ -205,10 +231,12 @@ export const deleteDocumentLocks = async ({
     return
   }
 
-  await payload.db.deleteMany({
-    collection: lockedDocumentsCollectionSlug,
-    // Not passing req fails on postgres
-    req: payload.db.name === 'mongoose' ? undefined : req,
-    where: buildBulkLockedDocumentQuery(collectionSlug, ids),
-  })
+  for (const batch of getLockQueryBatches({ ids, req })) {
+    await payload.db.deleteMany({
+      collection: lockedDocumentsCollectionSlug,
+      // Not passing req fails on postgres
+      req: payload.db.name === 'mongoose' ? undefined : req,
+      where: buildBulkLockedDocumentQuery({ collectionSlug, ids: batch, req }),
+    })
+  }
 }

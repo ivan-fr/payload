@@ -111,3 +111,28 @@ describe('checkFileAccess', () => {
     })
   })
 })
+
+describe('cloud static-read authorization (#19008)', () => {
+  it('should return the authorized location to handlers without rechecking document access', async () => {
+    vi.mocked(executeAccess).mockResolvedValue(true)
+    const stored = { id: '1', filename: 'logo.png', prefix: 'folder' }
+    const findOne = makeFindOne(stored)
+    const req = makeReq(findOne)
+    const collection = makeCollection()
+    collection.config.upload.handlers = [vi.fn()]
+    expect(await checkFileAccess({ collection, filename: 'logo.png', req })).toEqual(stored)
+    expect(executeAccess).toHaveBeenCalledWith(
+      expect.objectContaining({ isReadingStaticFile: true }),
+      collection.config.access.read,
+    )
+    expect(findOne).toHaveBeenCalledTimes(1)
+  })
+
+  it('should preserve the public handler fallback when there is no matching document', async () => {
+    vi.mocked(executeAccess).mockResolvedValue(true)
+    const req = makeReq(makeFindOne(null))
+    const collection = makeCollection()
+    collection.config.upload.handlers = [vi.fn()]
+    expect(await checkFileAccess({ collection, filename: 'orphan.png', req })).toBeUndefined()
+  })
+})

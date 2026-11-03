@@ -28,6 +28,15 @@ const notFoundResponse = (req: PayloadRequest, pathname?: string) => {
   )
 }
 
+type HandleEndpointsArgs = {
+  basePath?: string
+  config: Promise<SanitizedConfig> | SanitizedConfig
+  /** Override path from the request */
+  path?: string
+  payloadInstanceCacheKey?: string
+  request: Request
+}
+
 /**
  * Attaches the Payload REST API to any backend framework that uses Fetch Request/Response
  * like Next.js (app router), Remix, Bun, Hono.
@@ -60,20 +69,31 @@ const notFoundResponse = (req: PayloadRequest, pathname?: string) => {
  * });
  * ```
  */
-export const handleEndpoints = async ({
+export const handleEndpoints = async (args: HandleEndpointsArgs): Promise<Response> => {
+  const isHead = args.request.method.toLowerCase() === 'head'
+  const response = await handleEndpointRequest(args)
+
+  if (!isHead) {
+    return response
+  }
+
+  // A GET fallback may open a file stream. Release it while retaining its response metadata.
+  await response.body?.cancel().catch(() => {})
+
+  return new Response(null, {
+    headers: response.headers,
+    status: response.status,
+    statusText: response.statusText,
+  })
+}
+
+const handleEndpointRequest = async ({
   basePath = '',
   config: incomingConfig,
   path,
   payloadInstanceCacheKey,
   request,
-}: {
-  basePath?: string
-  config: Promise<SanitizedConfig> | SanitizedConfig
-  /** Override path from the request */
-  path?: string
-  payloadInstanceCacheKey?: string
-  request: Request
-}): Promise<Response> => {
+}: HandleEndpointsArgs): Promise<Response> => {
   let handler!: PayloadHandler
   let req: PayloadRequest
   let collection!: Collection
@@ -217,9 +237,18 @@ export const handleEndpoints = async ({
       )
     }
 
+    const isHead = req.method?.toLowerCase() === 'head'
+    if (isHead) {
+      // Explicit HEAD handlers take precedence over a matching GET fallback.
+      endpoints = [
+        ...endpoints.filter(({ method }) => method === 'head'),
+        ...endpoints.filter(({ method }) => method === 'get'),
+      ]
+    }
+
     // Find the relevant endpoint configuration
     const endpoint = endpoints?.find((endpoint) => {
-      if (endpoint.method !== req.method?.toLowerCase()) {
+      if (endpoint.method !== req.method?.toLowerCase() && !(isHead && endpoint.method === 'get')) {
         return false
       }
 

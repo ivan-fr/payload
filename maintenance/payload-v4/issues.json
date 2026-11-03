@@ -2265,8 +2265,10 @@
       "url": "https://github.com/payloadcms/payload/issues/16401",
       "labels": ["v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-03"
     },
     {
       "number": 16407,
@@ -2551,8 +2553,10 @@
       "url": "https://github.com/payloadcms/payload/issues/16754",
       "labels": ["stale"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-03"
     },
     {
       "number": 16755,
@@ -3036,8 +3040,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17461",
       "labels": ["status: needs-triage", "db: postgres", "Bug", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-03"
     },
     {
       "number": 17468,
@@ -4242,8 +4248,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18415",
       "labels": ["created-by: Contributor", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-03"
     },
     {
       "number": 18420,
@@ -4798,8 +4806,10 @@
       "url": "https://github.com/payloadcms/payload/issues/19008",
       "labels": ["Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-03"
     },
     {
       "number": 19017,
@@ -5171,8 +5181,10 @@
       "url": "https://github.com/payloadcms/payload/issues/19233",
       "labels": ["area: core", "db: d1-sqlite", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-03"
     },
     {
       "number": 19234,
@@ -5276,5 +5288,5 @@
       "verified_source_version": "4.0.0-beta.6"
     }
   ],
-  "branch_fix_count": 72
+  "branch_fix_count": 78
 }

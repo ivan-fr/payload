@@ -119,7 +119,8 @@ export const upsertRow = async <T extends Record<string, unknown> | TypeWithID>(
       })
 
       const findManyKeysLength = Object.keys(findManyArgs).length
-      const hasOnlyColumns = Object.keys(findManyArgs.columns || {}).length > 0
+      const hasOnlyColumns =
+        findManyKeysLength === 1 && Object.keys(findManyArgs.columns || {}).length > 0
 
       if (!hasDataToUpdate) {
         // Nothing to update => just fetch current row and return

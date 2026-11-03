@@ -2,7 +2,7 @@
 
 This branch fixes seventy-two reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) records **565 open issues**, excluding pull requests. Seventy-one snapshot issues have scoped fixes here; **494 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **72 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) records **565 open issues**, excluding pull requests. Seventy-seven snapshot issues have scoped fixes here; **488 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **78 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -177,3 +177,7 @@ PR #3 now adds thirty-six scoped fixes to the thirty already merged on main. The
 ## PR #3: six additional ecommerce and schema reports
 
 PR #3 now adds forty-two scoped fixes to the thirty already merged on main. The latest six are #14904, #16377, #16453, #16797, #18498 and #19018. See [batch-12.md](batch-12.md) for reproduction, coverage and limitations. These address invalid search configuration, explicit generated-type required overrides, customer identity, repeated payment initiation, complete variant reads and derived variant titles. The fork remains public.
+
+## PR #3: six additional query, update and file regressions
+
+PR #3 now adds forty-eight scoped fixes to the thirty already merged on main. The latest six are #16401, #18415, #17461, #19233, #19008 and #16754. See [batch-13.md](batch-13.md) for reproduction, coverage and limits. These cover Unicode JSON queries, isolated nested-field fallbacks, point-update projections, D1 bulk-lock parameter budgets, static cloud access with private document metadata and HEAD responses. The fork remains public.

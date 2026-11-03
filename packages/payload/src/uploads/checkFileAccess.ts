@@ -38,6 +38,12 @@ export const checkFileAccess = async ({
     constraints.push({ prefix: { equals: prefix } })
   }
 
+  // Cloud handlers need the document's storage location even when static read access is public.
+  // Reuse this authorization rather than requiring ordinary document read access a second time.
+  if (config.upload.handlers?.length && constraints.length === 0 && documentID === undefined) {
+    return resolveUploadDocument({ collection, filename, prefix, req })
+  }
+
   if (constraints.length > 0 || documentID !== undefined) {
     const doc =
       documentID === undefined
