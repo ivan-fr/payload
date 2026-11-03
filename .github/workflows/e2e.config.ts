@@ -117,11 +117,16 @@ const nextSuites: TestConfig[] = [
   ...discoverE2ESuites({ configuredSuites: configuredNextSuites, testDir: 'test' }),
 ].map((suite) => ({ ...suite, shards: Math.min(suite.shards, 2) }))
 
-const tanstackSuites: TestConfig[] = nextSuites.map((suite) => ({
-  ...suite,
-  framework: 'tanstack-start',
-  optional: false,
-}))
+// These suites exercise next.config options. The TanStack fixture has neither
+// a Next basePath nor Next's trailing-slash redirects; retain both on Next only.
+const nextConfigSuites = new Set(['base-path', 'trailing-slash'])
+const tanstackSuites: TestConfig[] = nextSuites
+  .filter(({ file }) => !nextConfigSuites.has(file.split('#')[0]))
+  .map((suite) => ({
+    ...suite,
+    framework: 'tanstack-start',
+    optional: false,
+  }))
 
 export default createE2EConfig([
   ...nextSuites,

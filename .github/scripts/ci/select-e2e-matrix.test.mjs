@@ -23,7 +23,27 @@ test('targeted runs preserve all shards only for requested failed Next.js suites
   })
 })
 
-for (const suites of [[], null, ['missing'], ['auth', 'missing'], [''], [12]]) {
+test('targeted runs select the failed framework without repeating the other framework', () => {
+  assert.deepEqual(
+    selectE2EMatrix({
+      matrix,
+      targeted: true,
+      suites: [{ suite: 'auth', framework: 'tanstack-start' }, 'other'],
+    }),
+    { include: [matrix.include[2], matrix.include[4]] },
+  )
+})
+
+for (const suites of [
+  [],
+  null,
+  ['missing'],
+  ['auth', 'missing'],
+  [''],
+  [12],
+  [{ suite: 'auth' }],
+  [{ suite: 'auth', framework: 'unknown' }],
+]) {
   test(`rejects invalid targeted suites: ${JSON.stringify(suites)}`, () => {
     assert.throws(() => selectE2EMatrix({ matrix, targeted: true, suites }))
   })

@@ -1211,9 +1211,15 @@ test.describe('Multi Tenant', () => {
       await expect(moveModal).toBeVisible()
 
       // The miller columns should only show Blue Dog folders
-      await expect(moveModal.getByText('Blue Dog Documents')).toBeVisible()
-      await expect(moveModal.getByText('Steel Cat Documents')).toBeHidden()
-      await expect(moveModal.getByText('Anchor Bar Files')).toBeHidden()
+      await expect(
+        moveModal.getByRole('button', { name: 'Blue Dog Documents', exact: true }),
+      ).toBeVisible()
+      await expect(
+        moveModal.getByRole('button', { name: 'Steel Cat Documents', exact: true }),
+      ).toBeHidden()
+      await expect(
+        moveModal.getByRole('button', { name: 'Anchor Bar Files', exact: true }),
+      ).toBeHidden()
     })
 
     test('should show all tenant folders when tenant selector is cleared', async () => {

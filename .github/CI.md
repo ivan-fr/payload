@@ -12,7 +12,7 @@ The final check runs with `always()` and rejects any failed, cancelled, skipped,
 - All ordinary unit tests and React Server Component tests, browser component tests and type tests.
 - Type generation and GraphQL schema generation.
 - Full integration suite across the upstream 14 database configurations, with three shards each (42 jobs). Databases, storage and Redis are started using the repository's Docker services; compatibility adapters use the upstream harness.
-- Production browser suites on Next.js and TanStack, plus the additional run without Next.js cache components. Missing E2E directories are discovered automatically. Existing custom-config variants remain included. The current matrix has 251 jobs, below GitHub's 256-job matrix limit; configured suite sharding is capped at two to leave room for discovered suites.
+- Production browser suites on Next.js and TanStack, plus the additional run without Next.js cache components. Missing E2E directories are discovered automatically. Existing custom-config variants remain included. The `base-path` and `trailing-slash` suites exercise Next.js configuration and run on Next only; the TanStack fixture does not configure those Next.js options. The current matrix has 249 jobs, below GitHub's 256-job matrix limit; configured suite sharding is capped at two to leave room for discovered suites.
 - Dedicated accessibility and visual regression jobs on every PR. Visual tests retain the pinned Playwright Docker image and committed baselines.
 - The upstream template build, integration and browser test matrix, including the template dependency-build approval check.
 
@@ -32,7 +32,7 @@ GitHub repository settings, rather than a YAML file alone, enforce the required 
 
 ## Targeted diagnosis after a failure
 
-Manual runs default to `mode: targeted`; `suites` is a JSON array of failed Next.js suite names. All shards of those suites run, with a fresh build and E2E preparation, while unrelated test jobs are omitted. The default selection contains only `trailing-slash`, the last failed suite from targeted run 41479599196. Select `mode: full` to run the merge validation manually. PR, push-to-main and merge-group events always use full coverage.
+Manual runs default to `mode: targeted`; `suites` is a JSON array of failed Next.js suite names or `{ "suite": "v4", "framework": "tanstack-start" }` objects to select another framework. All shards of those suites run, with a fresh build and E2E preparation, while unrelated test jobs are omitted. The default selection contains the conditional-provider multi-tenant suite on Next and `v4` on TanStack, the two applicable failures from full run 41580885019. Select `mode: full` to run the merge validation manually. PR, push-to-main and merge-group events always use full coverage.
 
 Targeted runs report **`Payload 4 targeted tests`**, never the required `Payload 4 required tests` context (even as a skipped check). They cannot satisfy branch protection or reuse another commit's green results. A retry via GitHub's **Re-run failed jobs** is appropriate for the same code revision; it does not load newly pushed fixes. A corrective commit may intentionally use `[skip ci]` during diagnosis to avoid starting the complete PR matrix, but merge stays blocked until the new revision passes a full run.
 
@@ -61,3 +61,13 @@ Validation: actionlint and 20 CI helper tests pass; Playwright discovers 27 test
 Run 41479599196 passed `auth-api-key`, `authorship`, `base-path`, and the Lexical collision suite. Only `trailing-slash` failed: its initial reset returned HTTP 500 before Playwright started because the trusted seed used Local API creates without `overrideAccess: true`. Both seed writes now explicitly bypass access control for test initialization, consistent with other fixtures. Production access rules are unchanged.
 
 A shared-fixture integration regression reproduced the exact Forbidden error before the change and passed afterward on SQLite. It verifies that the login user and sample post exist without any signed-in request and restores the fixture's routing environment afterward. The diagnostic matrix now contains only `trailing-slash` (six E2E tests); the eleven successful suites are not repeated.
+
+## Full validation follow-up (run 41580885019)
+
+The full run passed build, lint, unit/component tests, types, type/schema generation, templates, integration, accessibility and visual jobs. Four E2E jobs failed (plus the required aggregate):
+
+- Conditional-provider multi-tenant on Next: the folder title matched both a column button and a selected chip. Assertions now identify the exact folder button and retain the checks excluding other tenants.
+- `v4` on TanStack: the bundled module resolved the source image relative to `dist/`. It now uses the existing `getTestSuiteDir` helper for the suite directory, including its import map and generated types paths.
+- `base-path` and `trailing-slash` on TanStack: discovery incorrectly duplicated Next-config-only suites onto TanStack, whose fixture does not configure either option. Both suites remain mandatory on Next; every shared suite remains mandatory on both frameworks. A coverage regression checks this distinction and ensures no optional jobs are introduced.
+
+Diagnosis selects only the two applicable failed suite/framework pairs. The corrected PR revision still requires a fresh full validation before merge; neither the old successful jobs nor the diagnostic gate satisfies that requirement.
