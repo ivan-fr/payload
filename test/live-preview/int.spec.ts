@@ -149,7 +149,7 @@ test.suite('Collections - Live Preview', suiteOptions, () => {
       } as MessageEvent as LivePreviewMessageEvent<Page>,
       initialData: {
         title: 'Test Page',
-        id: 1 as number | string,
+        id: testPost.id,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         hero: {

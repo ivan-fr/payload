@@ -250,6 +250,21 @@ describe('initAdminContext', () => {
     )
   })
 
+  it('should retain the resolved locale when copying an admin request with fallback overrides', async () => {
+    getPayload.mockResolvedValue({ ...payload, config: localizedConfig })
+    const result = await initAdminContext({
+      configPromise: Promise.resolve(localizedConfig),
+      importMap,
+      serverAdapter,
+      overrides: { fallbackLocale: false, req: { query: { locale: 'es' } } },
+    })
+
+    expect(result.locale).toMatchObject({ code: 'es' })
+    expect(result.req.locale).toBe('es')
+    expect(result.req.query.locale).toBe('es')
+    expect(result.req.fallbackLocale).toBe(false)
+  })
+
   it('should ignore a request locale for an anonymous request', async () => {
     authenticate.mockResolvedValueOnce({
       responseHeaders: new Headers(),

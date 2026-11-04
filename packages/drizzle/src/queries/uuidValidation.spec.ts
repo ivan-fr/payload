@@ -58,4 +58,27 @@ describe('PostgreSQL UUID query construction', () => {
     expect(dialect.sqlToQuery(query({ value: valid }).where).params).toEqual([valid])
     expect(dialect.sqlToQuery(query({ value: null }).where).sql).toContain('is null')
   })
+  it.each(['like', 'not_like'])(
+    'should keep impossible UUID %s searches safe without converting them to NULL equality',
+    (operator) => {
+      const table = pgTable('posts', { id: uuid().primaryKey() })
+      const adapter = {
+        name: 'postgres',
+        tables: { posts: table },
+        tableNameMap: new Map(),
+        payload: { config: { localization: false } },
+        operators: { equals: eq },
+        operatorHandlers: [],
+      } as unknown as DrizzleAdapter
+      const { where } = buildQuery({
+        adapter,
+        fields: [{ name: 'id', type: 'text' }],
+        tableName: 'posts',
+        where: { id: { [operator]: 'words partial' } },
+      })
+      const query = new PgDialect().sqlToQuery(where)
+      expect(query.params).toEqual([])
+      expect(query.sql).toBe(operator === 'like' ? 'false' : '"posts"."id" is not null')
+    },
+  )
 })

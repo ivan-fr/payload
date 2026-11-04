@@ -103,6 +103,28 @@ describe('isolateObjectProperty', () => {
     expect(scoped.constructor).toBe(FrameworkRequest)
   })
 
+  it('should retain newly isolated properties when a request scope is copied', () => {
+    const request = { user: { id: 1 } } as { user: { id: number }; locale?: string }
+    const scoped = isolateObjectProperty(request, 'locale')
+    scoped.locale = 'es'
+
+    expect({ ...scoped }).toEqual({ user: { id: 1 }, locale: 'es' })
+    expect(Object.keys(scoped)).toContain('locale')
+    expect(request).not.toHaveProperty('locale')
+  })
+
+  it('should enumerate a changed query depth and hide a deleted isolated property', () => {
+    const query = { locale: 'en', depth: 1 }
+    const scoped = isolateObjectProperty(query, ['depth', 'locale'])
+    scoped.depth = 2
+    Reflect.deleteProperty(scoped, 'locale')
+
+    expect({ ...scoped }).toStrictEqual({ depth: 2 })
+    expect(Object.keys(scoped)).not.toContain('locale')
+    expect(JSON.parse(JSON.stringify(scoped))).toEqual({ depth: 2 })
+    expect(query).toEqual({ locale: 'en', depth: 1 })
+  })
+
   describe('private field access (Node 24+ compatibility)', () => {
     /**
      * Class with private fields to test that the proxy correctly handles
@@ -170,5 +192,29 @@ describe('isolateObjectProperty', () => {
       expect(proxy.headers).toBeInstanceOf(Headers)
       expect(proxy.headers.get('content-type')).toBe('application/json')
     })
+  })
+})
+
+describe('isolated property enumeration invariants', () => {
+  it('should preserve non-enumerable source properties when copied', () => {
+    const original = Object.defineProperty({}, 'locale', {
+      configurable: true,
+      enumerable: false,
+      value: 'en',
+      writable: true,
+    }) as { locale: string }
+    const scoped = isolateObjectProperty(original, 'locale')
+    scoped.locale = 'es'
+    expect({ ...scoped }).toStrictEqual({})
+    expect(scoped.locale).toBe('es')
+    expect(original.locale).toBe('en')
+  })
+
+  it('should keep copied writable properties consistent on a non-extensible source', () => {
+    const original = Object.preventExtensions({ locale: 'en' })
+    const scoped = isolateObjectProperty(original, 'locale')
+    scoped.locale = 'es'
+    expect({ ...scoped }).toStrictEqual({ locale: 'es' })
+    expect(original.locale).toBe('en')
   })
 })

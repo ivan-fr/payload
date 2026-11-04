@@ -8,18 +8,23 @@ import { Indexed, Posts } from './collections/Posts.js'
 import { indexedSlug } from './slugs.js'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
+const database = process.env.PAYLOAD_DATABASE
+const sqliteIDType =
+  database === 'sqlite-uuidv7' ? 'uuidv7' : database === 'sqlite-uuid' ? 'uuid' : 'number'
+
 export default buildConfigWithDefaults({
   suite: 'server-regressions-batch11',
   disableAutoLogin: true,
   disableMCP: true,
   config: {
-    ...(process.env.PAYLOAD_DATABASE === 'sqlite'
+    ...(database?.startsWith('sqlite')
       ? {
           db: sqliteAdapter({
             client: {
               url: process.env.SQLITE_URL || process.env.DATABASE_URL || 'file:./payload.db',
             },
-            autoIncrement: true,
+            autoIncrement: sqliteIDType === 'number',
+            idType: sqliteIDType,
             transactionOptions: { behavior: 'immediate' },
           }),
         }

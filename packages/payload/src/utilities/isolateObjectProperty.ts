@@ -44,8 +44,27 @@ export function isolateObjectProperty<T extends object>(object: T, key: (keyof T
 
       return value
     },
+    getOwnPropertyDescriptor(target, p) {
+      const descriptor = Reflect.getOwnPropertyDescriptor(target, p)
+      if (
+        keys.includes(p as keyof T) &&
+        descriptor?.configurable !== false &&
+        Reflect.isExtensible(target)
+      ) {
+        const isolatedDescriptor = Reflect.getOwnPropertyDescriptor(delegate, p)
+        return isolatedDescriptor
+          ? { ...isolatedDescriptor, enumerable: descriptor?.enumerable ?? true }
+          : undefined
+      }
+      return descriptor
+    },
     has(target, p) {
       return Reflect.has(keys.includes(p as keyof T) ? delegate : target, p)
+    },
+    ownKeys(target) {
+      const targetKeys = Reflect.ownKeys(target)
+      const allKeys = [...targetKeys, ...Reflect.ownKeys(delegate)]
+      return Reflect.isExtensible(target) ? [...new Set(allKeys)] : targetKeys
     },
     set(target, p, newValue, _receiver) {
       if (keys.includes(p as keyof T)) {

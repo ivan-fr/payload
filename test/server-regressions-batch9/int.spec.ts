@@ -5,6 +5,7 @@ import path from 'node:path'
 import { expect, vi } from 'vitest'
 
 import { test } from '../__helpers/int/vitest.js'
+import { getTransaction } from '../../packages/drizzle/src/utilities/getTransaction.js'
 import { labelsSlug, mediaSlug, postsSlug, settingsSlug } from './slugs.js'
 
 test.suite('Server regressions batch 9', { config: './config.ts' }, () => {
@@ -161,7 +162,8 @@ test.suite('Server regressions batch 9', { config: './config.ts' }, () => {
       const tableName = adapter.tableNameMap.get(
         `_${postsSlug.replaceAll('-', '_')}${adapter.versionsSuffix}`,
       )!
-      const queries = adapter.drizzle.query as unknown as Record<
+      const database = await getTransaction(adapter)
+      const queries = database.query as unknown as Record<
         string,
         {
           findMany: (args: {
@@ -182,6 +184,7 @@ test.suite('Server regressions batch 9', { config: './config.ts' }, () => {
         })
         expect(versions.docs).toHaveLength(1)
         expect(versions.docs[0]!.parent).toBe(doc.id)
+        expect(findMany).toHaveBeenCalled()
         const args = findMany.mock.calls[0]![0]!
         expect(Object.keys(args.with ?? {})).not.toContain('version_items')
         expect(Object.keys(args.with ?? {})).not.toContain('version_content')
