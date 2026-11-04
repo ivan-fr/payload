@@ -163,7 +163,13 @@ export const getInitialTreeData = async ({
   })
 
   // Query 2: For each expanded node, fetch its children
+  const loadedParentIDs = new Set<string>()
   for (const parentId of expandedNodeIds) {
+    const parentKey = String(parentId)
+    if (loadedParentIDs.has(parentKey)) {
+      continue
+    }
+    loadedParentIDs.add(parentKey)
     await fetchChildrenForParent(String(parentId), {
       [parentFieldName]: { equals: parentId },
     })

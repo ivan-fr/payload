@@ -106,7 +106,7 @@ export const UploadComponent: React.FC<ElementProps> = (props) => {
     { initialParams },
   )
 
-  const thumbnailSRC = data?.thumbnailURL || data?.url
+  const thumbnailSRC = data?.url || data?.thumbnailURL
 
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {

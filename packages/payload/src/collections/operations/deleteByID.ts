@@ -13,6 +13,7 @@ import { combineQueries } from '../../database/combineQueries.js'
 import { Forbidden, NotFound } from '../../errors/index.js'
 import { afterRead } from '../../fields/hooks/afterRead/index.js'
 import { deleteUserPreferences } from '../../preferences/deleteUserPreferences.js'
+import { getUserPreferenceIDs } from '../../preferences/getUserPreferenceIDs.js'
 import { deleteAssociatedFiles } from '../../uploads/deleteAssociatedFiles.js'
 import {
   collectStoredFiles,
@@ -227,6 +228,8 @@ export const deleteByIDOperation = async <TSlug extends CollectionSlug, TSelect 
     // Delete document
     // /////////////////////////////////////
 
+    const preferenceIDs = await getUserPreferenceIDs({ collectionConfig, ids: [id], req })
+
     let result: DataFromCollectionSlug<TSlug> = await req.payload.db.deleteOne({
       collection: collectionConfig.slug,
       req,
@@ -258,6 +261,7 @@ export const deleteByIDOperation = async <TSlug extends CollectionSlug, TSelect 
       collectionConfig,
       ids: [id],
       payload,
+      preferenceIDs,
       req,
     })
 

@@ -6,7 +6,13 @@ export function findUseAsTitleField(collectionConfig: CollectionConfig): {
   titleFieldName: string
 } {
   const titleFieldName = collectionConfig.admin?.useAsTitle || 'id'
-  return iterateFields({ fields: collectionConfig.fields, titleFieldName })
+  const result = iterateFields({ fields: collectionConfig.fields, titleFieldName })
+  if (!result) {
+    throw new Error(
+      `The hierarchy title field "${titleFieldName}" was not found. It cannot be nested within named fields i.e. named groups, named tabs, etc.`,
+    )
+  }
+  return result
 }
 
 /**
@@ -17,74 +23,45 @@ export function findFieldByName(
   collectionConfig: CollectionConfig,
   fieldName: string,
 ): { fieldName: string; localized: boolean } | undefined {
-  try {
-    const result = iterateFields({ fields: collectionConfig.fields, titleFieldName: fieldName })
-    return { fieldName: result.titleFieldName, localized: result.localized }
-  } catch {
-    return undefined
-  }
+  const result = iterateFields({ fields: collectionConfig.fields, titleFieldName: fieldName })
+  return result ? { fieldName: result.titleFieldName, localized: result.localized } : undefined
 }
 
-function iterateFields({ fields, titleFieldName }: { fields: Field[]; titleFieldName: string }): {
-  localized: boolean
+function iterateFields({
+  fields,
+  titleFieldName,
+}: {
+  fields: Field[]
   titleFieldName: string
-} {
-  let titleField: { localized: boolean; titleFieldName: string } | undefined
-
+}): { localized: boolean; titleFieldName: string } | undefined {
   if (titleFieldName === 'id') {
-    return {
-      localized: false,
-      titleFieldName,
-    }
+    return { localized: false, titleFieldName }
   }
-
   for (const field of fields) {
-    switch (field.type) {
-      case 'text':
-      case 'number':
-      case 'textarea':
-        if (field.name === titleFieldName) {
-          return {
-            localized: Boolean(field.localized),
-            titleFieldName: field.name,
-          }
-        }
-        break
-      case 'row':
-      case 'collapsible':
-        {
-          const result = iterateFields({ fields: field.fields, titleFieldName })
-          if (result) {
-            titleField = result
-          }
-        }
-        break
-      case 'group':
-        if (!('name' in field)) {
-          const result = iterateFields({ fields: field.fields, titleFieldName })
-          if (result) {
-            titleField = result
-          }
-        }
-        break
-      case 'tabs':
-        for (const tab of field.tabs) {
-          if (!('name' in tab)) {
-            const result = iterateFields({ fields: tab.fields, titleFieldName })
-            if (result) {
-              titleField = result
-            }
-          }
-        }
+    if (
+      (field.type === 'text' || field.type === 'number' || field.type === 'textarea') &&
+      field.name === titleFieldName
+    ) {
+      return { localized: Boolean(field.localized), titleFieldName: field.name }
     }
-
-    // If we found the field in recursion, return it
-    if (titleField) {
-      return titleField
+    const result = iterateFields({ fields: getUnnamedLayoutFields({ field }), titleFieldName })
+    if (result) {
+      return result
     }
   }
+  return undefined
+}
 
-  throw new Error(
-    `The hierarchy title field "${titleFieldName}" was not found. It cannot be nested within named fields i.e. named groups, named tabs, etc.`,
-  )
+function getUnnamedLayoutFields({ field }: { field: Field }): Field[] {
+  switch (field.type) {
+    case 'collapsible':
+    case 'row':
+      return field.fields
+    case 'group':
+      return 'name' in field ? [] : field.fields
+    case 'tabs':
+      return field.tabs.flatMap((tab) => ('name' in tab ? [] : tab.fields))
+    default:
+      return []
+  }
 }

@@ -78,6 +78,7 @@ export type DocumentInfoContext = {
   setDocFieldPreferences: (
     field: string,
     fieldPreferences: { [key: string]: unknown } & Partial<InsideFieldsPreferences>,
+    currentRowIDs?: string[],
   ) => void
   setDocumentIsLocked?: React.Dispatch<React.SetStateAction<boolean>>
   setHasPublishedDoc: React.Dispatch<React.SetStateAction<boolean>>

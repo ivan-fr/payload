@@ -38,6 +38,7 @@ import { HierarchyTable } from '../HierarchyList/HierarchyTable/index.js'
 import { DocumentGrid } from './DocumentGrid/index.js'
 import { GroupedDocumentGrid } from './GroupedDocumentGrid/index.js'
 import { CollectionListHeader } from './ListHeader/index.js'
+import { ListBaseFilterContext } from './ListSelection/BaseFilterContext.js'
 import './index.css'
 
 const baseClass = 'collection-list'
@@ -46,6 +47,7 @@ export function DefaultListView(props: ListViewClientProps) {
   const {
     AfterList,
     AfterListTable,
+    baseFilter,
     beforeActions,
     BeforeList,
     BeforeListTable,
@@ -288,7 +290,7 @@ export function DefaultListView(props: ListViewClientProps) {
 
   const Container = isInDrawer ? 'div' : 'main'
 
-  return (
+  const list = (
     <TableIdentityProvider
       collectionSlug={collectionSlug}
       navigationLabel={
@@ -500,4 +502,6 @@ export function DefaultListView(props: ListViewClientProps) {
       </Container>
     </TableIdentityProvider>
   )
+
+  return <ListBaseFilterContext value={baseFilter}>{list}</ListBaseFilterContext>
 }

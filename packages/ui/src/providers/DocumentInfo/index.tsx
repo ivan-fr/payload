@@ -16,6 +16,7 @@ import { useLocale, useLocaleLoading } from '../Locale/index.js'
 import { usePreferences } from '../Preferences/index.js'
 import { useTranslation } from '../Translation/index.js'
 import { UploadEditsProvider, useUploadEdits } from '../UploadEdits/index.js'
+import { mergeCollapsedRows } from './mergeCollapsedRows.js'
 import { useGetDocPermissions } from './useGetDocPermissions.js'
 
 const Context = createContext({} as DocumentInfoContext)
@@ -289,7 +290,7 @@ const DocumentInfo: React.FC<
   }, [getPreference, preferencesKey])
 
   const setDocFieldPreferences = useCallback<DocumentInfoContext['setDocFieldPreferences']>(
-    async (path, fieldPreferences) => {
+    async (path, fieldPreferences, currentRowIDs) => {
       const allPreferences = await getDocPreferences()
 
       if (preferencesKey) {
@@ -301,6 +302,15 @@ const DocumentInfo: React.FC<
               [path]: {
                 ...allPreferences?.fields?.[path],
                 ...fieldPreferences,
+                ...(currentRowIDs && Array.isArray(fieldPreferences.collapsed)
+                  ? {
+                      collapsed: mergeCollapsedRows({
+                        collapsedIDs: fieldPreferences.collapsed,
+                        currentRowIDs,
+                        previousCollapsedIDs: allPreferences?.fields?.[path]?.collapsed,
+                      }),
+                    }
+                  : {}),
               },
             },
           })

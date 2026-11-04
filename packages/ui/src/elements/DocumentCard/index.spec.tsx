@@ -1,4 +1,5 @@
 import type { LinkAdapterProps, RouterAdapterRouter } from 'payload'
+import type { ReactNode } from 'react'
 
 import { expect, test, vi } from 'vitest'
 import { page, userEvent } from 'vitest/browser'
@@ -104,4 +105,40 @@ test('should keep selection available without navigating when the href is null',
   expect(onSelect).toHaveBeenCalledTimes(3)
   await card.dblClick()
   expect(push).not.toHaveBeenCalled()
+})
+
+test('should replace a failed thumbnail and retry when its source changes (#19181)', async () => {
+  const Wrapper = ({ children }: { children: ReactNode }) => (
+    <RouterAdapterContext
+      value={{
+        Link: ({ href, ...props }: LinkAdapterProps) => <a href={href} {...props} />,
+        params: {},
+        pathname: '/',
+        searchParams: new URLSearchParams(),
+        router: { back: vi.fn(), push: vi.fn(), refresh: vi.fn(), replace: vi.fn() },
+      }}
+    >
+      {children}
+    </RouterAdapterContext>
+  )
+  const screen = await render(
+    <Wrapper>
+      <DocumentCard
+        title="Failed image"
+        thumbnail={{ src: 'data:image/png;base64,broken' }}
+        placeholder="File preview"
+      />
+    </Wrapper>,
+  )
+  await expect.element(screen.getByText('File preview')).toBeVisible()
+  await expect.element(screen.getByText('Failed image')).toBeVisible()
+  const valid = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+  await screen.rerender(
+    <Wrapper>
+      <DocumentCard title="Valid image" thumbnail={{ src: valid }} placeholder="File preview" />
+    </Wrapper>,
+  )
+  const image = document.querySelector<HTMLImageElement>('.document-card__thumbnail')!
+  await expect.poll(() => image.naturalWidth).toBe(1)
+  await expect.element(screen.getByText('File preview')).not.toBeInTheDocument()
 })

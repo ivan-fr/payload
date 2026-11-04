@@ -10,8 +10,10 @@ const baseClass = 'popup-button'
 export type PopupButtonRenderProps = {
   active: boolean
   'aria-controls': AriaAttributes['aria-controls']
+  'aria-disabled'?: AriaAttributes['aria-disabled']
   'aria-expanded': AriaAttributes['aria-expanded']
   'aria-haspopup'?: AriaAttributes['aria-haspopup']
+  disabled?: boolean
   onClick: React.MouseEventHandler
   onKeyDown: React.KeyboardEventHandler
   role?: 'menuitem'
@@ -97,8 +99,10 @@ export const PopupTrigger: React.FC<PopupTriggerProps> = (props) => {
         {renderButton({
           active,
           'aria-controls': contentId,
+          'aria-disabled': Boolean(disabled),
           'aria-expanded': active,
           'aria-haspopup': popupType,
+          disabled,
           onClick: handleClick,
           onKeyDown: handleKeyDown,
           role: isMenuItem ? 'menuitem' : undefined,

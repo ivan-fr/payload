@@ -727,6 +727,8 @@ By creating a helper function like this, you can easily reuse it and add items t
 | **`label`** | The label will be displayed before your Slash Menu group. In order to make use of i18n, this can be a function.                       |
 | **`key`**   | Used for class names and, if label is not provided, for display. Slash menus with the same key will have their items merged together. |
 
+You can also provide `slashMenu.dynamicGroups: ({ editor, queryString }) => groups` without declaring static `groups`. The callback runs for a bare `/` with `queryString: ''` and when the query changes. A callback that declares no parameters is supported. Returned items are appended to an existing group with the same key, preserving that group's position; new groups are appended. Payload filters static items by the query, while dynamic callbacks are responsible for filtering their own results.
+
 ### Slash Menu items
 
 The API for adding items to the slash menu is similar. There are slash menu groups, and each slash menu groups has items. Here is an example:

@@ -605,6 +605,67 @@ describe('Localization', () => {
     })
   })
 
+  for (const kind of ['array', 'blocks'] as const) {
+    test(`should retain ${kind} collapsed rows across locale changes (#18843)`, async () => {
+      const collection = kind === 'array' ? arrayCollectionSlug : blocksCollectionSlug
+      const field = kind === 'array' ? 'items' : 'content'
+      const rows = (language: string) =>
+        [1, 2].map((index) => ({
+          ...(kind === 'blocks' ? { blockType: 'blockInsideBlock' } : {}),
+          text: `${language} ${index}`,
+        }))
+      const doc = await payload.create({
+        collection,
+        locale: defaultLocale,
+        data: { [field]: rows('English') } as never,
+      })
+      await payload.update({
+        collection,
+        id: doc.id,
+        locale: spanishLocale,
+        data: { [field]: rows('Spanish') } as never,
+      })
+      const docURL = new AdminUrlUtil(serverURL, collection)
+      await page.goto(docURL.edit(doc.id))
+      await changeLocale(page, defaultLocale)
+      await waitForFormReady(page)
+      const root = page.locator(`#field-${field}`)
+      const waitForPreference = () =>
+        page.waitForResponse(
+          (response) =>
+            response.url().includes(`payload-preferences/collection-${collection}-${doc.id}`) &&
+            response.request().method() === 'POST',
+        )
+      let saved = waitForPreference()
+      await root
+        .getByRole('button', { name: /collapse all/i })
+        .first()
+        .click()
+      await saved
+      await changeLocale(page, spanishLocale)
+      await waitForFormReady(page)
+      saved = waitForPreference()
+      await root
+        .getByRole('button', { name: /collapse all/i })
+        .first()
+        .click()
+      await saved
+      saved = waitForPreference()
+      await root.locator('.collapsible__toggle').first().click()
+      await saved
+      await changeLocale(page, defaultLocale)
+      await waitForFormReady(page)
+      const toggles = root.locator('.collapsible__toggle')
+      await expect(toggles).toHaveCount(2)
+      await expect(toggles.nth(0)).toHaveAttribute('aria-expanded', 'false')
+      await expect(toggles.nth(1)).toHaveAttribute('aria-expanded', 'false')
+      await changeLocale(page, spanishLocale)
+      await waitForFormReady(page)
+      await expect(toggles.nth(0)).toHaveAttribute('aria-expanded', 'true')
+      await expect(toggles.nth(1)).toHaveAttribute('aria-expanded', 'false')
+    })
+  }
+
   describe('locale change', () => {
     test('should disable fields during locale change', async () => {
       await page.goto(url.create)

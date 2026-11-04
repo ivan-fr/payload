@@ -26,10 +26,12 @@ const confirmManyRestoreDrawerSlug = `confirm-restore-many-docs`
 export type Props = {
   collection: ClientCollectionConfig
   viewType?: ViewTypes
+  /** Complete constraint supplied by the containing list selection. */
+  where?: Where
 }
 
 export const RestoreMany: React.FC<Props> = (props) => {
-  const { collection: { slug } = {}, viewType } = props
+  const { collection: { slug } = {}, viewType, where } = props
 
   const { permissions } = useAuth()
   const {
@@ -57,7 +59,7 @@ export const RestoreMany: React.FC<Props> = (props) => {
   const selectingAll = selectAll === SelectAllStatus.AllAvailable
   const selectedIDs = !selectingAll ? getSelectedIds() : []
 
-  const baseWhere = parseSearchParams(searchParams)?.where as Where
+  const baseWhere = where ?? (parseSearchParams(searchParams)?.where as Where)
 
   const finalWhere = {
     and: [

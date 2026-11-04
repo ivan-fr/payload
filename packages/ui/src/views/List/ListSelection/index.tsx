@@ -1,8 +1,9 @@
 'use client'
 import type { ClientCollectionConfig, ViewTypes, Where } from 'payload'
 
+import { combineWhereConstraints } from 'payload/shared'
 import * as qs from 'qs-esm'
-import React, { Fragment, useCallback } from 'react'
+import React, { Fragment, use, useCallback } from 'react'
 
 import { DeleteMany } from '../../../elements/DeleteMany/index.js'
 import { EditMany } from '../../../elements/EditMany/index.js'
@@ -16,6 +17,7 @@ import { useRouter, useSearchParams } from '../../../providers/RouterAdapter/ind
 import { SelectAllStatus, useSelection } from '../../../providers/Selection/index.js'
 import { useTranslation } from '../../../providers/Translation/index.js'
 import { parseSearchParams } from '../../../utilities/parseSearchParams.js'
+import { ListBaseFilterContext } from './BaseFilterContext.js'
 
 export type ListSelectionProps = {
   collectionConfig?: ClientCollectionConfig
@@ -42,6 +44,7 @@ export const ListSelection: React.FC<ListSelectionProps> = ({
   viewType,
   where,
 }) => {
+  const baseFilter = use(ListBaseFilterContext)
   const { count, selectAll, selectedIDs, toggleAll, totalDocs } = useSelection()
   const { t } = useTranslation()
   const { permissions } = useAuth()
@@ -69,7 +72,11 @@ export const ListSelection: React.FC<ListSelectionProps> = ({
 
   const selectingAll = selectAll === SelectAllStatus.AllAvailable
   const deleteIDs = selectingAll ? [] : selectedIDs
-  const baseWhere = parseSearchParams(searchParams)?.where as Where
+  const baseWhere = combineWhereConstraints([
+    where,
+    parseSearchParams(searchParams)?.where as Where,
+    baseFilter,
+  ])
   const deleteWhere =
     viewType === 'trash'
       ? {
@@ -107,7 +114,7 @@ export const ListSelection: React.FC<ListSelectionProps> = ({
               modalPrefix={modalPrefix}
               onSuccess={onActionSuccess}
               selectAll={selectAll === SelectAllStatus.AllAvailable}
-              where={where}
+              where={baseWhere}
             />
             <PublishMany
               collection={collectionConfig}
@@ -116,7 +123,7 @@ export const ListSelection: React.FC<ListSelectionProps> = ({
               modalPrefix={modalPrefix}
               onSuccess={onActionSuccess}
               selectAll={selectAll === SelectAllStatus.AllAvailable}
-              where={where}
+              where={baseWhere}
             />
             <UnpublishMany
               collection={collectionConfig}
@@ -125,12 +132,17 @@ export const ListSelection: React.FC<ListSelectionProps> = ({
               modalPrefix={modalPrefix}
               onSuccess={onActionSuccess}
               selectAll={selectAll === SelectAllStatus.AllAvailable}
-              where={where}
+              where={baseWhere}
             />
           </Fragment>
         ),
         isTrashView && (
-          <RestoreMany collection={collectionConfig} key="bulk-restore" viewType={viewType} />
+          <RestoreMany
+            collection={collectionConfig}
+            key="bulk-restore"
+            viewType={viewType}
+            where={baseWhere}
+          />
         ),
         !disableBulkDelete && canShowDeleteButton && collectionConfig && (
           <DeleteMany

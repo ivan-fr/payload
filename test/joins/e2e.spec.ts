@@ -283,6 +283,12 @@ describe('Join Field', () => {
     await expect(drawer.getByRole('textbox', { name: 'Title', exact: true })).toBeVisible()
     await page.keyboard.press('Escape')
     await expect(drawer).toBeHidden()
+
+    // Reopen the same row after its drawer reports closed.
+    await toggler.click()
+    await expect(drawer.getByRole('textbox', { name: 'Title', exact: true })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(drawer).toBeHidden()
   })
 
   test('should not render collection type in polymorphic relationship table with disableRowTypes true', async () => {

@@ -5418,7 +5418,7 @@ test.suite('Versions', { config: './config.ts', resetBetweenTests: false }, () =
       const req = await createPayloadRequest({ payload, user: secondaryAdminUser })
       const currentDate = new Date()
 
-      await schedulePublishHandler({
+      const result = await schedulePublishHandler({
         type: 'publish',
         date: new Date(currentDate.getTime() + 3000),
         doc: {
@@ -5430,17 +5430,29 @@ test.suite('Versions', { config: './config.ts', resetBetweenTests: false }, () =
         user: secondaryAdminUser,
       })
 
-      const queuedJob = (
-        await payload.find({
-          collection: 'payload-jobs',
-          overrideAccess: true,
-          where: {
-            'input.doc.value': {
-              equals: draft.id,
-            },
-          },
-        })
-      ).docs[0]
+      expect(result).toHaveProperty('error')
+      expect(
+        (
+          await payload.find({
+            collection: 'payload-jobs',
+            overrideAccess: true,
+            where: { 'input.doc.value': { equals: draft.id } },
+          })
+        ).totalDocs,
+      ).toBe(0)
+
+      // A trusted queue insertion independently verifies worker-time authorization.
+      const queuedJob = await payload.jobs.queue({
+        input: {
+          type: 'publish',
+          doc: { relationTo: draftCollectionSlug, value: draft.id },
+          locale: 'en',
+          user: { relationTo: secondaryAdminUser.collection, value: secondaryAdminUser.id },
+        },
+        overrideAccess: true,
+        task: 'schedulePublish',
+        waitUntil: new Date(currentDate.getTime() + 3000),
+      })
 
       await wait(4000)
 

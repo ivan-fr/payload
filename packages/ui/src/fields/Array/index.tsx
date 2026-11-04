@@ -203,7 +203,11 @@ export const ArrayFieldComponent: React.FC<ArrayFieldClientProps> = (props) => {
         collapsed,
         rows,
       })
-      setDocFieldPreferences(path, { collapsed: collapsedIDs })
+      setDocFieldPreferences(
+        path,
+        { collapsed: collapsedIDs },
+        rows.map(({ id }) => id),
+      )
       dispatchFields({ type: 'SET_ALL_ROWS_COLLAPSED', path, updatedRows })
     },
     [dispatchFields, path, rows, setDocFieldPreferences],
@@ -218,7 +222,11 @@ export const ArrayFieldComponent: React.FC<ArrayFieldClientProps> = (props) => {
       })
 
       dispatchFields({ type: 'SET_ROW_COLLAPSED', path, updatedRows })
-      setDocFieldPreferences(path, { collapsed: collapsedIDs })
+      setDocFieldPreferences(
+        path,
+        { collapsed: collapsedIDs },
+        rows.map(({ id }) => id),
+      )
     },
     [dispatchFields, path, rows, setDocFieldPreferences],
   )

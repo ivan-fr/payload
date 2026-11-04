@@ -45,18 +45,33 @@ describe('multiple empty required paragraphs (#19222)', () => {
       ),
     ).toBe(false)
   })
-  it.each(['text', 'upload', 'block', 'linebreak', 'heading'])(
-    'should preserve existing content rules for %s',
-    (type) => {
-      const node =
-        type === 'text'
-          ? paragraph({ children: [text({ value: 'content' })] })
-          : type === 'linebreak'
-            ? paragraph({ children: [{ type, version: 1 }] })
-            : { type, version: 1, children: [] }
-      expect(hasText(state({ children: [paragraph(), node] }))).toBe(true)
+  it.each(['text', 'upload', 'block'])('should preserve existing content rules for %s', (type) => {
+    const node =
+      type === 'text'
+        ? paragraph({ children: [text({ value: 'content' })] })
+        : { type, version: 1, children: [] }
+    expect(hasText(state({ children: [paragraph(), node] }))).toBe(true)
+  })
+  it.each([
+    paragraph({ children: [{ type: 'linebreak', version: 1 }] }),
+    { type: 'heading', version: 1, tag: 'h2', children: [] },
+    {
+      type: 'heading',
+      version: 1,
+      tag: 'h2',
+      children: [text({ value: '' }), { type: 'linebreak', version: 1 }],
     },
-  )
+  ])('should reject text-free paragraphs and headings (#19227): %j', async (node) => {
+    const value = state({ children: [node] })
+    expect(hasText(value)).toBe(false)
+    const validate = richTextValidateHOC({
+      editorConfig: { features: { validations: new Map() } } as never,
+    })
+    expect(await validate(value, { required: true, req: { t: () => 'Required' } } as never)).toBe(
+      'Required',
+    )
+  })
+
   it('should keep optional empty rich text valid', async () => {
     const validate = richTextValidateHOC({
       editorConfig: { features: { validations: new Map() } } as never,
@@ -68,4 +83,33 @@ describe('multiple empty required paragraphs (#19222)', () => {
       } as never),
     ).toBe(true)
   })
+})
+
+it('should preserve nonempty headings, whitespace policy, and named-slot content', () => {
+  for (const value of ['text', ' ']) {
+    expect(
+      hasText(
+        state({
+          children: [{ type: 'heading', version: 1, children: [text({ value })] } as never],
+        }),
+      ),
+    ).toBe(true)
+  }
+  expect(
+    hasText(
+      state({
+        children: [
+          {
+            type: 'paragraph',
+            version: 1,
+            children: [],
+            $slots: { body: { type: 'upload', version: 1 } },
+          } as never,
+        ],
+      }),
+    ),
+  ).toBe(true)
+  for (const type of ['list', 'quote', 'table', 'custom-decorator']) {
+    expect(hasText(state({ children: [{ type, version: 1, children: [] } as never] }))).toBe(true)
+  }
 })

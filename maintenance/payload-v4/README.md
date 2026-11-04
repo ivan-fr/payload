@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes eighty-four reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes 108 reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) records **565 open issues**, excluding pull requests. Eighty-three snapshot issues have scoped fixes here; **482 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **84 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **103 snapshot issues have scoped fixes here; 462 snapshot issues remain unassessed**. Five reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **108 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -185,3 +185,63 @@ PR #3 now adds forty-eight scoped fixes to the thirty already merged on main. Th
 ## PR #3: six additional query, CSV, Lexical and documentation reports
 
 PR #3 now adds fifty-four scoped fixes to the thirty already merged on main. The latest six are #16483, #17118, #17589, #16262, #19139 and #19222. See [batch-14.md](batch-14.md) for reproduction, coverage and limits. This batch includes four runtime fixes, a missing public Lexical command export and corrected cron documentation. The fork remains public.
+
+## Fifteenth batch: six editor and media regressions
+
+Based on merged fork main `6cfeaf1ed68e6beeb34249375bcb761e89e71aba` (PR #3). The six official reports were checked open on 2026-11-04. Reports #19316, #19317 and #19318 were opened that morning; #19294 was opened on November 3. None duplicates the 84 fixes already merged.
+
+| Official report                                              | Result                                                                                                                                                                                       |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#19318](https://github.com/payloadcms/payload/issues/19318) | Lexical upload cards prefer the actual image URL over a cropped Admin thumbnail and retain fallback behavior. Selecting a card no longer imposes a different width.                          |
+| [#19317](https://github.com/payloadcms/payload/issues/19317) | Dynamic slash items merge immutably in their group position, including a bare slash. Dynamic-only and zero-argument callbacks are registered; providers retain control of dynamic filtering. |
+| [#19316](https://github.com/payloadcms/payload/issues/19316) | Population, hook maps and validation traverse named Lexical slots as well as normal children, including nested slots. Populated uploads still respect read access.                           |
+| [#19294](https://github.com/payloadcms/payload/issues/19294) | Persist the detected, validated MIME type instead of mismatched declared video/audio metadata; retain MIME allowlist/content validation and extension fallback.                              |
+| [#19234](https://github.com/payloadcms/payload/issues/19234) | An empty hasMany thumbnail field falls back to an upload document's own file, matching the empty single-field behavior. A nonempty unpopulated selection still uses the placeholder.         |
+| [#19232](https://github.com/payloadcms/payload/issues/19232) | Return the real open state of the document drawer so a join row can be reopened. Memoized drawer components and action callbacks keep their identity when modal state changes.               |
+
+Detailed reproduction, tests and browser/accessibility boundaries: [batch-15.md](batch-15.md). The historical snapshot total stays unchanged; four additional reports and two existing snapshot reports are added to the fix count. No upstream issue is closed and no CI, access or dependency policy is weakened.
+
+## Sixteenth batch: six Admin validation and mutation regressions
+
+This adds six more official report fixes to PR #4, above `d5277ef2d3be94cf503145f6f5a260d34fc9f601`. The PR now contains twelve scoped fixes; fork main remains `6cfeaf1`. All reports were checked open on November 4, 2026.
+
+| Official report                                              | Result                                                                                                                                                                                          |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#19227](https://github.com/payloadcms/payload/issues/19227) | Required rich text rejects paragraphs/headings containing only empty text or line breaks, while retaining decorators, named-slot content and the existing whitespace/list/quote/table policies. |
+| [#19215](https://github.com/payloadcms/payload/issues/19215) | Replaying Form effects does not replace live edits with an unchanged initialState. Actual initial-state changes still apply.                                                                    |
+| [#19190](https://github.com/payloadcms/payload/issues/19190) | Failed scheduling/cancellation shows the error instead of success; a failed schedule retains its selected date for retry.                                                                       |
+| [#19192](https://github.com/payloadcms/payload/issues/19192) | Mutations check update/publish access on a valid scheduled target. Cancellation resolves the saved job target, preventing forged request targets from authorizing another job's deletion.       |
+| [#19189](https://github.com/payloadcms/payload/issues/19189) | All list bulk actions combine server base filters, URL filters and group constraints, including mobile/grouped selections and trash restoration.                                                |
+| [#18873](https://github.com/payloadcms/payload/issues/18873) | Form-state validators receive the same full path segments as submit validation, including arrays, blocks and named tabs.                                                                        |
+
+Detailed reproduction, validation and UI/accessibility boundaries: [batch-16.md](batch-16.md). These are six snapshot issues; the snapshot total and five separately tracked later reports are unchanged. No official issue is closed.
+
+## Seventeenth batch: six hierarchy and Admin regressions
+
+Six additional official reports are addressed above `297130ef1a9d637255d1611bf89744b88bee04f0`. PR #4 contains eighteen scoped fixes; the fork contains 102. The historical snapshot remains 565 reports: 97 scoped fixes and 468 unassessed, plus five separately tracked later reports.
+
+| Official report                                              | Result                                                                                                                                                    |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#18814](https://github.com/payloadcms/payload/issues/18814) | MongoDB polymorphic joins match the parent ID inside has-many relationships while preserving scalar matching.                                             |
+| [#18815](https://github.com/payloadcms/payload/issues/18815) | Deleting a tag removes only that tag from each related document. Single-value references still clear to null.                                             |
+| [#18816](https://github.com/payloadcms/payload/issues/18816) | Hierarchy title lookup searches all unnamed layout branches before reporting a missing field. Named nesting remains unsupported.                          |
+| [#19072](https://github.com/payloadcms/payload/issues/19072) | Disabled submenus disable pointer intent, stay out of parent coordination and reject activation.                                                          |
+| [#19131](https://github.com/payloadcms/payload/issues/19131) | Admin password inputs validate configured minimum and maximum lengths, including a zero minimum.                                                          |
+| [#19199](https://github.com/payloadcms/payload/issues/19199) | Numeric document IDs use the existing ID title treatment. The complete untitled translation was already preserved; a regression test now protects it too. |
+
+Detailed evidence and validation limits: [batch-17.md](batch-17.md). These six reports were checked open on November 4, 2026. No upstream issue closure or merge is performed.
+
+## Eighteenth batch: six hierarchy, preference and version regressions
+
+Six additional official reports are addressed above `b9d43562b6170e339970ea8b5ca01d11cfec759f`. PR #4 contains twenty-four scoped fixes; the fork contains 108. The historical snapshot remains 565 reports: 103 scoped fixes and 462 unassessed, plus five later reports.
+
+| Official report                                              | Result                                                                                                                                                                           |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#18380](https://github.com/payloadcms/payload/issues/18380) | Hierarchy data loads each expanded parent once, treating numeric and string forms of an ID as the same parent.                                                                   |
+| [#18465](https://github.com/payloadcms/payload/issues/18465) | SQL collection/global version updates skip already-false latest flags, retaining legacy-null normalization.                                                                      |
+| [#18872](https://github.com/payloadcms/payload/issues/18872) | Import maps register hierarchy Icon and SmallIcon independently of sidebar tabs. Header default icons accept object/string references and preserve props.                        |
+| [#18843](https://github.com/payloadcms/payload/issues/18843) | Array/block collapse writes replace the current rows' IDs and retain collapsed rows from other locales.                                                                          |
+| [#19181](https://github.com/payloadcms/payload/issues/19181) | Document cards replace failed thumbnails with their existing placeholder and retry when the source changes.                                                                      |
+| [#19242](https://github.com/payloadcms/payload/issues/19242) | Capture user preference IDs before SQL relationship cascades, then remove preferences after successful single/bulk deletes. Refused or failed user deletions retain preferences. |
+
+Detailed reproduction, validation and UI evidence boundaries: [batch-18.md](batch-18.md). All six reports were checked open on November 4, 2026. No official issue closure or merge is performed.

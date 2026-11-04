@@ -207,6 +207,9 @@ export const Popup: React.FC<PopupProps> = (props) => {
 
   const setActive = useCallback(
     (isActive: boolean, viaKeyboard = false, coordinateParent = true) => {
+      if (isActive && disabled) {
+        return
+      }
       if (isActive) {
         openedViaKeyboardRef.current = viaKeyboard
         if (coordinateParent && isSubmenu) {
@@ -224,7 +227,7 @@ export const Popup: React.FC<PopupProps> = (props) => {
       }
       setActiveInternal(isActive)
     },
-    [contentId, isSubmenu, onToggleClose, onToggleOpen, parentPopup, submenuScope],
+    [contentId, disabled, isSubmenu, onToggleClose, onToggleOpen, parentPopup, submenuScope],
   )
 
   const closePopup = useCallback(
@@ -270,7 +273,7 @@ export const Popup: React.FC<PopupProps> = (props) => {
   const pointerIntent = useSubmenuPointerIntent({
     active,
     contentRef: popupRef,
-    enabled: isSubmenu && hoverSubmenu,
+    enabled: isSubmenu && hoverSubmenu && !disabled,
     onClose: closeFromPointer,
     onOpen: () =>
       parentPopup?.submenuScope.requestOpen({
@@ -306,7 +309,7 @@ export const Popup: React.FC<PopupProps> = (props) => {
   }, [closeFromPointer, openFromParent])
 
   useEffect(() => {
-    if (!isSubmenu || !parentSubmenuScope) {
+    if (disabled || !isSubmenu || !parentSubmenuScope) {
       return
     }
 
@@ -316,7 +319,7 @@ export const Popup: React.FC<PopupProps> = (props) => {
       isPointerProtected: pointerIntent.isProtected,
       open: (viaKeyboard) => submenuCallbacks.current.openFromParent(viaKeyboard),
     })
-  }, [contentId, isSubmenu, parentSubmenuScope, pointerIntent.isProtected])
+  }, [contentId, disabled, isSubmenu, parentSubmenuScope, pointerIntent.isProtected])
 
   // /////////////////////////////////////
   // Position Calculation

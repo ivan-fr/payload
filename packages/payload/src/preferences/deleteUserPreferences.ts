@@ -11,15 +11,23 @@ type Args = {
    */
   ids: (number | string)[]
   payload: Payload
+  preferenceIDs?: (number | string)[]
   req: PayloadRequest
 }
-export const deleteUserPreferences = async ({ collectionConfig, ids, payload, req }: Args) => {
+export const deleteUserPreferences = async ({
+  collectionConfig,
+  ids,
+  payload,
+  preferenceIDs = [],
+  req,
+}: Args) => {
   if (collectionConfig.auth) {
     await payload.db.deleteMany({
       collection: preferencesCollectionSlug,
       req,
       where: {
         or: [
+          ...(preferenceIDs.length ? [{ id: { in: preferenceIDs } }] : []),
           {
             and: [
               {

@@ -95,6 +95,74 @@ describe('generateFileData', () => {
     expect(toBufferMock).not.toHaveBeenCalled()
   })
 
+  it.each([false, true])(
+    'should store the detected video type for a mislabelled upload (temp file: %s) (#19294)',
+    async (isTempFile) => {
+      const video = await fs.readFile(
+        path.resolve('test/uploads/christmas-mariachi-in-guadalajara.mp4'),
+      )
+      if (isTempFile) {
+        await fs.writeFile(tempFilePath, video)
+      }
+      const req = {
+        file: {
+          data: isTempFile ? Buffer.alloc(0) : video,
+          mimetype: 'video/webm',
+          name: 'clip.webm',
+          size: video.length,
+          ...(isTempFile ? { tempFilePath } : {}),
+        },
+        payload: { config: {}, logger: { error: vi.fn(), warn: vi.fn() } },
+      } as unknown as PayloadRequest
+      const result = await generateFileData({
+        collection: createCollection({ mimeTypes: ['video/mp4', 'video/webm'] }),
+        config: {} as SanitizedConfig,
+        data: {},
+        operation: 'create',
+        overwriteExistingFiles: true,
+        req,
+      })
+      expect(result.data).toMatchObject({ mimeType: 'video/mp4', filesize: video.length })
+    },
+  )
+
+  it('should keep rejecting video bytes outside the configured MIME allowlist', async () => {
+    const video = await fs.readFile(
+      path.resolve('test/uploads/christmas-mariachi-in-guadalajara.mp4'),
+    )
+    const req = {
+      file: { data: video, mimetype: 'video/webm', name: 'clip.webm', size: video.length },
+      payload: { config: {}, logger: { error: vi.fn(), warn: vi.fn() } },
+    } as unknown as PayloadRequest
+    await expect(
+      generateFileData({
+        collection: createCollection({ mimeTypes: ['video/webm'] }),
+        config: {} as SanitizedConfig,
+        data: {},
+        operation: 'create',
+        overwriteExistingFiles: true,
+        req,
+      }),
+    ).rejects.toMatchObject({ name: 'ValidationError', status: 400 })
+  })
+
+  it('should also store a detected audio type rather than the declared format', async () => {
+    const audio = await fs.readFile(path.resolve('test/uploads/audio.mp3'))
+    const req = {
+      file: { data: audio, mimetype: 'audio/wav', name: 'clip.wav', size: audio.length },
+      payload: { config: {}, logger: { error: vi.fn(), warn: vi.fn() } },
+    } as unknown as PayloadRequest
+    const result = await generateFileData({
+      collection: createCollection({ mimeTypes: ['audio/mpeg', 'audio/wav'] }),
+      config: {} as SanitizedConfig,
+      data: {},
+      operation: 'create',
+      overwriteExistingFiles: true,
+      req,
+    })
+    expect(result.data.mimeType).toBe('audio/mpeg')
+  })
+
   describe('focal point without a transformer', () => {
     const createPngReq = ({ query = {} }: { query?: Record<string, unknown> } = {}) =>
       ({
