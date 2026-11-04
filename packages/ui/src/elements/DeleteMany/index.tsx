@@ -121,26 +121,12 @@ export function DeleteMany({
         let whereConstraint: Where
 
         if (all) {
-          // selecting all documents with optional where filter
-          if (deletingOneCollection && where) {
-            whereConstraint =
-              viewType === 'trash'
-                ? {
-                    and: [
-                      ...(Array.isArray(where.and) ? where.and : [where]),
-                      { deletedAt: { exists: true } },
-                    ],
-                  }
-                : where
-          } else {
-            whereConstraint =
-              viewType === 'trash'
-                ? {
-                    and: [{ id: { not_equals: '' } }, { deletedAt: { exists: true } }],
-                  }
-                : {
-                    id: { not_equals: '' },
-                  }
+          whereConstraint = {
+            and: [
+              { id: { not_equals: '' } },
+              ...(deletingOneCollection && where ? [where] : []),
+              ...(viewType === 'trash' ? [{ deletedAt: { exists: true } }] : []),
+            ],
           }
         } else {
           // selecting specific documents

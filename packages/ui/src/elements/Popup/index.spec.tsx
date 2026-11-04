@@ -481,7 +481,7 @@ test('should keep disabled hover submenus closed from direct hover and a sibling
       data-testid="disabled-pointer-surface"
       style={{ inset: 0, padding: '64px 300px', position: 'fixed' }}
     >
-      <Popup button="Root" popupType="menu" theme="auto">
+      <Popup button="Root" popupType="menu" size="large" theme="auto">
         <PopupList.MenuItem>
           {['Active', 'Disabled'].map((label) => (
             <Popup

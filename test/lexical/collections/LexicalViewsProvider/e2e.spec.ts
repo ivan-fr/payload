@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url'
 import type { PayloadTestSDK } from '../../../__helpers/shared/sdk/index.js'
 import type { Config } from '../../payload-types.js'
 
+import { waitForFormReady, waitForLexicalReady } from '../../../__helpers/e2e/helpers.js'
 import { AdminUrlUtil } from '../../../__helpers/shared/adminUrlUtil.js'
 import { initPayloadE2ENoConfig } from '../../../__helpers/shared/initPayloadE2ENoConfig.js'
 import { ensureCompilationIsDone } from '../../../__setup/e2e/ensureCompilationIsDone.js'
@@ -39,7 +40,8 @@ describe('Lexical Views Provider', () => {
       lexical = new LexicalHelpers(page)
       const url = new AdminUrlUtil(serverURL, lexicalViewsProviderSlug)
       await page.goto(url.create)
-      await lexical.editor.first().waitFor({ state: 'visible' })
+      await waitForFormReady(page)
+      await waitForLexicalReady(page.locator('.rich-text-lexical').first())
     })
 
     test('should not show the view selector when view is inherited from parent provider', async ({
