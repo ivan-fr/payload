@@ -1,26 +1,23 @@
-import type { SerializedEditorState, SerializedParagraphNode, SerializedTextNode } from 'lexical'
+import type { SerializedEditorState, SerializedLexicalNode, SerializedTextNode } from 'lexical'
 
-/**
- * This function checks if the editor state is empty (has any text). If the editor state has no nodes,
- * or only empty paragraph nodes (no TextNode with length > 0), it returns false.
- * Otherwise, it returns true.
- */
+import { getNodeChildren } from '../utilities/getNodeChildren.js'
+
+/** Paragraphs and headings must contain text or a content node; line breaks alone are empty. */
 export function hasText(
   value: null | SerializedEditorState | undefined,
 ): value is SerializedEditorState {
-  const hasChildren = !!value?.root?.children?.length
-  if (!hasChildren) {
+  return Boolean(value?.root?.children?.some(hasContent))
+}
+
+function hasContent(node: SerializedLexicalNode): boolean {
+  if (node.type === 'text') {
+    return Boolean((node as SerializedTextNode).text?.length)
+  }
+  if (node.type === 'linebreak') {
     return false
   }
-
-  return value.root.children.some((node) => {
-    if (node.type !== 'paragraph') {
-      return true
-    }
-
-    const paragraphNode = node as SerializedParagraphNode
-    return (paragraphNode.children ?? []).some(
-      (child) => child.type !== 'text' || Boolean((child as SerializedTextNode).text?.length),
-    )
-  })
+  if (node.type === 'paragraph' || node.type === 'heading') {
+    return getNodeChildren({ node }).some(hasContent)
+  }
+  return true
 }

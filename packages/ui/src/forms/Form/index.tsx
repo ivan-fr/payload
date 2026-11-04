@@ -190,6 +190,7 @@ export const Form: React.FC<FormProps> = (props) => {
   const contextRef = useRef({} as FormContextType)
   const abortResetFormRef = useRef<AbortController>(null)
   const isFirstRenderRef = useRef(true)
+  const lastInitialStateRef = useRef<FormState | undefined>(undefined)
 
   const fieldsReducer = useReducer(fieldReducer, {}, () => initialState)
 
@@ -845,6 +846,10 @@ export const Form: React.FC<FormProps> = (props) => {
   }, [submittedFromProps])
 
   useEffect(() => {
+    if (initialState === lastInitialStateRef.current) {
+      return
+    }
+    lastInitialStateRef.current = initialState
     if (initialState) {
       contextRef.current = { ...initContextState }
       dispatchFields({

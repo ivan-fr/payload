@@ -1,4 +1,4 @@
-import type { SchedulePublishTaskInput, ServerFunction } from 'payload'
+import type { Job, PayloadRequest, SchedulePublishTaskInput, ServerFunction } from 'payload'
 
 import { canAccessAdmin, Forbidden } from 'payload'
 import { hasScheduledPublishEnabled } from 'payload/shared'
@@ -32,32 +32,7 @@ export const getUpcomingScheduledPublishHandler: ServerFunction<
 
   await canAccessAdmin({ req })
 
-  const collectionConfig = collectionSlug ? payload.collections[collectionSlug]?.config : undefined
-  const globalConfig = globalSlug
-    ? payload.config.globals.find(({ slug }) => slug === globalSlug)
-    : undefined
-  const entityConfig = collectionConfig || globalConfig
-  const hasValidTarget = Boolean(
-    entityConfig &&
-    hasScheduledPublishEnabled(entityConfig) &&
-    ((collectionConfig && id !== undefined && !globalSlug) || (globalConfig && !collectionSlug)),
-  )
-
-  if (!hasValidTarget) {
-    throw new Forbidden(req.t)
-  }
-
-  const { hasPublishPermission } = await getDocumentPermissions({
-    id,
-    collectionConfig,
-    data: {},
-    globalConfig,
-    req,
-  })
-
-  if (!hasPublishPermission) {
-    throw new Forbidden(req.t)
-  }
+  await assertScheduleTargetAccess({ id, collectionSlug, globalSlug, req })
 
   const { docs } = await payload.db.find<UpcomingEvent>({
     collection: 'payload-jobs',
@@ -92,7 +67,23 @@ export const schedulePublishHandler: ServerFunction<SchedulePublishHandlerArgs> 
   await canAccessAdmin({ req })
 
   try {
-    if (deleteID) {
+    if (deleteID !== undefined && deleteID !== null) {
+      const job = await payload.db.findOne<Job>({
+        collection: 'payload-jobs',
+        req,
+        where: { and: [{ id: { equals: deleteID } }, { taskSlug: { equals: 'schedulePublish' } }] },
+      })
+      if (!job || job.taskSlug !== 'schedulePublish') {
+        throw new Forbidden(req.t)
+      }
+      const target = job.input as SchedulePublishTaskInput
+      await assertScheduleTargetAccess({
+        id: target?.doc?.value,
+        collectionSlug: target?.doc?.relationTo,
+        globalSlug: target?.global,
+        req,
+      })
+      // Jobs are internal records. Target authorization above gates this narrow system mutation.
       await payload.delete({
         collection: 'payload-jobs',
         overrideAccess: true,
@@ -104,6 +95,16 @@ export const schedulePublishHandler: ServerFunction<SchedulePublishHandlerArgs> 
 
       return { message: i18n.t('general:success') }
     }
+
+    if (type !== 'publish' && type !== 'unpublish') {
+      throw new Forbidden(req.t)
+    }
+    await assertScheduleTargetAccess({
+      id: doc?.value,
+      collectionSlug: doc?.relationTo,
+      globalSlug: global,
+      req,
+    })
 
     await payload.jobs.queue({
       input: {
@@ -120,7 +121,9 @@ export const schedulePublishHandler: ServerFunction<SchedulePublishHandlerArgs> 
               }
             : undefined,
       },
+      // Queue records remain internal; target permission was checked above.
       overrideAccess: true,
+      req,
       task: 'schedulePublish',
       waitUntil: date,
     })
@@ -136,7 +139,7 @@ export const schedulePublishHandler: ServerFunction<SchedulePublishHandlerArgs> 
       }
     }
 
-    payload.logger.error({ err }, error)
+    payload.logger.error({ err, msg: error })
 
     return {
       error,
@@ -144,4 +147,45 @@ export const schedulePublishHandler: ServerFunction<SchedulePublishHandlerArgs> 
   }
 
   return { message: i18n.t('general:success') }
+}
+
+async function assertScheduleTargetAccess({
+  id,
+  collectionSlug,
+  globalSlug,
+  req,
+}: {
+  collectionSlug?: string
+  globalSlug?: string
+  id?: number | string
+  req: PayloadRequest
+}): Promise<void> {
+  const { payload } = req
+  const collectionConfig = collectionSlug ? payload.collections[collectionSlug]?.config : undefined
+  const globalConfig = globalSlug
+    ? payload.config.globals.find(({ slug }) => slug === globalSlug)
+    : undefined
+  const entityConfig = collectionConfig || globalConfig
+  const hasValidTarget = Boolean(
+    entityConfig &&
+    hasScheduledPublishEnabled(entityConfig) &&
+    ((collectionConfig && id !== undefined && id !== null && !globalSlug) ||
+      (globalConfig && !collectionSlug)),
+  )
+
+  if (!hasValidTarget) {
+    throw new Forbidden(req.t)
+  }
+
+  const { hasPublishPermission } = await getDocumentPermissions({
+    id,
+    collectionConfig,
+    data: {},
+    globalConfig,
+    req,
+  })
+
+  if (!hasPublishPermission) {
+    throw new Forbidden(req.t)
+  }
 }

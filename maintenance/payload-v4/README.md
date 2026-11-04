@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes ninety reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes 96 reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **85 snapshot issues have scoped fixes here; 480 snapshot issues remain unassessed**. Five reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **90 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **91 snapshot issues have scoped fixes here; 474 snapshot issues remain unassessed**. Five reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **96 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -200,3 +200,18 @@ Based on merged fork main `6cfeaf1ed68e6beeb34249375bcb761e89e71aba` (PR #3). Th
 | [#19232](https://github.com/payloadcms/payload/issues/19232) | Return the real open state of the document drawer so a join row can be reopened. Memoized drawer components and action callbacks keep their identity when modal state changes.               |
 
 Detailed reproduction, tests and browser/accessibility boundaries: [batch-15.md](batch-15.md). The historical snapshot total stays unchanged; four additional reports and two existing snapshot reports are added to the fix count. No upstream issue is closed and no CI, access or dependency policy is weakened.
+
+## Sixteenth batch: six Admin validation and mutation regressions
+
+This adds six more official report fixes to PR #4, above `d5277ef2d3be94cf503145f6f5a260d34fc9f601`. The PR now contains twelve scoped fixes; fork main remains `6cfeaf1`. All reports were checked open on November 4, 2026.
+
+| Official report                                              | Result                                                                                                                                                                                          |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#19227](https://github.com/payloadcms/payload/issues/19227) | Required rich text rejects paragraphs/headings containing only empty text or line breaks, while retaining decorators, named-slot content and the existing whitespace/list/quote/table policies. |
+| [#19215](https://github.com/payloadcms/payload/issues/19215) | Replaying Form effects does not replace live edits with an unchanged initialState. Actual initial-state changes still apply.                                                                    |
+| [#19190](https://github.com/payloadcms/payload/issues/19190) | Failed scheduling/cancellation shows the error instead of success; a failed schedule retains its selected date for retry.                                                                       |
+| [#19192](https://github.com/payloadcms/payload/issues/19192) | Mutations check update/publish access on a valid scheduled target. Cancellation resolves the saved job target, preventing forged request targets from authorizing another job's deletion.       |
+| [#19189](https://github.com/payloadcms/payload/issues/19189) | All list bulk actions combine server base filters, URL filters and group constraints, including mobile/grouped selections and trash restoration.                                                |
+| [#18873](https://github.com/payloadcms/payload/issues/18873) | Form-state validators receive the same full path segments as submit validation, including arrays, blocks and named tabs.                                                                        |
+
+Detailed reproduction, validation and UI/accessibility boundaries: [batch-16.md](batch-16.md). These are six snapshot issues; the snapshot total and five separately tracked later reports are unchanged. No official issue is closed.
