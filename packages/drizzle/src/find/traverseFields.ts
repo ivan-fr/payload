@@ -340,7 +340,13 @@ export const traverseFields = ({
       case 'tab': {
         const fieldSelect = select?.[field.name]
 
-        if (fieldSelect === false) {
+        if (
+          fieldSelect === false ||
+          (select &&
+            selectMode === 'include' &&
+            fieldSelect === undefined &&
+            !selectAllOnCurrentLevel)
+        ) {
           break
         }
 
@@ -531,6 +537,17 @@ export const traverseFields = ({
           }
 
           if (useDrafts) {
+            // ID filters may already select this column under a qualified key.
+            // Duplicate output names make the outer PostgreSQL projection ambiguous.
+            for (const key in selectFields) {
+              const column = selectFields[key]
+              if (
+                column.name === newAliasTable.parent.name &&
+                getNameFromDrizzleTable(column.table) === getNameFromDrizzleTable(newAliasTable)
+              ) {
+                delete selectFields[key]
+              }
+            }
             selectFields.parent = newAliasTable.parent
           }
 

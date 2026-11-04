@@ -85,18 +85,18 @@ export const createSchemaGenerator = ({
     const enumFn = this.schemaName ? `db_schema.enum` : enumImport
 
     const enumsList: string[] = []
-    const addEnum = (name: string, options: string[]) => {
+    const addEnum = (name: string, options: string[], sqlName = name) => {
       if (enumsList.some((each) => each === name)) {
         return
       }
       enumsList.push(name)
       enumDeclarations.push(
-        `export const ${name} = ${enumFn}('${name}', [${options.map((option) => `'${option}'`).join(', ')}])`,
+        `export const ${name} = ${enumFn}('${sqlName}', [${options.map((option) => `'${option}'`).join(', ')}])`,
       )
     }
 
     if (this.payload.config.localization && enumImport) {
-      addEnum('enum__locales', this.payload.config.localization.localeCodes)
+      addEnum('enum__locales', this.payload.config.localization.localeCodes, '_locales')
     }
 
     const tableFn = this.schemaName ? `db_schema.table` : tableImport

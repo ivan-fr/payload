@@ -194,6 +194,8 @@ export const generateReindexHandler =
     }
 
     const shouldCommit = await initTransaction(req)
+    const transactionID = await req.transactionID
+    const hasTransaction = typeof transactionID === 'string' || typeof transactionID === 'number'
 
     // Collections are processed sequentially to avoid race conditions within the shared transaction.
     // Concurrent writes to the search collection interleave on the same DB connection and can cause
@@ -207,6 +209,9 @@ export const generateReindexHandler =
         } catch (err) {
           const message = t('error:unableToReindexCollection', { collection })
           payload.logger.error({ err, msg: message })
+          if (hasTransaction) {
+            throw err
+          }
           results.push({ docs: 0, docsWithDrafts: 0, errors: 0 })
         }
       }

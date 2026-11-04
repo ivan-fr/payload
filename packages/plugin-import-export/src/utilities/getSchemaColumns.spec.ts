@@ -95,3 +95,29 @@ describe('getSchemaColumns', () => {
     })
   })
 })
+
+describe('field hook scalar containers (#19141)', () => {
+  it('should infer scalar array columns while preserving untransformed array columns', () => {
+    const collectionConfig = {
+      flattenedFields: [
+        {
+          name: 'tags',
+          type: 'array',
+          fields: [
+            { name: 'label', type: 'text' },
+            { name: 'id', type: 'text' },
+          ],
+        },
+        { name: 'items', type: 'array', fields: [{ name: 'label', type: 'text' }] },
+        { name: 'tags_extra', type: 'text' },
+      ],
+    } as unknown as SanitizedCollectionConfig
+    const columns = getSchemaColumns({
+      collectionConfig,
+      dataColumns: ['id', 'tags', 'items_0_label', 'tags_extra'],
+    })
+
+    expect(columns).toEqual(['id', 'tags', 'items_0_label', 'tags_extra'])
+    expect(getSchemaColumns({ collectionConfig })).toContain('tags_0_label')
+  })
+})

@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes thirty reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes eighty-four reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) records **565 open issues**, excluding pull requests. Twenty-nine snapshot issues have scoped fixes here; **536 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **30 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) records **565 open issues**, excluding pull requests. Eighty-three snapshot issues have scoped fixes here; **482 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **84 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -122,7 +122,7 @@ Local PostgreSQL execution stopped before running tests because localhost:5433 w
 
 ## Remaining mission
 
-The requested resolution of every open issue is unfinished. Continue from the 536 unassessed snapshot entries: establish v4 applicability, inspect related fixes/PRs, reproduce the problem, add a meaningful regression test, then implement and validate. Feature requests and reports requiring a design decision or missing reproduction need separate treatment.
+The requested resolution of every open issue is unfinished. Continue from the 530 unassessed snapshot entries: establish v4 applicability, inspect related fixes/PRs, reproduce the problem, add a meaningful regression test, then implement and validate. Feature requests and reports requiring a design decision or missing reproduction need separate treatment.
 
 High-impact candidates for subsequent investigation include scheduled-publish document access (#19192), bulk-operation base filters (#19189), and tenant isolation during bulk deletes (#16325). These are priorities to investigate, not claims of confirmed vulnerabilities on this branch.
 
@@ -149,3 +149,39 @@ Validation on this revision:
 - The integration test TypeScript project still includes existing cross-adapter/workspace diagnostics; no diagnostics reference the new fixture files.
 
 A live MongoDB/Cosmos DB or PostgreSQL result is not established by these local checks. The full required Actions matrix must validate the final PR commit before merge. The new shared-fixture suite is discovered by that matrix; no required checks have been removed or relaxed. The separate PostgreSQL max=1 regression was already green on the preceding commit and runs again on the updated PR.
+
+## Sixth batch
+
+Six further reproduced reports are covered in [batch-6.md](batch-6.md), on top of the merged PR #1 baseline.
+
+## Seventh batch: six more issues on PR #3
+
+PR #3 now adds twelve scoped fixes to the thirty already merged on main. The latest six are #16367, #16368, #16502, #17929, #17938 and #18217. See [batch-7.md](batch-7.md) for implementation, reproduction evidence and validation limits. Locale-resolved traversal uses the new explicit `flattenLocales: true` option; the default continues to traverse all-locale database shapes.
+
+## Eighth batch: six further issues on PR #3
+
+PR #3 now adds eighteen scoped fixes to the thirty already merged on main. The latest six are #17201, #17904, #17906, #18623, #18874 and #19021. See [batch-8.md](batch-8.md) for scope, reproduction, validation and remaining runtime/browser/install checks. Header scoping is opt-in through `withPayload(nextConfig, { clientHintHeaders: '/admin/:path*' })`; omitting it preserves the existing all-route behavior.
+
+## Ninth batch: six additional data and lifecycle regressions
+
+PR #3 now adds twenty-four scoped fixes to the thirty already merged on main. The latest six are #16485, #17760, #17762, #18251, #18285 and #18844. See [batch-9.md](batch-9.md) for reproduction, regression coverage and validation limits. This includes both defects reported in #18251; it is counted as one issue.
+
+## PR #3: six additional plugin reports
+
+PR #3 now adds thirty scoped fixes to the thirty already merged on main. The latest six are #16517, #17658, #14328, #19253, #9226 and #18311. See [batch-10.md](batch-10.md) for reproduction and validation. The SEO change covers manual global fields; manual collection fields already work in this base. Internal numeric link IDs no longer abort email delivery, but mapping IDs to site URLs remains application-specific. The fork remains public.
+
+## PR #3: six additional validation and synchronization reports
+
+PR #3 now adds thirty-six scoped fixes to the thirty already merged on main. The latest six are #15334, #16283, #16980, #17699, #17882 and #19231. See [batch-11.md](batch-11.md) for reproduction, coverage and limits. These cover rollback order, optional timezone normalization, rejected invalid blocks/select queries, surfaced search synchronization failures and export labels. The fork remains public.
+
+## PR #3: six additional ecommerce and schema reports
+
+PR #3 now adds forty-two scoped fixes to the thirty already merged on main. The latest six are #14904, #16377, #16453, #16797, #18498 and #19018. See [batch-12.md](batch-12.md) for reproduction, coverage and limitations. These address invalid search configuration, explicit generated-type required overrides, customer identity, repeated payment initiation, complete variant reads and derived variant titles. The fork remains public.
+
+## PR #3: six additional query, update and file regressions
+
+PR #3 now adds forty-eight scoped fixes to the thirty already merged on main. The latest six are #16401, #18415, #17461, #19233, #19008 and #16754. See [batch-13.md](batch-13.md) for reproduction, coverage and limits. These cover Unicode JSON queries, isolated nested-field fallbacks, point-update projections, D1 bulk-lock parameter budgets, static cloud access with private document metadata and HEAD responses. The fork remains public.
+
+## PR #3: six additional query, CSV, Lexical and documentation reports
+
+PR #3 now adds fifty-four scoped fixes to the thirty already merged on main. The latest six are #16483, #17118, #17589, #16262, #19139 and #19222. See [batch-14.md](batch-14.md) for reproduction, coverage and limits. This batch includes four runtime fixes, a missing public Lexical command export and corrected cron documentation. The fork remains public.

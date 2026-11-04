@@ -69,7 +69,7 @@ describe('ecommerce transaction visibility (#18338)', () => {
         data: { product: 'product' },
         req,
       } as Parameters<Validate>[1]),
-    ).toBe('ecommerce:variantOptionsAlreadyExists')
+    ).toBe('plugin-ecommerce:variantOptionsAlreadyExists')
   })
 
   it('should calculate cart subtotals using the same transaction for products and variants', async () => {

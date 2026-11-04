@@ -12,14 +12,14 @@ export const validateOptions: (props?: Props) => Validate =
 
     if (!values || values.length === 0) {
       // @ts-expect-error - TODO: Fix types
-      return t('ecommerce:variantOptionsRequired')
+      return t('plugin-ecommerce:variantOptionsRequired')
     }
 
     const productID = data.product
 
     if (!productID) {
       // @ts-expect-error - TODO: Fix types
-      return t('ecommerce:productRequired')
+      return t('plugin-ecommerce:productRequired')
     }
 
     const product = await req.payload.findByID({
@@ -29,8 +29,8 @@ export const validateOptions: (props?: Props) => Validate =
       draft: true,
       joins: {
         variants: {
+          limit: 0,
           where: {
-            deletedAt: { exists: false },
             ...(data.id && {
               id: {
                 not_equals: data.id, // exclude the current variant from the search
@@ -54,7 +54,7 @@ export const validateOptions: (props?: Props) => Validate =
     // @ts-expect-error - TODO: Fix types
     if (values.length < product?.variantTypes?.length) {
       // @ts-expect-error - TODO: Fix types
-      return t('ecommerce:variantOptionsRequiredAll')
+      return t('plugin-ecommerce:variantOptionsRequiredAll')
     }
 
     if (variants.length > 0) {
@@ -62,7 +62,10 @@ export const validateOptions: (props?: Props) => Validate =
 
       variants.forEach((variant: any) => {
         // Draft joins may return the current variant despite the query-level ID filter.
-        if (data.id === undefined || String(variant.id) !== String(data.id)) {
+        if (
+          Array.isArray(variant.options) &&
+          (data.id === undefined || String(variant.id) !== String(data.id))
+        ) {
           existingOptions.push(variant.options)
         }
       })
@@ -73,7 +76,7 @@ export const validateOptions: (props?: Props) => Validate =
 
       if (exists) {
         // @ts-expect-error - TODO: Fix types
-        return t('ecommerce:variantOptionsAlreadyExists')
+        return t('plugin-ecommerce:variantOptionsAlreadyExists')
       }
     }
 

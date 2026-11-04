@@ -9,7 +9,7 @@ const formatConfigNames = (results, configs) => {
   const formattedResults = { ...results }
 
   configs.forEach(({ slug }) => {
-    const result = { ...(formattedResults[slug] || {}) }
+    const result = formattedResults[slug] ?? false
     delete formattedResults[slug]
     formattedResults[formatName(slug)] = result
   })

@@ -3,6 +3,7 @@ import type { FlattenedField, PayloadRequest } from 'payload'
 import type { ImportFieldHookEntry } from '../types.js'
 
 import { getBlockFlattenedFields, getNestedFlattenedFields } from './flattenedFields.js'
+import { resolveCSVPath } from './resolveCSVPath.js'
 import { postProcessDocument } from './unflattenPostProcess.js'
 
 type UnflattenArgs = {
@@ -43,8 +44,13 @@ const collectArrayLikeNames = (fields: FlattenedField[], into: Set<string>): voi
  * before it names an array or blocks field, so a literal field name like
  * `2024` is preserved.
  */
-const toLogicalKey = (flatKey: string, arrayLikeNames: Set<string>): string => {
-  const segments = flatKey.split('_')
+const toLogicalKey = ({
+  arrayLikeNames,
+  segments,
+}: {
+  arrayLikeNames: Set<string>
+  segments: string[]
+}): string => {
   return segments
     .filter((seg, i) => !indexSegment.test(seg) || !arrayLikeNames.has(segments[i - 1] ?? ''))
     .join('_')
@@ -161,8 +167,15 @@ export const unflattenObject = ({
       }
     }
 
+    const localization = req.payload.config?.localization
+    const pathSegments = resolveCSVPath({
+      fields,
+      flatKey,
+      localeCodes: localization ? localization.localeCodes : [],
+    })
     const importHookEntry =
-      importFieldHooks[flatKey] ?? importFieldHooks[toLogicalKey(flatKey, arrayLikeNames)]
+      importFieldHooks[flatKey] ??
+      importFieldHooks[toLogicalKey({ arrayLikeNames, segments: pathSegments })]
     if (importHookEntry) {
       try {
         value = importHookEntry.fn({
@@ -184,7 +197,6 @@ export const unflattenObject = ({
     }
 
     // Example: "blocks_0_content_text" -> ["blocks", "0", "content", "text"]
-    const pathSegments = flatKey.split('_')
     let currentObject: Record<string, unknown> = result
 
     for (let i = 0; i < pathSegments.length; i++) {

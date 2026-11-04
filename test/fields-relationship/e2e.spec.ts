@@ -94,6 +94,8 @@ describe('Relationship Field', () => {
   beforeEach(async () => {
     await ensureCompilationIsDone({ page, serverURL })
 
+    // Unmount list cells before deleting the documents they are still fetching.
+    await page.goto('about:blank')
     await clearAllDocs()
 
     /*await throttleTest({
@@ -1059,7 +1061,7 @@ describe('Relationship Field', () => {
         overrideAccess: true,
       })
 
-      await payload.create({
+      const mainDoc = await payload.create({
         collection: slug,
         data: {
           relationship: relatedDoc.id,
@@ -1079,8 +1081,9 @@ describe('Relationship Field', () => {
       })
 
       const cleanup = async () => {
+        await page.goto('about:blank')
         await payload.delete({
-          id: relatedDoc.id,
+          id: mainDoc.id,
           collection: slug,
           overrideAccess: true,
         })
@@ -1201,7 +1204,8 @@ describe('Relationship Field', () => {
       const tableRow = page.locator(tableRowLocator)
       await expect(tableRow).toHaveCount(2)
 
-      // Cleanup
+      // Unmount relationship cells before removing their backing documents.
+      await page.goto('about:blank')
       await payload.delete({ id: String(mainDoc1.id), collection: slug, overrideAccess: true })
       await payload.delete({ id: String(mainDoc2.id), collection: slug, overrideAccess: true })
       await payload.delete({ id: String(mainDoc3.id), collection: slug, overrideAccess: true })

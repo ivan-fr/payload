@@ -31,7 +31,9 @@ export const nestedDocsPlugin = definePlugin<NestedDocsPluginConfig>({
           (field) => 'name' in field && field.name === (pluginConfig?.parentFieldSlug || 'parent'),
         ) as SingleRelationshipField
 
-        const defaultFilterOptions = parentFilterOptions(pluginConfig?.breadcrumbsFieldSlug)
+        const defaultFilterOptions = parentFilterOptions(pluginConfig?.breadcrumbsFieldSlug, {
+          parentFieldSlug: pluginConfig?.parentFieldSlug,
+        })
 
         if (existingParentField) {
           if (!existingParentField.filterOptions) {

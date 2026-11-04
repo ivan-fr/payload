@@ -4,8 +4,10 @@ import type { SanitizedGlobalConfig } from '../../globals/config/types.js'
 import type { HasManyRelationshipOperator, PayloadRequest, WhereField } from '../../types/index.js'
 import type { EntityPolicies, PathToQuery } from './types.js'
 
+import { APIError } from '../../errors/APIError.js'
 import { fieldAffectsData } from '../../fields/config/types.js'
 import { hasManyRelationshipOperatorSet, SAFE_FIELD_PATH_REGEX } from '../../types/constants.js'
+import { createArrayFromCommaDelineated } from '../../utilities/createArrayFromCommaDelineated.js'
 import { getEntityPermissions } from '../../utilities/getEntityPermissions/getEntityPermissions.js'
 import { isolateObjectProperty } from '../../utilities/isolateObjectProperty.js'
 import { getLocalizedPaths } from '../getLocalizedPaths.js'
@@ -88,6 +90,25 @@ export async function validateSearchParam({
       showHiddenFields,
     })
   }
+  const queriedField = paths.at(-1)?.field
+  if (
+    queriedField?.type === 'select' &&
+    (['all', 'equals', 'in', 'not_equals', 'not_in'].includes(operator) ||
+      (operator === 'contains' && queriedField.hasMany))
+  ) {
+    const options = new Set(
+      queriedField.options.map((option) => (typeof option === 'string' ? option : option.value)),
+    )
+    const values = Array.isArray(val)
+      ? val
+      : ['all', 'in', 'not_in'].includes(operator) && typeof val === 'string'
+        ? createArrayFromCommaDelineated(val)
+        : [val]
+    if (values.some((value) => value != null && !options.has(value as string))) {
+      throw new APIError(`Invalid option in query for select field "${incomingPath}".`, 400)
+    }
+  }
+
   const promises: Promise<void>[] = []
 
   const relationshipField = paths.length === 1 ? paths[0]?.field : undefined

@@ -3,6 +3,7 @@ import type { RequestContext } from '../../../index.js'
 import type { JsonObject, PayloadRequest } from '../../../types/index.js'
 import type { Block, Field, FieldHookArgs, TabAsField } from '../../config/types.js'
 
+import { isolateObjectProperty } from '../../../utilities/isolateObjectProperty.js'
 import { fieldAffectsData, fieldShouldBeLocalized } from '../../config/types.js'
 import { getFieldPaths } from '../../getFieldPaths.js'
 import { traverseFields } from './traverseFields.js'
@@ -75,6 +76,10 @@ export const promise = async <T>({
         const localeData: JsonObject = {}
 
         for (const locale of localization.localeCodes) {
+          const localeReq = isolateObjectProperty(req, 'locale')
+
+          localeReq.locale = locale
+
           const beforeDuplicateArgs: FieldHookArgs = {
             blockData,
             collection,
@@ -86,7 +91,7 @@ export const promise = async <T>({
             path: pathSegments,
             previousSiblingDoc: siblingDoc,
             previousValue: siblingDoc[field.name!]?.[locale],
-            req,
+            req: localeReq,
             schemaPath: schemaPathSegments,
             siblingData: siblingDoc,
             siblingDocWithLocales: siblingDoc,
@@ -152,14 +157,16 @@ export const promise = async <T>({
       const promises: Promise<void>[] = []
 
       localization.localeCodes.forEach((locale) => {
+        const localeReq = isolateObjectProperty(req, 'locale')
+
+        localeReq.locale = locale
+
         if (fieldData[locale]) {
           switch (field.type) {
             case 'array': {
               const rows = fieldData[locale]
 
               if (Array.isArray(rows)) {
-                const promises: Promise<void>[] = []
-
                 rows.forEach((row, rowIndex) => {
                   promises.push(
                     traverseFields({
@@ -174,7 +181,7 @@ export const promise = async <T>({
                       parentIsLocalized: parentIsLocalized || field.localized!,
                       parentPath: path + '.' + rowIndex,
                       parentSchemaPath: schemaPath,
-                      req,
+                      req: localeReq,
                       siblingDoc: row,
                     }),
                   )
@@ -188,8 +195,6 @@ export const promise = async <T>({
               const rows = fieldData[locale]
 
               if (Array.isArray(rows)) {
-                const promises: Promise<void>[] = []
-
                 rows.forEach((row, rowIndex) => {
                   const blockTypeToMatch = row.blockType
 
@@ -213,7 +218,7 @@ export const promise = async <T>({
                       parentIsLocalized: parentIsLocalized || field.localized!,
                       parentPath: path + '.' + rowIndex,
                       parentSchemaPath: schemaPath + '.' + block!.slug,
-                      req,
+                      req: localeReq,
                       siblingDoc: row,
                     }),
                   )
@@ -237,7 +242,7 @@ export const promise = async <T>({
                   parentIsLocalized: parentIsLocalized || field.localized!,
                   parentPath: path,
                   parentSchemaPath: schemaPath,
-                  req,
+                  req: localeReq,
                   siblingDoc: fieldData[locale],
                 }),
               )

@@ -44,6 +44,8 @@ export { ToolbarButton } from '../../features/toolbars/shared/ToolbarButton/inde
 export { TableFeatureClient } from '../../features/table/client/index.js'
 
 export { ToolbarDropdown } from '../../features/toolbars/shared/ToolbarDropdown/index.js'
+export { INSERT_UPLOAD_WITH_DRAWER_COMMAND } from '../../features/upload/client/drawer/commands.js'
+
 export { UploadFeatureClient } from '../../features/upload/client/index.js'
 
 export { RichTextField } from '../../field/index.js'

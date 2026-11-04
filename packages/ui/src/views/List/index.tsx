@@ -50,6 +50,7 @@ import { handleHierarchy } from './handleHierarchy.js'
 import { renderListViewSlots } from './renderListViewSlots.js'
 import { resolveAllFilterOptions } from './resolveAllFilterOptions.js'
 import { resolveDocumentListItemURL } from './resolveDocumentListItemURL.js'
+import { sanitizeListFilterQuery } from './sanitizeListFilterQuery.js'
 import { transformColumnsToSelect } from './transformColumnsToSelect.js'
 import './index.css'
 
@@ -223,7 +224,10 @@ export const renderListView = async (
   let whereWithMergedSearch = mergeListSearchAndWhere({
     collectionConfig,
     search: typeof query?.search === 'string' ? query.search : undefined,
-    where: combineWhereConstraints([query?.where, baseFilterConstraint]),
+    where: combineWhereConstraints([
+      sanitizeListFilterQuery({ fields: collectionConfig.flattenedFields, where: query?.where }),
+      baseFilterConstraint,
+    ]),
   })
 
   if (trash === true) {

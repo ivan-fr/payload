@@ -23,6 +23,7 @@ import {
   validOperatorSet,
 } from 'payload/shared'
 import toSnakeCase from 'to-snake-case'
+import { validate as uuidValidate } from 'uuid'
 
 import type { DrizzleAdapter, GenericColumn } from '../types.js'
 import type { BuildQueryJoinAliases } from './buildQuery.js'
@@ -315,6 +316,18 @@ export function parseParams({
                   } else {
                     throw new QueryError([{ path: relationOrPath }])
                   }
+                  break
+                }
+
+                if (
+                  (operator === 'like' || operator === 'not_like') &&
+                  table[columnName] instanceof PgUUID &&
+                  typeof val === 'string' &&
+                  !uuidValidate(val)
+                ) {
+                  // UUID pattern searches use equality semantics. An impossible UUID
+                  // cannot match, and must never be turned into an IS NULL predicate.
+                  constraints.push(operator === 'like' ? sql`false` : isNotNull(table[columnName]))
                   break
                 }
 

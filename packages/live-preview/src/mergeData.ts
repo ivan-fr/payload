@@ -43,7 +43,13 @@ export const mergeData = async <T extends Record<string, any>>(args: {
 
   const requestHandler = args.requestHandler || defaultRequestHandler
 
-  const result = await requestHandler({
+  const documentID = initialData.id ?? incomingData.id
+
+  if (collectionSlug && (documentID === undefined || documentID === null)) {
+    throw new Error('Live preview collection data must include a document ID.')
+  }
+
+  const response = await requestHandler({
     apiPath: apiRoute || '/api',
     data: {
       data: incomingData,
@@ -53,10 +59,14 @@ export const mergeData = async <T extends Record<string, any>>(args: {
       locale,
     },
     endpoint: encodeURI(
-      `${globalSlug ? 'globals/' : ''}${collectionSlug ?? globalSlug}${collectionSlug ? `/${initialData.id}` : ''}`,
+      `${globalSlug ? 'globals/' : ''}${collectionSlug ?? globalSlug}${collectionSlug ? `/${documentID}` : ''}`,
     ),
     serverURL,
-  }).then((res) => res.json())
+  })
 
-  return result
+  if (!response.ok) {
+    throw new Error(`Live preview population failed (${response.status}).`)
+  }
+
+  return response.json()
 }

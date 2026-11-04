@@ -87,7 +87,9 @@ export const reduceFields = ({
             disabledFields,
             excludeUnsortable,
             fields: field.fields,
-            labelPrefix: combineLabel({ field, prefix: labelPrefix }),
+            labelPrefix: fieldAffectsData(field)
+              ? combineLabel({ field, prefix: labelPrefix })
+              : labelPrefix,
             path: createNestedClientFieldPath(path, field),
           }),
         ]

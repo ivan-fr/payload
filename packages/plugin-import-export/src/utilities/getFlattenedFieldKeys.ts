@@ -13,6 +13,8 @@ type FieldWithPresentational =
   | FlattenedField
 
 export type GetFlattenedFieldKeysOptions = {
+  /** Actual flattened columns, used when a hook replaces a container with a scalar. */
+  dataColumns?: Set<string>
   /**
    * When provided, localized fields will be expanded to include locale suffixes.
    * e.g., 'title' (localized) -> ['title_en', 'title_es']
@@ -59,6 +61,15 @@ export const getFlattenedFieldKeys = (
       } else {
         keys.push(key)
       }
+    }
+
+    if (
+      name &&
+      options.dataColumns?.has(fullKey) &&
+      ['array', 'blocks', 'group', 'tab'].includes(field.type)
+    ) {
+      keys.push(fullKey)
+      return
     }
 
     switch (field.type) {

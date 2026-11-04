@@ -6,6 +6,7 @@ import { initTransaction, killTransaction } from 'payload'
 import { expect } from 'vitest'
 
 import { test } from '../__helpers/int/vitest.js'
+import { getMissingID } from '../__helpers/shared/missingID.js'
 import { customIDsSlug, postsSlug } from './shared.js'
 
 type CopyTestPost = {
@@ -47,7 +48,7 @@ test.suite('Database copy', { config: './config.ts' }, () => {
       payload.db.copy({
         collection: postsSlug,
         req: { payload },
-        where: { id: { equals: 'missing-document' } },
+        where: { id: { equals: getMissingID({ payload }) } },
       }),
     ).rejects.toMatchObject({ name: 'NotFound' })
   })

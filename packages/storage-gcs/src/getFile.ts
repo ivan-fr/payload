@@ -111,6 +111,7 @@ export async function getFile({
 
     // A consumer that stops reading (a failed transform, a disconnected client) must end the
     // GCS download too, otherwise the underlying connection stays open until it drains.
+    let isClosed = false
     let onAbort: (() => void) | undefined
     const removeAbortListener = () => {
       if (onAbort) {
@@ -118,6 +119,7 @@ export async function getFile({
       }
     }
     const stopReading = () => {
+      isClosed = true
       removeAbortListener()
       nodeStream.destroy()
     }
@@ -126,9 +128,35 @@ export async function getFile({
       cancel: stopReading,
       start(controller) {
         onAbort = () => {
+          if (isClosed) {
+            return
+          }
           stopReading()
           controller.error(req.signal?.reason)
         }
+
+        nodeStream.on('data', (chunk) => {
+          if (isClosed) {
+            return
+          }
+          controller.enqueue(new Uint8Array(chunk))
+        })
+        nodeStream.on('end', () => {
+          if (isClosed) {
+            return
+          }
+          isClosed = true
+          removeAbortListener()
+          controller.close()
+        })
+        nodeStream.on('error', (err) => {
+          if (isClosed) {
+            return
+          }
+          isClosed = true
+          removeAbortListener()
+          controller.error(err)
+        })
 
         if (req.signal?.aborted) {
           onAbort()
@@ -136,18 +164,6 @@ export async function getFile({
         }
 
         req.signal?.addEventListener('abort', onAbort, { once: true })
-
-        nodeStream.on('data', (chunk) => {
-          controller.enqueue(new Uint8Array(chunk))
-        })
-        nodeStream.on('end', () => {
-          removeAbortListener()
-          controller.close()
-        })
-        nodeStream.on('error', (err) => {
-          removeAbortListener()
-          controller.error(err)
-        })
       },
     })
 

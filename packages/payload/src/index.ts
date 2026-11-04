@@ -1250,6 +1250,7 @@ type CachedPayload = {
   payload: null | Payload
   promise: null | Promise<Payload>
   reload: boolean | Promise<void>
+  reloadQueued?: boolean
 }
 
 let _cached: Map<string, CachedPayload> = (global as any)._payload
@@ -1313,6 +1314,7 @@ function connectDevReload({
   try {
     cached.devReloadCleanup = strategy.connect(() => {
       if (cached.reload instanceof Promise) {
+        cached.reloadQueued = true
         return
       }
       cached.reload = true
@@ -1393,6 +1395,7 @@ export const getPayload = async (
       // getPayload is called multiple times, in parallel. However, we only want to run `await reload` once. By immediately setting cached.reload to a promise,
       // we can ensure that all subsequent calls will wait for the first reload to finish. So if we set it here, the 2nd call of getPayload
       // will reach `if (cached.reload instanceof Promise) {` which then waits for the first reload to finish.
+      cached.reloadQueued = false
       cached.reload = (async () => {
         const config = await options.config
 
@@ -1408,7 +1411,8 @@ export const getPayload = async (
         // By always regenerating on reload, we ensure the import map stays in sync with the updated config.
         await reload(config, payload, false, options)
 
-        cached.reload = false
+        cached.reload = Boolean(cached.reloadQueued)
+        cached.reloadQueued = false
       })().catch((error) => {
         cached.reload = true
         throw error

@@ -15,6 +15,7 @@ import { initTransaction } from '../../packages/payload/src/utilities/initTransa
 import { killTransaction } from '../../packages/payload/src/utilities/killTransaction.js'
 /* eslint-enable payload/no-relative-monorepo-imports */
 import { test } from '../__helpers/int/vitest.js'
+import { getMissingID } from '../__helpers/shared/missingID.js'
 import { devUser } from '../credentials.js'
 import {
   convertedMediaDir,
@@ -981,9 +982,7 @@ test.suite('File versioning fields', { config: './config.ts' }, () => {
     const wrongFileResponse = await restClient.GET(
       `/${mediaSlug}/file/${other.filename}?version=${selected.id}`,
     )
-    const missingVersionID = isTransactionalMongoAdapter(payload.db.name)
-      ? 'ffffffffffffffffffffffff'
-      : '2147483647'
+    const missingVersionID = getMissingID({ payload })
     const missingVersionResponse = await restClient.GET(
       `/${mediaSlug}/file/${selected.version.original!.filename}?version=${missingVersionID}`,
     )
@@ -1363,9 +1362,7 @@ test.suite('File versioning fields', { config: './config.ts' }, () => {
 
     expect(currentResponse.status).toBe(403)
     expect(archivedResponse.status).toBe(403)
-    const missingVersionID = isTransactionalMongoAdapter(payload.db.name)
-      ? 'ffffffffffffffffffffffff'
-      : '2147483647'
+    const missingVersionID = getMissingID({ payload })
     const missingPaths = [
       `/${mediaSlug}/file/not-saved.png`,
       `/${mediaSlug}/file/not-saved.png?version=${archived.id}`,
@@ -1415,9 +1412,7 @@ test.suite('File versioning fields', { config: './config.ts' }, () => {
       const collection = payload.collections[mediaSlug].config
       const read = collection.access.read
       const readVersions = collection.access.readVersions
-      const missingVersionID = isTransactionalMongoAdapter(payload.db.name)
-        ? 'ffffffffffffffffffffffff'
-        : '2147483647'
+      const missingVersionID = getMissingID({ payload })
       const paths = [
         `/${mediaSlug}/file/${created.filename}?version=${selected.id}`,
         `/${mediaSlug}/file/not-saved.png?version=${selected.id}`,
@@ -1493,9 +1488,7 @@ test.suite('File versioning fields', { config: './config.ts' }, () => {
 
     expect(currentResponse.status).toBe(200)
     expect(archivedResponse.status).toBe(403)
-    const missingVersionID = isTransactionalMongoAdapter(payload.db.name)
-      ? 'ffffffffffffffffffffffff'
-      : '2147483647'
+    const missingVersionID = getMissingID({ payload })
 
     for (const url of [
       `/${mediaSlug}/file/not-saved.png?version=${archived.id}`,

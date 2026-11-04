@@ -47,7 +47,11 @@ export const getPayloadPopulateFn: (
   showHiddenFields,
 }) => {
   let reqToUse: PayloadRequest | undefined = req
-  if (req === undefined && payload) {
+  if (reqToUse && !reqToUse.payloadDataLoader) {
+    // Rendering can receive the original request before any scoped Local API call
+    // has initialized its own loader. Populate with this request's access context.
+    reqToUse = await createPayloadRequest({ payload: reqToUse.payload, req: reqToUse })
+  } else if (req === undefined && payload) {
     reqToUse = await createPayloadRequest({ payload })
   }
 

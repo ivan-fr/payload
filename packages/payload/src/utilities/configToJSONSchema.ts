@@ -942,7 +942,11 @@ export function fieldsToJSONSchema({
         }
 
         if (fieldSchema! && fieldAffectsData(field)) {
-          if (isRequired && !isOptionalOnInput && fieldSchema.required !== false) {
+          if (
+            (isRequired || fieldSchema.required === true) &&
+            !isOptionalOnInput &&
+            fieldSchema.required !== false
+          ) {
             requiredFieldNames.add(field.name)
           }
           fieldSchemas.set(field.name, fieldSchema)

@@ -3,7 +3,11 @@ import type { PayloadRequest } from '../index.js'
 import { describe, expect, it, vi } from 'vitest'
 
 import { lockedDocumentsCollectionSlug } from '../locked-documents/config.js'
-import { checkDocumentLockStatus, getLockedDocumentIds } from './checkDocumentLockStatus.js'
+import {
+  checkDocumentLockStatus,
+  deleteDocumentLocks,
+  getLockedDocumentIds,
+} from './checkDocumentLockStatus.js'
 
 function createRequest({
   name = 'postgres',
@@ -79,5 +83,68 @@ describe('lock reads on the transaction connection (#18406)', () => {
     const { req, find } = createRequest()
     await checkDocumentLockStatus({ id: 'post', collectionSlug: 'posts', req })
     expect(find).not.toHaveBeenCalled()
+  })
+})
+
+describe('bounded bulk lock queries (#19233)', () => {
+  it('should deduplicate IDs, bound reads and deletes, and reuse the transaction request', async () => {
+    const { req, find, deleteMany } = createRequest({ name: 'sqlite' })
+    Object.assign(req.payload.db, { limitedBoundParameters: true })
+    const ids = Array.from({ length: 90 }, (_, i) => `id-${i}`)
+    const input = [...ids, ...ids]
+    const original = [...input]
+    await getLockedDocumentIds({ collectionSlug: 'posts', ids: input, overrideLock: false, req })
+    await deleteDocumentLocks({ collectionSlug: 'posts', ids: input, req })
+    expect(find).toHaveBeenCalledTimes(3)
+    expect(deleteMany).toHaveBeenCalledTimes(3)
+    for (const calls of [find.mock.calls, deleteMany.mock.calls]) {
+      const references = calls.flatMap(([args]) => {
+        expect(args.req).toBe(req)
+        expect(args.where.or.length).toBeLessThanOrEqual(40)
+        return args.where.or.map(({ document }) => document.equals)
+      })
+      expect(references).toEqual(ids.map((value) => ({ relationTo: 'posts', value })))
+    }
+    expect(input).toEqual(original)
+  })
+
+  it('should honor the most recent lock and skip cleanup for disabled locking or empty IDs', async () => {
+    const { req, find, deleteMany } = createRequest({
+      docs: [
+        { document: { value: 'mine' }, user: { value: 'me' }, updatedAt: new Date().toISOString() },
+        {
+          document: { value: 'mine' },
+          user: { value: 'other' },
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          document: { value: 'foreign' },
+          user: { value: 'other' },
+          updatedAt: new Date().toISOString(),
+        },
+      ],
+    })
+    expect(
+      await getLockedDocumentIds({
+        collectionSlug: 'posts',
+        ids: ['mine', 'foreign'],
+        overrideLock: false,
+        req,
+      }),
+    ).toEqual(new Set(['foreign']))
+    find.mockClear()
+    await deleteDocumentLocks({ collectionSlug: 'posts', ids: [], req })
+    req.payload.collections.posts!.config.lockDocuments = false
+    await deleteDocumentLocks({ collectionSlug: 'posts', ids: ['mine'], req })
+    expect(
+      await getLockedDocumentIds({
+        collectionSlug: 'posts',
+        ids: ['mine'],
+        overrideLock: false,
+        req,
+      }),
+    ).toEqual(new Set())
+    expect(find).not.toHaveBeenCalled()
+    expect(deleteMany).not.toHaveBeenCalled()
   })
 })

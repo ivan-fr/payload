@@ -103,7 +103,7 @@ async function verifyTransport(transport: Transporter) {
  */
 async function createMockAccount(emailConfig?: NodemailerAdapterArgs) {
   try {
-    const etherealAccount = await nodemailer.createTestAccount()
+    const etherealAccount = await getMockAccount()
 
     const smtpOptions = {
       ...(emailConfig || {}),
@@ -118,12 +118,6 @@ async function createMockAccount(emailConfig?: NodemailerAdapterArgs) {
       secure: false,
     }
     const transport = nodemailer.createTransport(smtpOptions)
-    const { pass, user, web } = etherealAccount
-
-    console.info('E-mail configured with ethereal.email test account. ')
-    console.info(`Log into mock email provider at ${web}`)
-    console.info(`Mock email account username: ${user}`)
-    console.info(`Mock email account password: ${pass}`)
     return transport
   } catch (err: unknown) {
     if (err instanceof Error) {
@@ -134,4 +128,29 @@ async function createMockAccount(emailConfig?: NodemailerAdapterArgs) {
     }
     throw new InvalidConfiguration('Unable to create Nodemailer test account.')
   }
+}
+
+// Next.js can re-evaluate the config module during development. Keep the account
+// promise on the process global so reloads and concurrent configs share credentials.
+const mockAccountCache = globalThis as {
+  __payloadEtherealAccount?: Promise<{ pass: string; user: string; web: string }>
+} & typeof globalThis
+
+function getMockAccount() {
+  if (!mockAccountCache.__payloadEtherealAccount) {
+    const pending = nodemailer.createTestAccount().then((account) => {
+      console.info('E-mail configured with ethereal.email test account. ')
+      console.info(`Log into mock email provider at ${account.web}`)
+      console.info(`Mock email account username: ${account.user}`)
+      console.info(`Mock email account password: ${account.pass}`)
+      return account
+    })
+    mockAccountCache.__payloadEtherealAccount = pending
+    void pending.catch(() => {
+      if (mockAccountCache.__payloadEtherealAccount === pending) {
+        delete mockAccountCache.__payloadEtherealAccount
+      }
+    })
+  }
+  return mockAccountCache.__payloadEtherealAccount
 }

@@ -258,7 +258,15 @@ export const handlePreview = async (req: PayloadRequest): Promise<Response> => {
           }
         }
       }
-      const mergedColumns = mergeColumns(schemaColumns, dataColumns)
+      const inferredColumns = getSchemaColumns({
+        collectionConfig: targetCollection.config,
+        dataColumns,
+        disabledFields,
+        fields,
+        locale,
+        localeCodes,
+      })
+      const mergedColumns = mergeColumns(inferredColumns, dataColumns)
       columns =
         Boolean(exportHooks?.before) && transformed.length > 0
           ? mergedColumns.filter((col) => dataColumns.includes(col))

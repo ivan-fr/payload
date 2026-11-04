@@ -5,6 +5,7 @@ import type { AccessConfig, CurrenciesConfig, InventoryConfig } from '../../type
 import { inventoryField } from '../../fields/inventoryField.js'
 import { pricesField } from '../../fields/pricesField.js'
 import { variantsFields } from '../../fields/variantsFields.js'
+import { refreshVariantTitles } from './hooks/refreshVariantTitles.js'
 
 type Props = {
   access: Pick<AccessConfig, 'adminOrPublishedStatus' | 'isAdmin'>
@@ -68,6 +69,7 @@ export const createProductsCollection: (props: Props) => CollectionConfig = (pro
     },
     authorship: false,
     fields,
+    ...(enableVariants ? { hooks: { afterChange: [refreshVariantTitles({ variantsSlug })] } } : {}),
     labels: {
       plural: ({ t }) =>
         // @ts-expect-error - translations are not typed in plugins yet

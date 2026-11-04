@@ -292,7 +292,7 @@ export const getLexicalFieldsCollection: (args: {
       read: () => true,
     },
     admin: {
-      listSearchableFields: ['title', 'richTextLexicalCustomFields'],
+      listSearchableFields: ['title', 'lexicalSimple'],
       useAsTitle: 'title',
     },
     fields: [

@@ -544,4 +544,18 @@ describe('confirmOrderHandler', () => {
       expect(args.req).toBe(harness.req)
     }
   })
+  it('should confirm guest ownership for a non-customer auth collection without replacing the principal (#16377)', async () => {
+    const harness = createHarness({
+      adapter: coreAdapter,
+      user: { id: 'machine', collection: 'api-keys', email: 'machine@example.com' },
+    })
+    const { response } = await runHandler(harness)
+    expect(response.status).toBe(200)
+    expect(harness.confirmOrder).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ customerEmail: 'buyer@example.com' }),
+      }),
+    )
+    expect(harness.req.user).toMatchObject({ collection: 'api-keys', email: 'machine@example.com' })
+  })
 })

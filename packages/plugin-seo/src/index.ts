@@ -73,8 +73,12 @@ export const seoPlugin = definePlugin<SEOPluginConfig>({
       }
     }
     const globalConfigBySlug = new Map<string, NonNullable<Config['globals']>[number]>()
+    const globalGenerationTargetSlugs = new Set(pluginConfig.globals ?? [])
     for (const g of config.globals ?? []) {
       globalConfigBySlug.set(g.slug, g)
+      if (hasSEOGenerationField({ config, fields: g.fields })) {
+        globalGenerationTargetSlugs.add(g.slug)
+      }
     }
 
     const authorizeGenerateTarget = async ({
@@ -96,7 +100,7 @@ export const seoPlugin = definePlugin<SEOPluginConfig>({
           ? collectionConfigBySlug.get(data.collectionSlug)
           : undefined
       const globalConfig =
-        data.globalSlug && pluginConfig.globals?.includes(data.globalSlug)
+        data.globalSlug && globalGenerationTargetSlugs.has(data.globalSlug)
           ? globalConfigBySlug.get(data.globalSlug)
           : undefined
 

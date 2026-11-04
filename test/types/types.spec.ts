@@ -1,3 +1,5 @@
+import type { INSERT_UPLOAD_WITH_DRAWER_COMMAND } from '@payloadcms/richtext-lexical/client'
+import type { LexicalCommand } from '@payloadcms/richtext-lexical/lexical'
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import type { useAuth } from '@payloadcms/ui'
 import type { fieldSchemasToFormState } from '@payloadcms/ui/forms/fieldSchemasToFormState'
@@ -133,6 +135,12 @@ import type {
 } from './payload-types.js'
 
 describe('Types testing', () => {
+  test('should expose the upload drawer command from the public client entry (#16262)', () => {
+    expect<typeof INSERT_UPLOAD_WITH_DRAWER_COMMAND>().type.toBe<
+      LexicalCommand<{ replace: { nodeKey: string } | false }>
+    >()
+  })
+
   describe('validate operation types', () => {
     test('should expose beforeValidate operations', () => {
       expect<BeforeValidateOperation>().type.toBe<'create' | 'update' | 'validate'>()
@@ -969,8 +977,8 @@ describe('Types testing', () => {
   })
 
   describe('joins', () => {
-    test('join query for pages should have type never as pages does not define any joins', () => {
-      expect<JoinQuery<'pages'>>().type.toBe<never>()
+    test('join query for pages should allow only false as pages does not define any joins', () => {
+      expect<JoinQuery<'pages'>>().type.toBe<false>()
     })
 
     test('join query for pages-categories should be defined with the relatedPages key', () => {

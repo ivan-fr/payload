@@ -735,5 +735,21 @@ export const sanitizeConfig = (incomingConfig: Config): SanitizedConfig => {
     globalSlugs.add(global.slug)
   }
 
+  // Search conditions may traverse relationships or JSON. Validate their schema
+  // roots here so typos fail in development as well as production.
+  for (const collection of config.collections!) {
+    const roots = new Set(
+      (collection as SanitizedCollectionConfig).flattenedFields.map((field) => field.name),
+    )
+    for (const path of collection.admin?.listSearchableFields ?? []) {
+      const root = path.split('.')[0]
+      if (root !== 'id' && root !== '_id' && !roots.has(root!)) {
+        throw new InvalidConfiguration(
+          `Collection "${collection.slug}" has an unknown admin.listSearchableFields path "${path}".`,
+        )
+      }
+    }
+  }
+
   return config as SanitizedConfig
 }

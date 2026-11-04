@@ -79,8 +79,10 @@ export const addListFilter = async ({
 
     const valueLocator = condition.locator('.condition__value')
 
-    // Check if this is a react-select input
-    const isReactSelect = (await valueLocator.locator('input.rs__input').count()) > 0
+    // The exists operator always renders a select. Its operand may still be
+    // replacing the previous field input when the operator click resolves.
+    const isReactSelect =
+      operatorLabel === 'exists' || (await valueLocator.locator('input.rs__input').count()) > 0
 
     if (isReactSelect) {
       if (Array.isArray(value)) {

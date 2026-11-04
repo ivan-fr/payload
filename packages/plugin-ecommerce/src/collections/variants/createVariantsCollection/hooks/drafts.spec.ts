@@ -33,7 +33,7 @@ describe('latest-draft variant validation (#19020)', () => {
         data: { product: 'product' },
         req,
       } as Parameters<Validate>[1]),
-    ).toBe('ecommerce:variantOptionsAlreadyExists')
+    ).toBe('plugin-ecommerce:variantOptionsAlreadyExists')
   })
 
   it('should exclude the current variant even when a draft join returns it with a differently typed ID', async () => {

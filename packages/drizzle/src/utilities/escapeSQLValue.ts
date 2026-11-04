@@ -1,6 +1,7 @@
 import { APIError } from 'payload'
 
-export const SAFE_STRING_REGEX = /^[\w @.\-+:]*$/
+export const SAFE_STRING_REGEX =
+  /^[\p{L}\p{M}\p{N}\p{Extended_Pictographic}\p{Emoji_Modifier}\p{Regional_Indicator}_ @.\-+:\u200D]*$/u
 
 export const escapeSQLValue = (value: unknown): boolean | null | number | string => {
   if (value === null) {

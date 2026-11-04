@@ -919,6 +919,7 @@ export const getTableColumnFromPath = ({
 
             joins.push({
               condition: eq(localesTable[columnName], newAliasTable.id),
+              isOneToMany: false,
               table: newAliasTable,
             })
           } else {
@@ -927,6 +928,7 @@ export const getTableColumnFromPath = ({
                 newAliasTable.id,
                 aliasTable ? aliasTable[columnName] : adapter.tables[tableName][columnName],
               ),
+              isOneToMany: false,
               table: newAliasTable,
             })
           }

@@ -13,7 +13,8 @@ export const ParagraphHTMLConverter: HTMLConverter<any> = {
       },
       submissionData,
     })
-    return `<p>${childrenText}</p>`
+    const tag = childrenText.includes('<table>') ? 'div' : 'p'
+    return `<${tag}>${childrenText}</${tag}>`
   },
   nodeTypes: ['paragraph'],
 }

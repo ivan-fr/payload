@@ -111,6 +111,7 @@ export type SyncWithSearchArgs = {
 
 export type SyncDocArgs = {
   locale?: Locale['code']
+  /** Collect a standalone reindex failure; shared-transaction failures still reject. */
   onSyncError?: () => void
 } & Omit<SyncWithSearchArgs, 'context' | 'previousDoc'>
 
