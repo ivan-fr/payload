@@ -472,3 +472,73 @@ test('should position a nested menu beside its parent and offset its top by its 
     Math.round(colorElement!.getBoundingClientRect().top - 8),
   )
 })
+
+test('should keep disabled hover submenus closed from direct hover and a sibling safe area (#19072)', async () => {
+  await page.viewport(1000, 720)
+  const onOpen = vi.fn()
+  const screen = await render(
+    <div
+      data-testid="disabled-pointer-surface"
+      style={{ inset: 0, padding: '64px 300px', position: 'fixed' }}
+    >
+      <Popup button="Root" popupType="menu" theme="auto">
+        <PopupList.MenuItem>
+          {['Active', 'Disabled'].map((label) => (
+            <Popup
+              key={label}
+              disabled={label === 'Disabled'}
+              hoverSubmenu
+              popupType="menu"
+              popupAriaLabel={`${label} menu`}
+              onToggleOpen={label === 'Disabled' ? onOpen : undefined}
+              renderButton={(buttonProps) => (
+                <PopupList.SubmenuTrigger buttonProps={buttonProps}>
+                  {label}
+                </PopupList.SubmenuTrigger>
+              )}
+              side="right"
+              theme="auto"
+            >
+              <PopupList.Button onClick={() => {}}>{label} option</PopupList.Button>
+            </Popup>
+          ))}
+        </PopupList.MenuItem>
+      </Popup>
+    </div>,
+  )
+  await screen.getByRole('button', { name: 'Root' }).click()
+  const disabled = screen.getByRole('menuitem', { name: 'Disabled', exact: true })
+  const active = screen.getByRole('menuitem', { name: 'Active', exact: true })
+  await expect.element(disabled).toHaveAttribute('aria-disabled', 'true')
+  await userEvent.hover(disabled)
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  await expect.element(disabled).toHaveAttribute('aria-expanded', 'false')
+  await userEvent.hover(active)
+  await expect.element(active).toHaveAttribute('aria-expanded', 'true')
+  const triggerBox = active.element().getBoundingClientRect()
+  const siblingBox = disabled.element().getBoundingClientRect()
+  const menuBox = screen
+    .getByRole('menu', { name: 'Active menu' })
+    .element()
+    .getBoundingClientRect()
+  const startX = triggerBox.left + triggerBox.width / 2
+  const startY = triggerBox.top + triggerBox.height / 2
+  const point = {
+    x: startX + (menuBox.left - startX) * 0.85,
+    y: siblingBox.top + siblingBox.height / 2,
+  }
+  const steps = Math.ceil(Math.abs(point.x - startX))
+  for (let step = 1; step <= steps; step++) {
+    await userEvent.hover(screen.getByTestId('disabled-pointer-surface'), {
+      force: true,
+      position: {
+        x: startX + ((point.x - startX) * step) / steps,
+        y: startY + ((point.y - startY) * step) / steps,
+      },
+    })
+  }
+  expect(document.elementFromPoint(point.x, point.y)).toBe(disabled.element())
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  await expect.element(disabled).toHaveAttribute('aria-expanded', 'false')
+  expect(onOpen).not.toHaveBeenCalled()
+})

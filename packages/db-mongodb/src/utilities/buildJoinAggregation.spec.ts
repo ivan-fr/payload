@@ -95,3 +95,27 @@ describe('MongoDB multi-key join sorts (#18258)', () => {
     ).toBe(true)
   })
 })
+
+describe('MongoDB has-many polymorphic joins (#18814)', () => {
+  it('should match the root ID in array or scalar relationships in every lookup', async () => {
+    const stages = await buildJoinAggregation(fixture({ polymorphic: true }))
+    const lookups = stages.filter((stage) => '$lookup' in stage)
+    expect(lookups).toHaveLength(2)
+    for (const lookup of lookups) {
+      expect(
+        '$lookup' in lookup && lookup.$lookup.pipeline!.find((stage) => '$match' in stage),
+      ).toEqual({
+        $match: {
+          $and: [
+            {
+              $expr: {
+                $in: ['$$root_id_', { $cond: [{ $isArray: '$parent' }, '$parent', ['$parent']] }],
+              },
+            },
+            {},
+          ],
+        },
+      })
+    }
+  })
+})

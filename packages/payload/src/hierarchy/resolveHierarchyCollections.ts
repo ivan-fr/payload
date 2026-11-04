@@ -424,16 +424,19 @@ function injectAfterDeleteHook({
   hierarchyCollection: CollectionConfig | SanitizedCollectionConfig
   sanitizedRelatedCollections: Record<string, SanitizedHierarchyRelatedCollection>
 }): void {
-  // Build map of collection slugs to their field names
-  const relatedCollectionFieldMap: Record<string, string> = {}
-  for (const [slug, relatedConfig] of Object.entries(sanitizedRelatedCollections)) {
-    relatedCollectionFieldMap[slug] = relatedConfig.fieldName
+  const relatedCollections: Record<string, string> = {}
+  const hasManyCollections: string[] = []
+  for (const [slug, { fieldName, hasMany }] of Object.entries(sanitizedRelatedCollections)) {
+    relatedCollections[slug] = fieldName
+    if (hasMany) {
+      hasManyCollections.push(slug)
+    }
   }
 
   hierarchyCollection.hooks = hierarchyCollection.hooks || {}
   hierarchyCollection.hooks.afterDelete = [
     ...(hierarchyCollection.hooks.afterDelete || []),
-    hierarchyCollectionAfterDelete({ relatedCollections: relatedCollectionFieldMap }),
+    hierarchyCollectionAfterDelete({ hasManyCollections, relatedCollections }),
   ]
 }
 

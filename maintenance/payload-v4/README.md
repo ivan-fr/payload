@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes 96 reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes 102 reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **91 snapshot issues have scoped fixes here; 474 snapshot issues remain unassessed**. Five reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **96 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **97 snapshot issues have scoped fixes here; 468 snapshot issues remain unassessed**. Five reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **102 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -215,3 +215,18 @@ This adds six more official report fixes to PR #4, above `d5277ef2d3be94cf503145
 | [#18873](https://github.com/payloadcms/payload/issues/18873) | Form-state validators receive the same full path segments as submit validation, including arrays, blocks and named tabs.                                                                        |
 
 Detailed reproduction, validation and UI/accessibility boundaries: [batch-16.md](batch-16.md). These are six snapshot issues; the snapshot total and five separately tracked later reports are unchanged. No official issue is closed.
+
+## Seventeenth batch: six hierarchy and Admin regressions
+
+Six additional official reports are addressed above `297130ef1a9d637255d1611bf89744b88bee04f0`. PR #4 contains eighteen scoped fixes; the fork contains 102. The historical snapshot remains 565 reports: 97 scoped fixes and 468 unassessed, plus five separately tracked later reports.
+
+| Official report                                              | Result                                                                                                                                                    |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#18814](https://github.com/payloadcms/payload/issues/18814) | MongoDB polymorphic joins match the parent ID inside has-many relationships while preserving scalar matching.                                             |
+| [#18815](https://github.com/payloadcms/payload/issues/18815) | Deleting a tag removes only that tag from each related document. Single-value references still clear to null.                                             |
+| [#18816](https://github.com/payloadcms/payload/issues/18816) | Hierarchy title lookup searches all unnamed layout branches before reporting a missing field. Named nesting remains unsupported.                          |
+| [#19072](https://github.com/payloadcms/payload/issues/19072) | Disabled submenus disable pointer intent, stay out of parent coordination and reject activation.                                                          |
+| [#19131](https://github.com/payloadcms/payload/issues/19131) | Admin password inputs validate configured minimum and maximum lengths, including a zero minimum.                                                          |
+| [#19199](https://github.com/payloadcms/payload/issues/19199) | Numeric document IDs use the existing ID title treatment. The complete untitled translation was already preserved; a regression test now protects it too. |
+
+Detailed evidence and validation limits: [batch-17.md](batch-17.md). These six reports were checked open on November 4, 2026. No upstream issue closure or merge is performed.

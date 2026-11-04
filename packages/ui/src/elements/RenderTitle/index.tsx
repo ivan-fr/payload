@@ -37,7 +37,7 @@ export const RenderTitle: React.FC<RenderTitleProps> = (props) => {
 
   const title = titleFromProps || titleFromContext || fallback
 
-  const idAsTitle = title === id
+  const idAsTitle = id !== null && id !== undefined && title === String(id)
 
   const showPlaceholder = !titleFromProps && isPlaceholder
 
