@@ -5184,8 +5184,10 @@
       "url": "https://github.com/payloadcms/payload/issues/19232",
       "labels": ["area: ui", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-04"
     },
     {
       "number": 19233,
@@ -5204,8 +5206,10 @@
       "url": "https://github.com/payloadcms/payload/issues/19234",
       "labels": ["area: ui", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-04"
     },
     {
       "number": 19240,
@@ -5298,7 +5302,59 @@
       "upstream_state_when_added": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6"
+    },
+    {
+      "number": 19318,
+      "title": "richtext-lexical: the editor upload card shows the cropped `thumbnail` size instead of the image",
+      "url": "https://github.com/payloadcms/payload/issues/19318",
+      "labels": ["Bug"],
+      "added_date": "2026-11-04",
+      "upstream_state_when_added": "open",
+      "created_at": "2026-11-04T05:39:58Z",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-04"
+    },
+    {
+      "number": 19317,
+      "title": "richtext-lexical: `slashMenu.dynamicGroups` are dropped (self-concatenation in the merge, and not offered on a bare \"/\")",
+      "url": "https://github.com/payloadcms/payload/issues/19317",
+      "labels": ["Bug"],
+      "added_date": "2026-11-04",
+      "upstream_state_when_added": "open",
+      "created_at": "2026-11-04T05:39:57Z",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-04"
+    },
+    {
+      "number": 19316,
+      "title": "richtext-lexical: node traversal skips Lexical named slots (`$slots`), so slot content is never populated, hooked or validated",
+      "url": "https://github.com/payloadcms/payload/issues/19316",
+      "labels": ["Bug"],
+      "added_date": "2026-11-04",
+      "upstream_state_when_added": "open",
+      "created_at": "2026-11-04T05:39:56Z",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-04"
+    },
+    {
+      "number": 19294,
+      "title": "Declared video mimetype not corrected to detected type (isProcessableImage only covers images)",
+      "url": "https://github.com/payloadcms/payload/issues/19294",
+      "labels": ["Bug"],
+      "added_date": "2026-11-04",
+      "upstream_state_when_added": "open",
+      "created_at": "2026-11-03T14:29:48Z",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-04"
     }
   ],
-  "branch_fix_count": 84
+  "branch_fix_count": 90
 }

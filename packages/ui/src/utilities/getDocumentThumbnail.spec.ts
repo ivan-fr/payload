@@ -27,6 +27,24 @@ describe('getDocumentThumbnail', () => {
     expect(getDocumentThumbnail({ doc, useAsThumbnail: 'cover' })).toBeUndefined()
   })
 
+  it.each([{ cover: undefined }, { cover: null }, { cover: [] }])(
+    'should use an upload document own image when its configured upload field is empty: %j',
+    ({ cover }) => {
+      expect(getDocumentThumbnail({ doc: { ...image, cover }, useAsThumbnail: 'cover' })).toBe(
+        '/thumbnail.png',
+      )
+    },
+  )
+
+  it('should not replace a nonempty unpopulated upload selection with the document image', () => {
+    expect(
+      getDocumentThumbnail({
+        doc: { ...image, cover: ['unpopulated-id'] },
+        useAsThumbnail: 'cover',
+      }),
+    ).toBeUndefined()
+  })
+
   it('should use generated variants to select an upload image preview', () => {
     const doc = {
       mimeType: 'image/png',

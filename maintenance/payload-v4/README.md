@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes eighty-four reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes ninety reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) records **565 open issues**, excluding pull requests. Eighty-three snapshot issues have scoped fixes here; **482 snapshot issues remain unassessed**. Issue #19292 opened after the snapshot and is tracked under `additional_issues`, bringing this branch to **84 scoped fixes**. The historical snapshot total is unchanged. The machine-readable snapshot is [issues.json](issues.json). Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **85 snapshot issues have scoped fixes here; 480 snapshot issues remain unassessed**. Five reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **90 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -185,3 +185,18 @@ PR #3 now adds forty-eight scoped fixes to the thirty already merged on main. Th
 ## PR #3: six additional query, CSV, Lexical and documentation reports
 
 PR #3 now adds fifty-four scoped fixes to the thirty already merged on main. The latest six are #16483, #17118, #17589, #16262, #19139 and #19222. See [batch-14.md](batch-14.md) for reproduction, coverage and limits. This batch includes four runtime fixes, a missing public Lexical command export and corrected cron documentation. The fork remains public.
+
+## Fifteenth batch: six editor and media regressions
+
+Based on merged fork main `6cfeaf1ed68e6beeb34249375bcb761e89e71aba` (PR #3). The six official reports were checked open on 2026-11-04. Reports #19316, #19317 and #19318 were opened that morning; #19294 was opened on November 3. None duplicates the 84 fixes already merged.
+
+| Official report                                              | Result                                                                                                                                                                                       |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#19318](https://github.com/payloadcms/payload/issues/19318) | Lexical upload cards prefer the actual image URL over a cropped Admin thumbnail and retain fallback behavior. Selecting a card no longer imposes a different width.                          |
+| [#19317](https://github.com/payloadcms/payload/issues/19317) | Dynamic slash items merge immutably in their group position, including a bare slash. Dynamic-only and zero-argument callbacks are registered; providers retain control of dynamic filtering. |
+| [#19316](https://github.com/payloadcms/payload/issues/19316) | Population, hook maps and validation traverse named Lexical slots as well as normal children, including nested slots. Populated uploads still respect read access.                           |
+| [#19294](https://github.com/payloadcms/payload/issues/19294) | Persist the detected, validated MIME type instead of mismatched declared video/audio metadata; retain MIME allowlist/content validation and extension fallback.                              |
+| [#19234](https://github.com/payloadcms/payload/issues/19234) | An empty hasMany thumbnail field falls back to an upload document's own file, matching the empty single-field behavior. A nonempty unpopulated selection still uses the placeholder.         |
+| [#19232](https://github.com/payloadcms/payload/issues/19232) | Return the real open state of the document drawer so a join row can be reopened. Memoized drawer components and action callbacks keep their identity when modal state changes.               |
+
+Detailed reproduction, tests and browser/accessibility boundaries: [batch-15.md](batch-15.md). The historical snapshot total stays unchanged; four additional reports and two existing snapshot reports are added to the fix count. No upstream issue is closed and no CI, access or dependency policy is weakened.

@@ -201,8 +201,6 @@
   border-color: var(--color-border-selected);
   background: transparent;
   border-radius: 0;
-  max-width: min(100%, var(--upload-media-size));
-  min-width: min(100%, var(--upload-media-size));
 }
 
 .LexicalEditorTheme__upload--selected img,

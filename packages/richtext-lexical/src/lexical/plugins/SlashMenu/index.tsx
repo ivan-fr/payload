@@ -15,6 +15,7 @@ import type {
 import { useEditorConfigContext } from '../../config/client/EditorConfigProvider.js'
 import './index.css'
 import { LexicalTypeaheadMenuPlugin } from './LexicalTypeaheadMenuPlugin/index.js'
+import { mergeSlashMenuGroups } from './mergeSlashMenuGroups.js'
 import { useMenuTriggerMatch } from './useMenuTriggerMatch.js'
 
 const baseClass = 'slash-menu-popup'
@@ -97,7 +98,7 @@ export function SlashMenuPlugin({
     let groupWithItems: Array<SlashMenuGroup> = []
 
     for (const dynamicItem of editorConfig.features.slashMenu.dynamicGroups) {
-      if (queryString) {
+      if (queryString !== null) {
         const dynamicGroupWithItems = dynamicItem({
           editor,
           queryString,
@@ -162,29 +163,13 @@ export function SlashMenuPlugin({
       })
 
       groupsWithItems = groupsWithItems.filter((group) => group != null)
+    }
 
-      // Now add dynamic groups
-      const dynamicItemGroups = getDynamicItems()
-
-      // merge dynamic items into groups
-      for (const dynamicGroup of dynamicItemGroups) {
-        // 1. find the group with the same name or create new one
-        let group = groupsWithItems.find((group) => group.key === dynamicGroup.key)
-        if (!group) {
-          group = {
-            ...dynamicGroup,
-            items: [],
-          }
-        } else {
-          groupsWithItems = groupsWithItems.filter((group) => group.key !== dynamicGroup.key)
-        }
-
-        // 2. Add items to group items array and add to sanitized.slashMenu.groupsWithItems
-        if (group?.items?.length) {
-          group.items = group.items.concat(group.items)
-        }
-        groupsWithItems.push(group)
-      }
+    if (queryString !== null) {
+      groupsWithItems = mergeSlashMenuGroups({
+        dynamicGroups: getDynamicItems(),
+        groups: groupsWithItems,
+      })
     }
 
     return groupsWithItems

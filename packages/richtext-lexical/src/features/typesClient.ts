@@ -162,7 +162,9 @@ export type ClientFeature<ClientFeatureProps> = {
      * Dynamic groups allow you to add different groups depending on the query string (so, the text after the slash).
      * Thus, to re-calculate the available groups, this function will be called every time you type after the /.
      *
-     * The groups provided by dynamicGroups will be merged with the static groups provided by the groups property.
+     * Called with an empty query string for a bare `/`. Static groups are optional.
+     * The returned groups are merged with static groups without changing their order.
+     * Dynamic callbacks control their own query filtering; returned items are not filtered again.
      */
     dynamicGroups?: ({
       editor,
@@ -228,7 +230,9 @@ export type SanitizedClientFeatures = {
      * Dynamic groups allow you to add different groups depending on the query string (so, the text after the slash).
      * Thus, to re-calculate the available groups, this function will be called every time you type after the /.
      *
-     * The groups provided by dynamicGroups will be merged with the static groups provided by the groups property.
+     * Called with an empty query string for a bare `/`. Static groups are optional.
+     * The returned groups are merged with static groups without changing their order.
+     * Dynamic callbacks control their own query filtering; returned items are not filtered again.
      */
     dynamicGroups: Array<
       ({ editor, queryString }: { editor: LexicalEditor; queryString: string }) => SlashMenuGroup[]
