@@ -73,7 +73,7 @@ export const schedulePublishHandler: ServerFunction<SchedulePublishHandlerArgs> 
         req,
         where: { and: [{ id: { equals: deleteID } }, { taskSlug: { equals: 'schedulePublish' } }] },
       })
-      if (!job || job.taskSlug !== 'schedulePublish') {
+      if (job?.taskSlug !== 'schedulePublish') {
         throw new Forbidden(req.t)
       }
       const target = job.input as SchedulePublishTaskInput

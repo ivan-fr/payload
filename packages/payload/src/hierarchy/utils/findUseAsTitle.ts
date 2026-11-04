@@ -34,60 +34,34 @@ function iterateFields({
   fields: Field[]
   titleFieldName: string
 }): { localized: boolean; titleFieldName: string } | undefined {
-  let titleField: { localized: boolean; titleFieldName: string } | undefined
-
   if (titleFieldName === 'id') {
-    return {
-      localized: false,
-      titleFieldName,
-    }
+    return { localized: false, titleFieldName }
   }
-
   for (const field of fields) {
-    switch (field.type) {
-      case 'text':
-      case 'number':
-      case 'textarea':
-        if (field.name === titleFieldName) {
-          return {
-            localized: Boolean(field.localized),
-            titleFieldName: field.name,
-          }
-        }
-        break
-      case 'row':
-      case 'collapsible':
-        {
-          const result = iterateFields({ fields: field.fields, titleFieldName })
-          if (result) {
-            titleField = result
-          }
-        }
-        break
-      case 'group':
-        if (!('name' in field)) {
-          const result = iterateFields({ fields: field.fields, titleFieldName })
-          if (result) {
-            titleField = result
-          }
-        }
-        break
-      case 'tabs':
-        for (const tab of field.tabs) {
-          if (!('name' in tab)) {
-            const result = iterateFields({ fields: tab.fields, titleFieldName })
-            if (result) {
-              titleField = result
-            }
-          }
-        }
+    if (
+      (field.type === 'text' || field.type === 'number' || field.type === 'textarea') &&
+      field.name === titleFieldName
+    ) {
+      return { localized: Boolean(field.localized), titleFieldName: field.name }
     }
-
-    // If we found the field in recursion, return it
-    if (titleField) {
-      return titleField
+    const result = iterateFields({ fields: getUnnamedLayoutFields({ field }), titleFieldName })
+    if (result) {
+      return result
     }
   }
-
   return undefined
+}
+
+function getUnnamedLayoutFields({ field }: { field: Field }): Field[] {
+  switch (field.type) {
+    case 'collapsible':
+    case 'row':
+      return field.fields
+    case 'group':
+      return 'name' in field ? [] : field.fields
+    case 'tabs':
+      return field.tabs.flatMap((tab) => ('name' in tab ? [] : tab.fields))
+    default:
+      return []
+  }
 }

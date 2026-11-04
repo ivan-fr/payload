@@ -499,7 +499,11 @@ test('should keep disabled hover submenus closed from direct hover and a sibling
               side="right"
               theme="auto"
             >
-              <PopupList.Button onClick={() => {}}>{label} option</PopupList.Button>
+              {Array.from({ length: 3 }, (_, index) => (
+                <PopupList.Button key={index} onClick={() => {}}>
+                  {label} option {index}
+                </PopupList.Button>
+              ))}
             </Popup>
           ))}
         </PopupList.MenuItem>
@@ -538,6 +542,7 @@ test('should keep disabled hover submenus closed from direct hover and a sibling
     })
   }
   expect(document.elementFromPoint(point.x, point.y)).toBe(disabled.element())
+  await expect.element(active).toHaveAttribute('aria-expanded', 'true')
   await new Promise((resolve) => setTimeout(resolve, 500))
   await expect.element(disabled).toHaveAttribute('aria-expanded', 'false')
   expect(onOpen).not.toHaveBeenCalled()

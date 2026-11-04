@@ -134,13 +134,14 @@ test.suite('hierarchy regressions batch 17', { config: './config.ts' }, () => {
         collection: tagsSlug,
         id: news.id,
         depth: 0,
-        joins: { children: { limit: 10 } },
+        joins: { children: { count: true, limit: 10 } },
       })
       expect(tag.name).toBe('News')
+      expect(tag.children!.docs).toHaveLength(2)
       expect(tag.children!.docs).toEqual(
         expect.arrayContaining([
-          { relationTo: postsSlug, value: post.id },
-          { relationTo: pagesSlug, value: page.id },
+          expect.objectContaining({ relationTo: postsSlug, value: post.id }),
+          expect.objectContaining({ relationTo: pagesSlug, value: page.id }),
         ]),
       )
       expect(tag.children!.totalDocs).toBe(2)
