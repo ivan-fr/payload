@@ -16,6 +16,7 @@ import { sanitizeWhereQuery } from '../../database/sanitizeWhereQuery.js'
 import { APIError, Locked } from '../../errors/index.js'
 import { afterRead } from '../../fields/hooks/afterRead/index.js'
 import { deleteUserPreferences } from '../../preferences/deleteUserPreferences.js'
+import { getUserPreferenceIDs } from '../../preferences/getUserPreferenceIDs.js'
 import { deleteAssociatedFiles } from '../../uploads/deleteAssociatedFiles.js'
 import {
   collectStoredFiles,
@@ -331,6 +332,7 @@ export const deleteOperation = async <
           })
         }
 
+        const preferenceIDs = await getUserPreferenceIDs({ collectionConfig, ids: [doc.id], req })
         await payload.db.deleteOne({
           collection: collectionConfig.slug,
           req,
@@ -340,6 +342,14 @@ export const deleteOperation = async <
               equals: doc.id,
             },
           },
+        })
+
+        await deleteUserPreferences({
+          collectionConfig,
+          ids: [doc.id],
+          payload,
+          preferenceIDs,
+          req,
         })
 
         if (collectionConfig.upload) {
@@ -460,6 +470,7 @@ export const deleteOperation = async <
       // Delete documents
       // /////////////////////////////////////
 
+      const preferenceIDs = await getUserPreferenceIDs({ collectionConfig, ids, req })
       try {
         await payload.db.deleteMany({
           collection: collectionConfig.slug,
@@ -490,6 +501,8 @@ export const deleteOperation = async <
 
         return results
       }
+
+      await deleteUserPreferences({ collectionConfig, ids, payload, preferenceIDs, req })
 
       if (collectionConfig.upload) {
         await scheduleUnreferencedFileCleanup({
@@ -523,19 +536,6 @@ export const deleteOperation = async <
       }
     } else {
       awaitedDocs = await deleteDocumentsInBulk()
-    }
-
-    // /////////////////////////////////////
-    // Delete Preferences
-    // /////////////////////////////////////
-
-    if (!didBatchDeleteFail) {
-      await deleteUserPreferences({
-        collectionConfig,
-        ids: docs.map(({ id }) => id),
-        payload,
-        req,
-      })
     }
 
     let result = {

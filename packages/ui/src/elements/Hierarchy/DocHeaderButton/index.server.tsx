@@ -1,5 +1,6 @@
 import type { Payload } from 'payload'
 
+import { parsePayloadComponent } from 'payload/shared'
 import React from 'react'
 
 import { FolderIcon } from '../../../icons/Folder/index.js'
@@ -33,9 +34,16 @@ export const HierarchyButton: React.FC<HierarchyButtonServerProps> = ({
   // Render the custom icon if provided, otherwise use FolderIcon directly
   // Important: Must render the icon here on server to avoid hydration mismatch
   // For default FolderIcon path, render directly to avoid import map requirement
-  const isDefaultFolderIcon = !IconComponent || IconComponent === '@payloadcms/ui#FolderIcon'
+  const iconReference = IconComponent ? parsePayloadComponent(IconComponent) : undefined
+  const isDefaultFolderIcon =
+    !IconComponent ||
+    (iconReference?.path === '@payloadcms/ui' && iconReference.exportName === 'FolderIcon')
   const renderedIcon = isDefaultFolderIcon ? (
-    <FolderIcon size={16} />
+    <FolderIcon
+      size={16}
+      {...(typeof IconComponent === 'object' ? IconComponent?.serverProps : {})}
+      {...(typeof IconComponent === 'object' ? IconComponent?.clientProps : {})}
+    />
   ) : (
     RenderServerComponent({
       Component: IconComponent,
@@ -46,13 +54,21 @@ export const HierarchyButton: React.FC<HierarchyButtonServerProps> = ({
 
   // Render the small icon for compact display (pill button)
   // Reuse the full icon if SmallIcon is the same component
+  const smallIconReference = SmallIconComponent
+    ? parsePayloadComponent(SmallIconComponent)
+    : undefined
   const isDefaultSmallIcon =
-    !SmallIconComponent || SmallIconComponent === '@payloadcms/ui#FolderIcon'
+    !SmallIconComponent ||
+    (smallIconReference?.path === '@payloadcms/ui' &&
+      smallIconReference.exportName === 'FolderIcon')
   const renderedSmallIcon =
     SmallIconComponent === IconComponent ? (
       renderedIcon
     ) : isDefaultSmallIcon ? (
-      <FolderIcon />
+      <FolderIcon
+        {...(typeof SmallIconComponent === 'object' ? SmallIconComponent?.serverProps : {})}
+        {...(typeof SmallIconComponent === 'object' ? SmallIconComponent?.clientProps : {})}
+      />
     ) : (
       RenderServerComponent({
         Component: SmallIconComponent,

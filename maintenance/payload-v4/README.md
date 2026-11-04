@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes 102 reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes 108 reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **97 snapshot issues have scoped fixes here; 468 snapshot issues remain unassessed**. Five reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **102 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **103 snapshot issues have scoped fixes here; 462 snapshot issues remain unassessed**. Five reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **108 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -230,3 +230,18 @@ Six additional official reports are addressed above `297130ef1a9d637255d1611bf89
 | [#19199](https://github.com/payloadcms/payload/issues/19199) | Numeric document IDs use the existing ID title treatment. The complete untitled translation was already preserved; a regression test now protects it too. |
 
 Detailed evidence and validation limits: [batch-17.md](batch-17.md). These six reports were checked open on November 4, 2026. No upstream issue closure or merge is performed.
+
+## Eighteenth batch: six hierarchy, preference and version regressions
+
+Six additional official reports are addressed above `b9d43562b6170e339970ea8b5ca01d11cfec759f`. PR #4 contains twenty-four scoped fixes; the fork contains 108. The historical snapshot remains 565 reports: 103 scoped fixes and 462 unassessed, plus five later reports.
+
+| Official report                                              | Result                                                                                                                                                                           |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#18380](https://github.com/payloadcms/payload/issues/18380) | Hierarchy data loads each expanded parent once, treating numeric and string forms of an ID as the same parent.                                                                   |
+| [#18465](https://github.com/payloadcms/payload/issues/18465) | SQL collection/global version updates skip already-false latest flags, retaining legacy-null normalization.                                                                      |
+| [#18872](https://github.com/payloadcms/payload/issues/18872) | Import maps register hierarchy Icon and SmallIcon independently of sidebar tabs. Header default icons accept object/string references and preserve props.                        |
+| [#18843](https://github.com/payloadcms/payload/issues/18843) | Array/block collapse writes replace the current rows' IDs and retain collapsed rows from other locales.                                                                          |
+| [#19181](https://github.com/payloadcms/payload/issues/19181) | Document cards replace failed thumbnails with their existing placeholder and retry when the source changes.                                                                      |
+| [#19242](https://github.com/payloadcms/payload/issues/19242) | Capture user preference IDs before SQL relationship cascades, then remove preferences after successful single/bulk deletes. Refused or failed user deletions retain preferences. |
+
+Detailed reproduction, validation and UI evidence boundaries: [batch-18.md](batch-18.md). All six reports were checked open on November 4, 2026. No official issue closure or merge is performed.

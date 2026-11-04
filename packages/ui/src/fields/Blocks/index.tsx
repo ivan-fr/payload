@@ -225,7 +225,11 @@ const BlocksFieldComponent: React.FC<BlocksFieldClientProps> = (props) => {
       })
 
       dispatchFields({ type: 'SET_ALL_ROWS_COLLAPSED', path, updatedRows })
-      setDocFieldPreferences(path, { collapsed: collapsedIDs })
+      setDocFieldPreferences(
+        path,
+        { collapsed: collapsedIDs },
+        rows.map(({ id }) => id),
+      )
     },
     [dispatchFields, path, rows, setDocFieldPreferences],
   )
@@ -239,7 +243,11 @@ const BlocksFieldComponent: React.FC<BlocksFieldClientProps> = (props) => {
       })
 
       dispatchFields({ type: 'SET_ROW_COLLAPSED', path, updatedRows })
-      setDocFieldPreferences(path, { collapsed: collapsedIDs })
+      setDocFieldPreferences(
+        path,
+        { collapsed: collapsedIDs },
+        rows.map(({ id }) => id),
+      )
     },
     [dispatchFields, path, rows, setDocFieldPreferences],
   )

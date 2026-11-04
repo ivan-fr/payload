@@ -38,6 +38,15 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
   const router = useRouter()
   const { t } = useTranslation()
   const selectionStatusID = React.useId()
+  const [thumbnailState, setThumbnailState] = React.useState({
+    hasError: false,
+    src: thumbnail?.src,
+  })
+  const hasNewThumbnail = thumbnailState.src !== thumbnail?.src
+  if (hasNewThumbnail) {
+    setThumbnailState({ hasError: false, src: thumbnail?.src })
+  }
+  const showThumbnail = thumbnail && (hasNewThumbnail || !thumbnailState.hasError)
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (!onSelect || event.detail === 0) {
@@ -111,12 +120,13 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
         .filter(Boolean)
         .join(' ')}
     >
-      {thumbnail ? (
+      {showThumbnail ? (
         <img
           alt={thumbnail.alt || ''}
           className={`${baseClass}__thumbnail`}
           decoding="async"
           loading={thumbnail.loading}
+          onError={() => setThumbnailState({ hasError: true, src: thumbnail.src })}
           src={thumbnail.src}
         />
       ) : (

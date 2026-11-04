@@ -105,3 +105,22 @@ test('should keep selection available without navigating when the href is null',
   await card.dblClick()
   expect(push).not.toHaveBeenCalled()
 })
+
+test('should replace a failed thumbnail and retry when its source changes (#19181)', async () => {
+  const screen = await render(
+    <DocumentCard
+      title="Failed image"
+      thumbnail={{ src: 'data:image/png;base64,broken' }}
+      placeholder="File preview"
+    />,
+  )
+  await expect.element(screen.getByText('File preview')).toBeVisible()
+  await expect.element(screen.getByText('Failed image')).toBeVisible()
+  const valid = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+  await screen.rerender(
+    <DocumentCard title="Valid image" thumbnail={{ src: valid }} placeholder="File preview" />,
+  )
+  const image = document.querySelector<HTMLImageElement>('.document-card__thumbnail')!
+  await expect.poll(() => image.naturalWidth).toBe(1)
+  await expect.element(screen.getByText('File preview')).not.toBeInTheDocument()
+})
