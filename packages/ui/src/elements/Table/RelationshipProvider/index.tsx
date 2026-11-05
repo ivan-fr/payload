@@ -81,77 +81,57 @@ export const RelationshipProvider: React.FC<{ readonly children?: React.ReactNod
       const { api, collections, language, locale, pendingRequests } = requestScope
 
       Object.entries(debouncedDocuments).forEach(async ([slug, docs]) => {
-        const idsToLoad: (number | string)[] = []
+        const idsToLoad = Object.entries(docs)
+          .filter(
+            ([id, value]) => (value === null || reloadAll) && !pendingRequests.get(slug)?.has(id),
+          )
+          .map(([id]) => id)
 
-        Object.entries(docs).forEach(([id, value]) => {
-          if ((value === null || reloadAll) && !pendingRequests.get(slug)?.has(id)) {
-            idsToLoad.push(id)
-          }
-        })
+        if (idsToLoad.length === 0) {
+          return
+        }
+        const collection = collections.find((c) => c.slug === slug)
+        if (!collection) {
+          return
+        }
 
-        if (idsToLoad.length > 0) {
-          const url = formatAdminURL({ apiRoute: api, path: `/${slug}` })
+        const url = formatAdminURL({ apiRoute: api, path: `/${slug}` })
 
-          const params = new URLSearchParams()
-          const select: SelectType = {}
+        const params = new URLSearchParams()
+        const select: SelectType = {}
 
-          params.append('depth', '0')
-          params.append('draft', 'true')
-          params.append('limit', '250')
+        params.append('depth', '0')
+        params.append('draft', 'true')
+        params.append('limit', '250')
 
-          const collection = collections.find((c) => c.slug === slug)
+        const fieldToSelect = collection.admin.useAsTitle ?? 'id'
 
-          if (!collection) {
-            return
-          }
+        select[fieldToSelect] = true
 
-          const fieldToSelect = collection.admin.useAsTitle ?? 'id'
+        if (collection.upload) {
+          appendUploadSelectFields({ collectionConfig: collection, select })
+        }
 
-          select[fieldToSelect] = true
+        if (locale) {
+          params.append('locale', locale)
+        }
 
-          if (collection.upload) {
-            appendUploadSelectFields({ collectionConfig: collection, select })
-          }
+        const idsToString = idsToLoad.map((id) => String(id))
+        params.append('where[id][in]', idsToString.join(','))
 
-          if (locale) {
-            params.append('locale', locale)
-          }
+        const query = `?${params.toString()}&${qs.stringify({ select })}`
 
-          const idsToString = idsToLoad.map((id) => String(id))
-          params.append('where[id][in]', idsToString.join(','))
+        let pendingIDs = pendingRequests.get(slug)
+        if (!pendingIDs) {
+          pendingIDs = new Set()
+          pendingRequests.set(slug, pendingIDs)
+        }
+        idsToLoad.forEach((id) => pendingIDs.add(String(id)))
 
-          const query = `?${params.toString()}&${qs.stringify({ select })}`
-
-          let pendingIDs = pendingRequests.get(slug)
-          if (!pendingIDs) {
-            pendingIDs = new Set()
-            pendingRequests.set(slug, pendingIDs)
-          }
-          idsToLoad.forEach((id) => pendingIDs.add(String(id)))
-
-          try {
-            const result = await fetch(`${url}${query}`, {
-              credentials: 'include',
-              headers: {
-                'Accept-Language': language,
-              },
-            })
-            const json = result.ok ? await result.json() : undefined
-            if (currentScope.current === requestScope) {
-              dispatchDocuments({
-                type: 'ADD_LOADED',
-                docs: Array.isArray(json?.docs) ? json.docs : [],
-                idsToLoad,
-                relationTo: slug,
-              })
-            }
-          } catch (_err) {
-            if (currentScope.current === requestScope) {
-              dispatchDocuments({ type: 'ADD_LOADED', docs: [], idsToLoad, relationTo: slug })
-            }
-          } finally {
-            idsToLoad.forEach((id) => pendingIDs.delete(String(id)))
-          }
+        const loadedDocs = await fetchRelationshipDocuments({ language, url: `${url}${query}` })
+        idsToLoad.forEach((id) => pendingIDs.delete(id))
+        if (currentScope.current === requestScope) {
+          dispatchDocuments({ type: 'ADD_LOADED', docs: loadedDocs, idsToLoad, relationTo: slug })
         }
       })
     },
@@ -174,3 +154,23 @@ export const RelationshipProvider: React.FC<{ readonly children?: React.ReactNod
 }
 
 export const useListRelationships = (): ListRelationshipContext => use(Context)
+
+async function fetchRelationshipDocuments({
+  language,
+  url,
+}: {
+  language: string
+  url: string
+}): Promise<TypeWithID[]> {
+  try {
+    const result = await fetch(url, {
+      credentials: 'include',
+      headers: { 'Accept-Language': language },
+    })
+    const json = result.ok ? await result.json() : undefined
+    return Array.isArray(json?.docs) ? json.docs : []
+  } catch {
+    // Failed requests use the no-reference state; a later explicit REQUEST retries them.
+    return []
+  }
+}

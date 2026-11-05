@@ -42,6 +42,10 @@ const response = ({ id, title = id }: { id: string; title?: string }) =>
   Response.json({ docs: [{ id, title }] })
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  // Next/TanStack inject these routing constants; the browser test runner does not.
+  if (typeof process === 'undefined') {
+    vi.stubGlobal('process', { env: { NEXT_BASE_PATH: '', NEXT_TRAILING_SLASH: 'false' } })
+  }
   locale = { code: 'en' }
   container = document.createElement('div')
   document.body.append(container)

@@ -482,7 +482,9 @@ export const Form: React.FC<FormProps> = (props) => {
             }
           }
 
-          setSubmitted(false)
+          if (!skipValidation && !disableValidationOnSubmit) {
+            setSubmitted(false)
+          }
           setProcessing(false)
 
           if (redirect) {

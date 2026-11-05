@@ -13,10 +13,11 @@ const mocks = vi.hoisted(() => ({
   upload: vi.fn(),
   getUploadHandler: vi.fn(),
   initialForms: [] as any[],
+  getFormState: vi.fn(),
 }))
 const config = { routes: { api: '/api' }, collections: [{ slug: 'media', upload: {} }] }
 const getEntityConfig = () => config.collections[0]
-const getFormState = async () => ({ state: {} })
+const getFormState = (args: unknown) => mocks.getFormState(args)
 const getDocumentSlots = async () => ({})
 const t = (key: string) => key
 const i18n = { language: 'en' }
@@ -63,7 +64,12 @@ function Fixture() {
 }
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  // Next/TanStack inject these routing constants; the browser test runner does not.
+  if (typeof process === 'undefined') {
+    vi.stubGlobal('process', { env: { NEXT_BASE_PATH: '', NEXT_TRAILING_SLASH: 'false' } })
+  }
   vi.clearAllMocks()
+  mocks.getFormState.mockReset().mockResolvedValue({ state: {} })
   mocks.getUploadHandler.mockReturnValue(undefined)
   mocks.initialForms = ['first.txt', 'second.txt'].map((name, index) => ({
     file: new File(['data'], name, { type: 'text/plain' }),
@@ -141,4 +147,63 @@ describe('bulk upload retry queue', () => {
       )
     })
   }
+})
+
+describe('bulk upload conditions before submission (#18999)', () => {
+  it('should refresh every pending form without triggering validation and retain file values and upload edits', async () => {
+    mocks.initialForms = mocks.initialForms.map((form) => ({
+      ...form,
+      initialState: {
+        isDecorative: { value: false },
+        alt: { value: 'Description', passesCondition: true },
+      },
+    }))
+    await act(async () =>
+      root.render(
+        <FormsManagerProvider>
+          <Fixture />
+        </FormsManagerProvider>,
+      ),
+    )
+    expect(manager.forms).toHaveLength(2)
+    await act(() => manager.updateUploadEdits({ focalPoint: { x: 25, y: 75 } } as never))
+    mocks.getFormState.mockClear().mockImplementation(async ({ formState, skipValidation }) => ({
+      state: {
+        ...formState,
+        alt: { ...formState.alt, passesCondition: !formState.isDecorative.value },
+        ...(skipValidation ? {} : { required: { valid: false } }),
+      },
+    }))
+
+    await act(() => manager.bulkUpdateForm({ isDecorative: true }))
+
+    expect(mocks.getFormState).toHaveBeenCalledTimes(2)
+    expect(mocks.getFormState).toHaveBeenCalledWith(
+      expect.objectContaining({ skipValidation: true }),
+    )
+    expect(manager.hasSubmitted).toBe(false)
+    for (const form of manager.forms) {
+      expect(form.formState.alt.passesCondition).toBe(false)
+      expect(form.formState.file.value).toBeInstanceOf(File)
+      expect(form.errorCount).toBe(0)
+    }
+    expect(manager.forms[0].uploadEdits).toEqual({ focalPoint: { x: 25, y: 75 } })
+
+    await act(() => manager.bulkUpdateForm({ isDecorative: false }))
+    expect(manager.forms.every((form) => form.formState.alt.passesCondition)).toBe(true)
+
+    mocks.upload.mockImplementation(() =>
+      Promise.resolve(
+        Response.json({ errors: [{ message: 'Temporary failure' }] }, { status: 400 }),
+      ),
+    )
+    await act(() => manager.saveAllDocs())
+    expect(manager.hasSubmitted).toBe(true)
+    mocks.getFormState.mockClear()
+    await act(() => manager.bulkUpdateForm({ isDecorative: true }))
+    expect(mocks.getFormState).toHaveBeenCalledWith(
+      expect.objectContaining({ skipValidation: false }),
+    )
+    expect(manager.forms.every((form) => form.errorCount === 1)).toBe(true)
+  })
 })

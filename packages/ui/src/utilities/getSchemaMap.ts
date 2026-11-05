@@ -27,7 +27,13 @@ export const getSchemaMap = cache(
       mapsByConfig.set(config, cachedSchemaMap)
     }
 
-    const cacheKey = `${i18n.language}:${collectionSlug ? `collection:${collectionSlug}` : globalSlug ? `global:${globalSlug}` : `widget:${widgetSlug}`}`
+    let entityKey = `widget:${widgetSlug}`
+    if (collectionSlug) {
+      entityKey = `collection:${collectionSlug}`
+    } else if (globalSlug) {
+      entityKey = `global:${globalSlug}`
+    }
+    const cacheKey = `${i18n.language}:${entityKey}`
     const cachedEntityFieldMap = cachedSchemaMap.get(cacheKey)
 
     if (cachedEntityFieldMap) {
