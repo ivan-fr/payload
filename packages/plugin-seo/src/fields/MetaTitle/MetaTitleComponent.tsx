@@ -23,6 +23,7 @@ import type { GenerateTitle } from '../../types.js'
 
 import { defaults } from '../../defaults.js'
 import { LengthIndicator } from '../../ui/LengthIndicator.js'
+import { useGeneration } from '../../utilities/useGeneration.js'
 import '../colors.css'
 import '../index.css'
 
@@ -104,6 +105,10 @@ export const MetaTitleComponent: React.FC<MetaTitleProps> = (props) => {
       method: 'POST',
     })
 
+    if (!genTitleResponse.ok) {
+      throw new Error('SEO generation request failed')
+    }
+
     const { result: generatedTitle } = await genTitleResponse.json()
 
     setValue(generatedTitle || '')
@@ -123,6 +128,8 @@ export const MetaTitleComponent: React.FC<MetaTitleProps> = (props) => {
     setValue,
     title,
   ])
+
+  const { isGenerating, run: generate } = useGeneration({ generate: regenerateTitle, readOnly })
 
   return (
     <div
@@ -144,9 +151,10 @@ export const MetaTitleComponent: React.FC<MetaTitleProps> = (props) => {
             <React.Fragment>
               &nbsp; &mdash; &nbsp;
               <button
-                disabled={readOnly}
+                aria-busy={isGenerating}
+                disabled={readOnly || isGenerating}
                 onClick={() => {
-                  void regenerateTitle()
+                  void generate()
                 }}
                 style={{
                   background: 'none',
@@ -161,6 +169,7 @@ export const MetaTitleComponent: React.FC<MetaTitleProps> = (props) => {
               >
                 {t('plugin-seo:autoGenerate')}
               </button>
+              {isGenerating && <span role="status">{t('general:loading')}</span>}
             </React.Fragment>
           )}
         </div>

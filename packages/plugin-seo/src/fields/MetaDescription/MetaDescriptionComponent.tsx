@@ -25,6 +25,7 @@ import type { GenerateDescription } from '../../types.js'
 
 import { defaults } from '../../defaults.js'
 import { LengthIndicator } from '../../ui/LengthIndicator.js'
+import { useGeneration } from '../../utilities/useGeneration.js'
 
 const { maxLength: maxLengthDefault, minLength: minLengthDefault } = defaults.description
 
@@ -104,6 +105,10 @@ export const MetaDescriptionComponent: React.FC<MetaDescriptionProps> = (props) 
       method: 'POST',
     })
 
+    if (!genDescriptionResponse.ok) {
+      throw new Error('SEO generation request failed')
+    }
+
     const { result: generatedDescription } = await genDescriptionResponse.json()
 
     setValue(generatedDescription || '')
@@ -125,6 +130,11 @@ export const MetaDescriptionComponent: React.FC<MetaDescriptionProps> = (props) 
     title,
   ])
 
+  const { isGenerating, run: generate } = useGeneration({
+    generate: regenerateDescription,
+    readOnly,
+  })
+
   return (
     <div
       style={{
@@ -145,9 +155,10 @@ export const MetaDescriptionComponent: React.FC<MetaDescriptionProps> = (props) 
             <React.Fragment>
               &nbsp; &mdash; &nbsp;
               <button
-                disabled={readOnly}
+                aria-busy={isGenerating}
+                disabled={readOnly || isGenerating}
                 onClick={() => {
-                  void regenerateDescription()
+                  void generate()
                 }}
                 style={{
                   background: 'none',
@@ -162,6 +173,7 @@ export const MetaDescriptionComponent: React.FC<MetaDescriptionProps> = (props) 
               >
                 {t('plugin-seo:autoGenerate')}
               </button>
+              {isGenerating && <span role="status">{t('general:loading')}</span>}
             </React.Fragment>
           )}
         </div>

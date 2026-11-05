@@ -62,6 +62,13 @@ function Fixture() {
   manager.getFormDataRef.current = () => manager.forms[manager.activeIndex]?.formState || {}
   return <div>{manager.forms.length}</div>
 }
+async function waitForInitialForms() {
+  await vi.waitFor(async () => {
+    await act(async () => {})
+    expect(manager.forms).toHaveLength(2)
+  })
+}
+
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   // Next/TanStack inject these routing constants; the browser test runner does not.
@@ -79,7 +86,12 @@ beforeEach(() => {
     'fetch',
     vi.fn((url, options) =>
       String(url).includes('/access')
-        ? Promise.resolve(Response.json({ create: true, update: true }))
+        ? Promise.resolve({
+            json: async () => {
+              await new Promise((resolve) => setTimeout(resolve, 0))
+              return { create: true, update: true }
+            },
+          })
         : mocks.upload(url, options),
     ),
   )
@@ -122,7 +134,7 @@ describe('bulk upload retry queue', () => {
           </FormsManagerProvider>,
         )
       })
-      expect(manager.forms).toHaveLength(2)
+      await waitForInitialForms()
       await act(() => manager.saveAllDocs())
 
       expect(manager.forms).toHaveLength(1)
@@ -165,7 +177,7 @@ describe('bulk upload conditions before submission (#18999)', () => {
         </FormsManagerProvider>,
       ),
     )
-    expect(manager.forms).toHaveLength(2)
+    await waitForInitialForms()
     await act(() => manager.updateUploadEdits({ focalPoint: { x: 25, y: 75 } } as never))
     mocks.getFormState.mockClear().mockImplementation(async ({ formState, skipValidation }) => ({
       state: {
