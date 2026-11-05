@@ -23,3 +23,9 @@ The existing access-control E2E assertion remains intact. No workflows, retries,
 ## Accessibility scope and limits
 
 The affected journey is explicit public-user logout followed by login navigation. There are no markup, styles, controls, translated messages or focus-management changes. For WCAG 2.2, source review covers 2.1.1 (A: the existing logout activation remains), 2.4.3 (A: navigation order), 3.3.8 (AA: no new authentication task) and 4.1.3 (AA: the existing success notification follows request completion). Component assertions verify request/navigation ordering, not rendered keyboard or assistive-technology behavior. Browser focus, notification announcements and exact speech remain unverified locally; no accessibility conformance claim is made.
+
+## Chromium test-environment follow-up
+
+On head `b6b6f8553bc033f9af22269edfa14eb2ef3eb753`, all four access-control shards passed on Next and TanStack Start, including the original public-user logout scenario. Sonar and lint also passed. The only failing test job was the component step of `tests-unit`: both new logout cases reached `formatAdminURL` without the framework-injected `process.env` routing constants. The browser raised `ReferenceError: process is not defined`; the provider catches that same exception before the mocked logout request, explaining the second zero-request failure.
+
+The logout test setup now supplies `NEXT_BASE_PATH` and `NEXT_TRAILING_SLASH` when `process` is absent, matching the existing BulkUpload, EditMany, Form and RelationshipProvider browser test setup. `afterEach` restores the global. Production code and all test assertions remain unchanged. Both focused cases pass in jsdom; native Chromium validation of this test-only correction remains required in published CI.

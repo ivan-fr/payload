@@ -61,6 +61,10 @@ function Consumer() {
 }
 
 beforeEach(() => {
+  if (typeof process === 'undefined') {
+    vi.stubGlobal('process', { env: { NEXT_BASE_PATH: '', NEXT_TRAILING_SLASH: 'false' } })
+  }
+
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   vi.clearAllMocks()
   mocks.get.mockResolvedValue({ status: 200, json: async () => ({ user: null }) })
