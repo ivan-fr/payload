@@ -605,7 +605,7 @@ export function FormsManagerProvider({ children }: FormsManagerProps) {
             }
           }
         } catch (_) {
-          // swallow
+          currentForms[i].errorCount = currentForms[i].errorCount || 1
         }
       }
 
@@ -621,8 +621,8 @@ export function FormsManagerProvider({ children }: FormsManagerProps) {
         }
       })
 
-      const successCount = Math.max(0, currentForms.length - remainingForms.length)
-      const errorCount = currentForms.length - successCount
+      const successCount = newDocs.length
+      const errorCount = remainingForms.length
 
       if (successCount) {
         toast.success(`Successfully saved ${successCount} files`)

@@ -3686,8 +3686,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18108",
       "labels": ["area: ui", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-05"
     },
     {
       "number": 18116,
@@ -3758,8 +3760,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18161",
       "labels": ["Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-05"
     },
     {
       "number": 18162,
@@ -3872,8 +3876,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18225",
       "labels": ["Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-05"
     },
     {
       "number": 18246,
@@ -4749,8 +4755,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18876",
       "labels": ["area: ui", "created-by: Contributor", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-05"
     },
     {
       "number": 18907,
@@ -5050,8 +5058,10 @@
       "url": "https://github.com/payloadcms/payload/issues/19151",
       "labels": ["area: ui", "created-by: Contributor", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-05"
     },
     {
       "number": 19165,
@@ -5390,7 +5400,20 @@
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
       "last_checked_date": "2026-11-04"
+    },
+    {
+      "number": 19346,
+      "title": "List view requests the same relationship documents again while their first request is still pending",
+      "url": "https://github.com/payloadcms/payload/issues/19346",
+      "labels": ["area: ui", "Bug"],
+      "added_date": "2026-11-05",
+      "upstream_state_when_added": "open",
+      "created_at": "2026-11-04T19:32:46Z",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-05"
     }
   ],
-  "branch_fix_count": 108
+  "branch_fix_count": 114
 }

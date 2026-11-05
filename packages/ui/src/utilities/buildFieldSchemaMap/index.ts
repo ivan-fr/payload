@@ -43,10 +43,15 @@ export const buildFieldSchemaMap = (args: {
       let fieldsToSet = matchedCollection?.fields || []
 
       if (matchedCollection.auth && !matchedCollection.auth.disableLocalStrategy) {
-        ;(baseAuthFields[0] as TextField).label = i18n.t('general:password')
-        ;(baseAuthFields[1] as TextField).label = i18n.t('authentication:confirmPassword')
-        // Place these fields _last_ to ensure they do not disrupt field paths in the field schema map
-        fieldsToSet = fieldsToSet.concat(baseAuthFields)
+        const authFields: Field[] = [
+          { ...(baseAuthFields[0] as TextField), label: i18n.t('general:password') },
+          {
+            ...(baseAuthFields[1] as TextField),
+            label: i18n.t('authentication:confirmPassword'),
+          },
+        ]
+        // Keep fields owned by other cached languages unchanged.
+        fieldsToSet = fieldsToSet.concat(authFields)
       }
 
       schemaMap.set(collectionSlug, {

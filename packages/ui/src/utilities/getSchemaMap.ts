@@ -5,11 +5,7 @@ import { cache } from 'react'
 
 import { buildFieldSchemaMap } from './buildFieldSchemaMap/index.js'
 
-let cachedSchemaMap = global._payload_schemaMap
-
-if (!cachedSchemaMap) {
-  cachedSchemaMap = global._payload_schemaMap = null
-}
+let mapsByConfig = new WeakMap<SanitizedConfig, Map<string, FieldSchemaMap>>()
 
 export const getSchemaMap = cache(
   (args: {
@@ -21,18 +17,22 @@ export const getSchemaMap = cache(
   }): FieldSchemaMap => {
     const { collectionSlug, config, globalSlug, i18n, widgetSlug } = args
 
-    if (!cachedSchemaMap || global._payload_doNotCacheSchemaMap) {
+    if (global._payload_doNotCacheSchemaMap) {
+      mapsByConfig = new WeakMap()
+      global._payload_doNotCacheSchemaMap = false
+    }
+    let cachedSchemaMap = mapsByConfig.get(config)
+    if (!cachedSchemaMap) {
       cachedSchemaMap = new Map()
+      mapsByConfig.set(config, cachedSchemaMap)
     }
 
-    const cacheKey = collectionSlug || globalSlug || `widget:${widgetSlug}`
-    let cachedEntityFieldMap = cachedSchemaMap.get(cacheKey)
+    const cacheKey = `${i18n.language}:${collectionSlug ? `collection:${collectionSlug}` : globalSlug ? `global:${globalSlug}` : `widget:${widgetSlug}`}`
+    const cachedEntityFieldMap = cachedSchemaMap.get(cacheKey)
 
     if (cachedEntityFieldMap) {
       return cachedEntityFieldMap
     }
-
-    cachedEntityFieldMap = new Map()
 
     const { fieldSchemaMap: entityFieldMap } = buildFieldSchemaMap({
       collectionSlug,

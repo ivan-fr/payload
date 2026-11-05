@@ -63,9 +63,10 @@ describe('getClientSchemaMap', () => {
       schemaMap,
     })
 
+    const enConfig = createConfig({ label: 'Title' })
     const en = getClientSchemaMap({
       collectionSlug: 'pages',
-      config: createConfig({ label: 'Title' }),
+      config: enConfig,
       i18n: createI18n('en'),
       payload,
       schemaMap,
@@ -76,7 +77,7 @@ describe('getClientSchemaMap', () => {
 
     const enAgain = getClientSchemaMap({
       collectionSlug: 'pages',
-      config: createConfig({ label: 'Title' }),
+      config: enConfig,
       i18n: createI18n('en'),
       payload,
       schemaMap,

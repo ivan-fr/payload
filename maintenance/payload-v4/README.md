@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes 108 reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes 114 reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **103 snapshot issues have scoped fixes here; 462 snapshot issues remain unassessed**. Five reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **108 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **108 snapshot issues have scoped fixes here; 457 snapshot issues remain unassessed**. Six reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **114 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -245,3 +245,7 @@ Six additional official reports are addressed above `b9d43562b6170e339970ea8b5ca
 | [#19242](https://github.com/payloadcms/payload/issues/19242) | Capture user preference IDs before SQL relationship cascades, then remove preferences after successful single/bulk deletes. Refused or failed user deletions retain preferences. |
 
 Detailed reproduction, validation and UI evidence boundaries: [batch-18.md](batch-18.md). All six reports were checked open on November 4, 2026. No official issue closure or merge is performed.
+
+## Nineteenth batch: six more admin regressions
+
+A new branch starts at fork `main` commit `6e3f1cc975e7316f376d9de1e93f713dae0904b9`, after PR #4. It fixes official reports [#18108](https://github.com/payloadcms/payload/issues/18108), [#18161](https://github.com/payloadcms/payload/issues/18161), [#18225](https://github.com/payloadcms/payload/issues/18225), [#18876](https://github.com/payloadcms/payload/issues/18876), [#19151](https://github.com/payloadcms/payload/issues/19151), and [#19346](https://github.com/payloadcms/payload/issues/19346), all checked open on 2026-11-05. The last report was filed on 2026-11-04 and is tracked outside the historical snapshot. See [batch-19.md](batch-19.md) for reproductions, validation and browser/accessibility evidence limits.

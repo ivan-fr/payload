@@ -3,7 +3,15 @@ import type { SelectType, TypeWithID } from 'payload'
 
 import { appendUploadSelectFields, formatAdminURL } from 'payload/shared'
 import * as qs from 'qs-esm'
-import React, { createContext, use, useCallback, useEffect, useReducer, useRef } from 'react'
+import React, {
+  createContext,
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from 'react'
 
 import { useDebounce } from '../../../hooks/useDebounce.js'
 import { useConfig } from '../../../providers/Config/index.js'
@@ -48,15 +56,35 @@ export const RelationshipProvider: React.FC<{ readonly children?: React.ReactNod
   const { i18n } = useTranslation()
   const currentLocale = useLocale()
   const locale = currentLocale?.code
-  const prevLocale = useRef(locale)
+  const requestScope = useMemo(
+    () => ({
+      api,
+      collections,
+      language: i18n.language,
+      locale,
+      pendingRequests: new Map<string, Set<string>>(),
+    }),
+    [api, collections, i18n.language, locale],
+  )
+  const previousRequests = useRef(requestScope)
+  const currentScope = useRef<typeof requestScope>(null)
+
+  useEffect(() => {
+    currentScope.current = requestScope
+    return () => {
+      currentScope.current = null
+    }
+  }, [requestScope])
 
   const loadRelationshipDocs = useCallback(
     (reloadAll = false) => {
+      const { api, collections, language, locale, pendingRequests } = requestScope
+
       Object.entries(debouncedDocuments).forEach(async ([slug, docs]) => {
         const idsToLoad: (number | string)[] = []
 
         Object.entries(docs).forEach(([id, value]) => {
-          if (value === null || reloadAll) {
+          if ((value === null || reloadAll) && !pendingRequests.get(slug)?.has(id)) {
             idsToLoad.push(id)
           }
         })
@@ -94,36 +122,46 @@ export const RelationshipProvider: React.FC<{ readonly children?: React.ReactNod
 
           const query = `?${params.toString()}&${qs.stringify({ select })}`
 
-          const result = await fetch(`${url}${query}`, {
-            credentials: 'include',
-            headers: {
-              'Accept-Language': i18n.language,
-            },
-          })
+          let pendingIDs = pendingRequests.get(slug)
+          if (!pendingIDs) {
+            pendingIDs = new Set()
+            pendingRequests.set(slug, pendingIDs)
+          }
+          idsToLoad.forEach((id) => pendingIDs.add(String(id)))
 
-          if (result.ok) {
-            const json = await result.json()
-            if (json.docs) {
+          try {
+            const result = await fetch(`${url}${query}`, {
+              credentials: 'include',
+              headers: {
+                'Accept-Language': language,
+              },
+            })
+            const json = result.ok ? await result.json() : undefined
+            if (currentScope.current === requestScope) {
               dispatchDocuments({
                 type: 'ADD_LOADED',
-                docs: json.docs,
+                docs: Array.isArray(json?.docs) ? json.docs : [],
                 idsToLoad,
                 relationTo: slug,
               })
             }
-          } else {
-            dispatchDocuments({ type: 'ADD_LOADED', docs: [], idsToLoad, relationTo: slug })
+          } catch (_err) {
+            if (currentScope.current === requestScope) {
+              dispatchDocuments({ type: 'ADD_LOADED', docs: [], idsToLoad, relationTo: slug })
+            }
+          } finally {
+            idsToLoad.forEach((id) => pendingIDs.delete(String(id)))
           }
         }
       })
     },
-    [debouncedDocuments, api, i18n, locale, collections],
+    [debouncedDocuments, requestScope],
   )
 
   useEffect(() => {
-    void loadRelationshipDocs(locale && prevLocale.current !== locale)
-    prevLocale.current = locale
-  }, [locale, loadRelationshipDocs])
+    loadRelationshipDocs(previousRequests.current !== requestScope)
+    previousRequests.current = requestScope
+  }, [loadRelationshipDocs, requestScope])
 
   const getRelationships = useCallback(
     (relationships: { relationTo: string; value: number | string }[]) => {
