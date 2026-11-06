@@ -53,11 +53,17 @@ const TabsFieldComponent: React.FC<TabsFieldClientProps> = (props) => {
 
   const tabStates = useFormFields(([fields]) => {
     return tabs.map((tab, index) => {
-      const id = tab?.id
+      const { path: tabPath } = getFieldPaths({
+        field: tab,
+        index,
+        parentIndexPath: indexPath,
+        parentPath: path,
+        parentSchemaPath: schemaPath,
+      })
 
       return {
         index,
-        passesCondition: fields?.[id]?.passesCondition ?? true,
+        passesCondition: fields?.[tabPath]?.passesCondition ?? true,
         tab,
       }
     })

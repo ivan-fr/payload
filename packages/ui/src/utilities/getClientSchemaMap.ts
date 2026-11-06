@@ -5,11 +5,10 @@ import { cache } from 'react'
 
 import { buildClientFieldSchemaMap } from './buildClientFieldSchemaMap/index.js'
 
-let cachedClientSchemaMap = global._payload_clientSchemaMap
-
-if (!cachedClientSchemaMap) {
-  cachedClientSchemaMap = global._payload_clientSchemaMap = null
-}
+let mapsByConfig = new WeakMap<
+  ClientConfig,
+  WeakMap<FieldSchemaMap, Map<string, ClientFieldSchemaMap>>
+>()
 
 export const getClientSchemaMap = cache(
   (args: {
@@ -23,19 +22,34 @@ export const getClientSchemaMap = cache(
   }): ClientFieldSchemaMap => {
     const { collectionSlug, config, globalSlug, i18n, payload, schemaMap, widgetSlug } = args
 
-    if (!cachedClientSchemaMap || global._payload_doNotCacheClientSchemaMap) {
+    if (global._payload_doNotCacheClientSchemaMap) {
+      mapsByConfig = new WeakMap()
+      global._payload_doNotCacheClientSchemaMap = false
+    }
+    let mapsBySchema = mapsByConfig.get(config)
+    if (!mapsBySchema) {
+      mapsBySchema = new WeakMap()
+      mapsByConfig.set(config, mapsBySchema)
+    }
+    let cachedClientSchemaMap = mapsBySchema.get(schemaMap)
+    if (!cachedClientSchemaMap) {
       cachedClientSchemaMap = new Map()
+      mapsBySchema.set(schemaMap, cachedClientSchemaMap)
     }
 
     // Labels are translated while building the map, so it has to be cached per language
-    const cacheKey = `${i18n.language}:${collectionSlug || globalSlug || `widget:${widgetSlug}`}`
-    let cachedEntityClientFieldMap = cachedClientSchemaMap.get(cacheKey)
+    let entityKey = `widget:${widgetSlug}`
+    if (collectionSlug) {
+      entityKey = `collection:${collectionSlug}`
+    } else if (globalSlug) {
+      entityKey = `global:${globalSlug}`
+    }
+    const cacheKey = `${i18n.language}:${entityKey}`
+    const cachedEntityClientFieldMap = cachedClientSchemaMap.get(cacheKey)
 
     if (cachedEntityClientFieldMap) {
       return cachedEntityClientFieldMap
     }
-
-    cachedEntityClientFieldMap = new Map()
 
     const { clientFieldSchemaMap: entityClientFieldMap } = buildClientFieldSchemaMap({
       collectionSlug,

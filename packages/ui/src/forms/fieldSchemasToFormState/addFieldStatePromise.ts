@@ -188,7 +188,7 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
   }
 
   // Short-circuit hidden fields to prevent recursing and rendering. Two exclusions:
-  // - `tab`: visibility is keyed by `field.id` (not `path`); the tab branch owns that write.
+  // - `tab`: the tab branch owns its non-data visibility entry.
   // - presentational containers (row, collapsible, unnamed group): they hold no value, so
   //   returning here drops their nested fields' values.
   const isPresentationalWithSubFields = fieldHasSubFields(field) && !fieldAffectsData(field)
@@ -910,16 +910,17 @@ export const addFieldStatePromise = async (args: AddFieldStatePromiseArgs): Prom
       }
     }
 
-    // Tab visibility on the client is keyed by `field.id`, not `path` (like all other fields).
+    // Runtime paths include row indexes, unlike schema-level tab IDs.
     if (field?.id) {
-      state[field.id] = {
+      state[path] = {
+        disableFormData: true,
         passesCondition,
       }
 
       // Flag newly added tab entries so the client accepts them during merge.
       // Otherwise, tabs revealed after a hidden ancestor becomes visible would never make it into client form state.
-      if (!renderAllFields && !previousFormState?.[field.id]) {
-        state[field.id].addedByServer = true
+      if (!renderAllFields && !previousFormState?.[path]) {
+        state[path].addedByServer = true
       }
     }
 

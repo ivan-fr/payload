@@ -5,6 +5,7 @@ import React from 'react'
 
 import type { SelectFilterProps as Props } from './types.js'
 
+import { useEffectEvent } from '../../../../hooks/useEffectEvent.js'
 import { useTranslation } from '../../../../providers/Translation/index.js'
 import { ReactSelect } from '../../../ReactSelect/index.js'
 import { formatOptions } from './formatOptions.js'
@@ -24,6 +25,10 @@ export const Select: React.FC<Props> = ({
   const [options, setOptions] = React.useState(formatOptions(optionsFromProps))
 
   const isMulti = ['in', 'not_in'].includes(operator)
+  let singleValue = value
+  if (Array.isArray(value)) {
+    singleValue = value[0]
+  }
   let valueToRender
 
   if (isMulti && Array.isArray(value)) {
@@ -34,11 +39,11 @@ export const Select: React.FC<Props> = ({
         value: matchingOption?.value ?? val,
       }
     })
-  } else if (value) {
-    const matchingOption = options.find((option) => option.value === value)
+  } else if (singleValue) {
+    const matchingOption = options.find((option) => option.value === singleValue)
     valueToRender = {
-      label: matchingOption ? getTranslation(matchingOption.label, i18n) : value,
-      value: matchingOption?.value ?? value,
+      label: matchingOption ? getTranslation(matchingOption.label, i18n) : singleValue,
+      value: matchingOption?.value ?? singleValue,
     }
   }
 
@@ -67,11 +72,14 @@ export const Select: React.FC<Props> = ({
     setOptions(formatOptions(optionsFromProps))
   }, [optionsFromProps])
 
+  const shouldNormalize = !isMulti && Array.isArray(value)
+  const normalizeValue = useEffectEvent(() => onChange(singleValue))
+
   React.useEffect(() => {
-    if (!isMulti && Array.isArray(value)) {
-      onChange(value[0])
+    if (shouldNormalize) {
+      normalizeValue()
     }
-  }, [isMulti, onChange, value])
+  }, [shouldNormalize, singleValue])
 
   return (
     <ReactSelect

@@ -604,8 +604,9 @@ export function FormsManagerProvider({ children }: FormsManagerProps) {
               })
             }
           }
-        } catch (_) {
-          // swallow
+        } catch {
+          // No acknowledged save: retain the form and file so the user can retry.
+          currentForms[i].errorCount = currentForms[i].errorCount || 1
         }
       }
 
@@ -621,8 +622,8 @@ export function FormsManagerProvider({ children }: FormsManagerProps) {
         }
       })
 
-      const successCount = Math.max(0, currentForms.length - remainingForms.length)
-      const errorCount = currentForms.length - successCount
+      const successCount = newDocs.length
+      const errorCount = remainingForms.length
 
       if (successCount) {
         toast.success(`Successfully saved ${successCount} files`)
@@ -698,26 +699,40 @@ export function FormsManagerProvider({ children }: FormsManagerProps) {
           afterStateUpdate()
         }
 
-        if (hasSubmitted) {
-          const { state } = await getFormState({
-            collectionSlug,
-            docPermissions,
-            docPreferences: null,
-            formState: forms[i].formState,
-            operation: 'create',
-            schemaPath: collectionSlug,
-          })
+        const { state } = await getFormState({
+          collectionSlug,
+          docPermissions,
+          docPreferences: null,
+          formState: forms[i].formState,
+          operation: 'create',
+          schemaPath: collectionSlug,
+          skipValidation: !hasSubmitted,
+        })
 
-          const newFormErrorCount = Object.values(state).reduce(
-            (acc, value) => (value?.valid === false ? acc + 1 : acc),
-            0,
-          )
+        if (state) {
+          const fileState = forms[i].formState.file
+          const nextState = {
+            ...state,
+            file: {
+              ...fileState,
+              ...state.file,
+              initialValue: fileState.initialValue,
+              value: fileState.value,
+            },
+          }
+          const newFormErrorCount = hasSubmitted
+            ? Object.values(nextState).reduce(
+                (acc, value) => (value?.valid === false ? acc + 1 : acc),
+                0,
+              )
+            : forms[i].errorCount
 
           dispatch({
             type: 'UPDATE_FORM',
             errorCount: newFormErrorCount,
-            formState: state,
+            formState: nextState,
             index: i,
+            uploadEdits: forms[i].uploadEdits,
           })
         }
       }

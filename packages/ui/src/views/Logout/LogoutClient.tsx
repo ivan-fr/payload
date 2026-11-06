@@ -73,12 +73,12 @@ export const LogoutClient: React.FC<{
   const handleLogOut = React.useCallback(async () => {
     if (!navigatingToLoginRef.current) {
       navigatingToLoginRef.current = true
-      await logOut()
+      await logOut({ collection: logoutUser?.collection })
       toast(t('authentication:loggedOutSuccessfully'))
       void startRouteTransition(() => router.push(loginRoute))
       return
     }
-  }, [logOut, loginRoute, router, startRouteTransition, t])
+  }, [logOut, logoutUser?.collection, loginRoute, router, startRouteTransition, t])
 
   useEffect(() => {
     if (isLoggedIn && !inactivity) {

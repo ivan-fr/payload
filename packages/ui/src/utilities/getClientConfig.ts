@@ -10,17 +10,22 @@ type GetClientConfigArgs = {
   user: CreateClientConfigArgs['user'] | null
 } & Omit<CreateClientConfigArgs, 'user'>
 
-let cachedClientConfigs = global._payload_clientConfigs as CachedClientConfigs
-
-if (!cachedClientConfigs) {
-  cachedClientConfigs = global._payload_clientConfigs = {} as CachedClientConfigs
-}
+let configsBySource = new WeakMap<GetClientConfigArgs['config'], CachedClientConfigs>()
 
 export const getClientConfig = cache(
   ({ config, i18n, importMap, user }: GetClientConfigArgs): ClientConfig => {
+    if (global._payload_doNotCacheClientConfig) {
+      configsBySource = new WeakMap()
+      global._payload_doNotCacheClientConfig = false
+    }
+    let cachedClientConfigs = configsBySource.get(config)
+    if (!cachedClientConfigs) {
+      cachedClientConfigs = {} as CachedClientConfigs
+      configsBySource.set(config, cachedClientConfigs)
+    }
     const currentLanguage = i18n.language
 
-    if (cachedClientConfigs[currentLanguage] && !global._payload_doNotCacheClientConfig) {
+    if (cachedClientConfigs[currentLanguage]) {
       if (!user) {
         return createUnauthenticatedClientConfig({
           clientConfig: cachedClientConfigs[currentLanguage],

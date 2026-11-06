@@ -38,44 +38,36 @@ type QueueTask = (fn: QueuedFunction, options?: QueuedTaskOptions) => void
 export function useQueue(): {
   queueTask: QueueTask
 } {
-  const queue = useRef<QueuedFunction[]>([])
+  const queue = useRef<{ fn: QueuedFunction; options?: QueuedTaskOptions }[]>([])
 
   const isProcessing = useRef(false)
 
   const queueTask = useCallback<QueueTask>((fn, options) => {
-    queue.current.push(fn)
+    queue.current.push({ fn, options })
 
     async function processQueue() {
       if (isProcessing.current) {
         return
       }
 
-      // Allow the consumer to prevent the queue from processing under certain conditions
-      if (typeof options?.beforeProcess === 'function') {
-        const shouldContinue = options.beforeProcess()
-
-        if (shouldContinue === false) {
-          return
-        }
-      }
-
-      while (queue.current.length > 0) {
-        const latestTask = queue.current.pop() // Only process the last task in the queue
-        queue.current = [] // Discard all other tasks
-
-        isProcessing.current = true
-
-        try {
-          await latestTask()
-        } catch (err) {
-          console.error('Error in queued function:', err) // eslint-disable-line no-console
-        } finally {
-          isProcessing.current = false
-
-          if (typeof options?.afterProcess === 'function') {
-            options.afterProcess()
+      isProcessing.current = true
+      try {
+        while (queue.current.length > 0) {
+          const task = queue.current[queue.current.length - 1]!
+          if (task.options?.beforeProcess?.() === false) {
+            break
+          }
+          queue.current = []
+          try {
+            await task.fn()
+          } catch (err) {
+            console.error('Error in queued function:', err) // eslint-disable-line no-console
+          } finally {
+            task.options?.afterProcess?.()
           }
         }
+      } finally {
+        isProcessing.current = false
       }
     }
 

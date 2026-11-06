@@ -3,7 +3,15 @@ import type { SelectType, TypeWithID } from 'payload'
 
 import { appendUploadSelectFields, formatAdminURL } from 'payload/shared'
 import * as qs from 'qs-esm'
-import React, { createContext, use, useCallback, useEffect, useReducer, useRef } from 'react'
+import React, {
+  createContext,
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from 'react'
 
 import { useDebounce } from '../../../hooks/useDebounce.js'
 import { useConfig } from '../../../providers/Config/index.js'
@@ -48,82 +56,92 @@ export const RelationshipProvider: React.FC<{ readonly children?: React.ReactNod
   const { i18n } = useTranslation()
   const currentLocale = useLocale()
   const locale = currentLocale?.code
-  const prevLocale = useRef(locale)
+  const requestScope = useMemo(
+    () => ({
+      api,
+      collections,
+      language: i18n.language,
+      locale,
+      pendingRequests: new Map<string, Set<string>>(),
+    }),
+    [api, collections, i18n.language, locale],
+  )
+  const previousRequests = useRef(requestScope)
+  const currentScope = useRef<typeof requestScope>(null)
+
+  useEffect(() => {
+    currentScope.current = requestScope
+    return () => {
+      currentScope.current = null
+    }
+  }, [requestScope])
 
   const loadRelationshipDocs = useCallback(
     (reloadAll = false) => {
+      const { api, collections, language, locale, pendingRequests } = requestScope
+
       Object.entries(debouncedDocuments).forEach(async ([slug, docs]) => {
-        const idsToLoad: (number | string)[] = []
+        const idsToLoad = Object.entries(docs)
+          .filter(
+            ([id, value]) => (value === null || reloadAll) && !pendingRequests.get(slug)?.has(id),
+          )
+          .map(([id]) => id)
 
-        Object.entries(docs).forEach(([id, value]) => {
-          if (value === null || reloadAll) {
-            idsToLoad.push(id)
-          }
-        })
+        if (idsToLoad.length === 0) {
+          return
+        }
+        const collection = collections.find((c) => c.slug === slug)
+        if (!collection) {
+          return
+        }
 
-        if (idsToLoad.length > 0) {
-          const url = formatAdminURL({ apiRoute: api, path: `/${slug}` })
+        const url = formatAdminURL({ apiRoute: api, path: `/${slug}` })
 
-          const params = new URLSearchParams()
-          const select: SelectType = {}
+        const params = new URLSearchParams()
+        const select: SelectType = {}
 
-          params.append('depth', '0')
-          params.append('draft', 'true')
-          params.append('limit', '250')
+        params.append('depth', '0')
+        params.append('draft', 'true')
+        params.append('limit', '250')
 
-          const collection = collections.find((c) => c.slug === slug)
+        const fieldToSelect = collection.admin.useAsTitle ?? 'id'
 
-          if (!collection) {
-            return
-          }
+        select[fieldToSelect] = true
 
-          const fieldToSelect = collection.admin.useAsTitle ?? 'id'
+        if (collection.upload) {
+          appendUploadSelectFields({ collectionConfig: collection, select })
+        }
 
-          select[fieldToSelect] = true
+        if (locale) {
+          params.append('locale', locale)
+        }
 
-          if (collection.upload) {
-            appendUploadSelectFields({ collectionConfig: collection, select })
-          }
+        const idsToString = idsToLoad.map((id) => String(id))
+        params.append('where[id][in]', idsToString.join(','))
 
-          if (locale) {
-            params.append('locale', locale)
-          }
+        const query = `?${params.toString()}&${qs.stringify({ select })}`
 
-          const idsToString = idsToLoad.map((id) => String(id))
-          params.append('where[id][in]', idsToString.join(','))
+        let pendingIDs = pendingRequests.get(slug)
+        if (!pendingIDs) {
+          pendingIDs = new Set()
+          pendingRequests.set(slug, pendingIDs)
+        }
+        idsToLoad.forEach((id) => pendingIDs.add(String(id)))
 
-          const query = `?${params.toString()}&${qs.stringify({ select })}`
-
-          const result = await fetch(`${url}${query}`, {
-            credentials: 'include',
-            headers: {
-              'Accept-Language': i18n.language,
-            },
-          })
-
-          if (result.ok) {
-            const json = await result.json()
-            if (json.docs) {
-              dispatchDocuments({
-                type: 'ADD_LOADED',
-                docs: json.docs,
-                idsToLoad,
-                relationTo: slug,
-              })
-            }
-          } else {
-            dispatchDocuments({ type: 'ADD_LOADED', docs: [], idsToLoad, relationTo: slug })
-          }
+        const loadedDocs = await fetchRelationshipDocuments({ language, url: `${url}${query}` })
+        idsToLoad.forEach((id) => pendingIDs.delete(id))
+        if (currentScope.current === requestScope) {
+          dispatchDocuments({ type: 'ADD_LOADED', docs: loadedDocs, idsToLoad, relationTo: slug })
         }
       })
     },
-    [debouncedDocuments, api, i18n, locale, collections],
+    [debouncedDocuments, requestScope],
   )
 
   useEffect(() => {
-    void loadRelationshipDocs(locale && prevLocale.current !== locale)
-    prevLocale.current = locale
-  }, [locale, loadRelationshipDocs])
+    loadRelationshipDocs(previousRequests.current !== requestScope)
+    previousRequests.current = requestScope
+  }, [loadRelationshipDocs, requestScope])
 
   const getRelationships = useCallback(
     (relationships: { relationTo: string; value: number | string }[]) => {
@@ -136,3 +154,23 @@ export const RelationshipProvider: React.FC<{ readonly children?: React.ReactNod
 }
 
 export const useListRelationships = (): ListRelationshipContext => use(Context)
+
+async function fetchRelationshipDocuments({
+  language,
+  url,
+}: {
+  language: string
+  url: string
+}): Promise<TypeWithID[]> {
+  try {
+    const result = await fetch(url, {
+      credentials: 'include',
+      headers: { 'Accept-Language': language },
+    })
+    const json = result.ok ? await result.json() : undefined
+    return Array.isArray(json?.docs) ? json.docs : []
+  } catch {
+    // Failed requests use the no-reference state; a later explicit REQUEST retries them.
+    return []
+  }
+}

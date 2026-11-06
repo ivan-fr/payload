@@ -28,16 +28,16 @@ export const resolveAllFilterOptions = async ({
         return
       }
 
-      const fieldPath = fieldAffectsData(field)
-        ? pathPrefix
-          ? `${pathPrefix}.${field.name}`
-          : field.name
-        : pathPrefix
+      let fieldPath = pathPrefix
+      if (fieldAffectsData(field)) {
+        const fieldName = typeof field.virtual === 'string' ? field.virtual : field.name
+        fieldPath = pathPrefix ? `${pathPrefix}.${fieldName}` : fieldName
+      }
 
       if (
         (field.type === 'relationship' || field.type === 'upload') &&
         'filterOptions' in field &&
-        field.filterOptions
+        field.filterOptions !== undefined
       ) {
         const options = await resolveFilterOptions(field.filterOptions, {
           id: undefined,
