@@ -358,6 +358,7 @@ export const clientTranslationKeys = createClientTranslationKeys([
   'general:exitLivePreview',
   'general:loading',
   'general:loadMore',
+  'general:showingCurrentOfTotal',
   'general:locale',
   'general:locales',
   'general:manageLabel',

@@ -32,7 +32,10 @@ export default buildConfigWithDefaults({
     globals: [
       {
         slug: 'global',
-        fields: [{ name: 'text', type: 'text' }],
+        fields: [
+          { name: 'text', type: 'text' },
+          { name: 'localizedText', type: 'text', localized: true },
+        ],
         versions: true,
       },
     ],

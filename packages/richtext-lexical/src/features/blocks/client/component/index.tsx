@@ -54,6 +54,7 @@ import {
   reduceFormStateToBlockData,
 } from '../getCachedFormStateIfDataMatches.js'
 import { $isBlockNode } from '../nodes/BlocksNode.js'
+import { updateInitialBlockFields } from '../updateInitialBlockFields.js'
 import {
   type BlockCollapsibleWithErrorProps,
   BlockContent,
@@ -283,8 +284,9 @@ export const BlockComponent: React.FC<BlockComponentProps> = (props) => {
         ) as BlockFields
 
         // Things like default values may come back from the server => update the node with the new data
-        editor.update(
-          () => {
+        updateInitialBlockFields({
+          editor,
+          update: () => {
             const node = $getNodeByKey(nodeKey)
             if (node && $isBlockNode(node)) {
               const newData = newFormStateData
@@ -293,10 +295,7 @@ export const BlockComponent: React.FC<BlockComponentProps> = (props) => {
               node.setFields(newData, true)
             }
           },
-          // Without this, the outer editor's reconciler resets DOM selection
-          // back into its own root, kicking focus out of any nested richText.
-          { tag: SKIP_DOM_SELECTION_TAG },
-        )
+        })
 
         setInitialState(state)
         if (!CustomLabelFromProps) {

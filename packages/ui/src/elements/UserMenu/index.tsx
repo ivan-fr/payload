@@ -94,7 +94,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   const showPreferencesGroup = showThemeMenu || hasMultipleLanguages
 
   const logoutHref = formatAdminURL({ adminRoute, path: logoutRoute })
-  const accountHref = formatAdminURL({ adminRoute, path: accountRoute })
+  const accountHref = formatAdminURL({ adminRoute, includeBasePath: true, path: accountRoute })
 
   return (
     <Popup
