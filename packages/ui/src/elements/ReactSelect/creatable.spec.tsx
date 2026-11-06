@@ -35,7 +35,17 @@ afterEach(async () => {
   container.remove()
   vi.unstubAllGlobals()
 })
-async function enterOption(props: Partial<ReactSelectAdapterProps>) {
+async function enterOption({
+  props,
+  key = 'Enter',
+  inputValue = 'new-tag',
+  isComposing = false,
+}: {
+  props: Partial<ReactSelectAdapterProps>
+  key?: string
+  inputValue?: string
+  isComposing?: boolean
+}) {
   await act(() =>
     root.render(
       <ReactSelect
@@ -51,36 +61,41 @@ async function enterOption(props: Partial<ReactSelectAdapterProps>) {
     ),
   )
   await act(() =>
-    inputProps.onChange({ currentTarget: { value: 'new-tag' }, target: { value: 'new-tag' } }),
+    inputProps.onChange({ currentTarget: { value: inputValue }, target: { value: inputValue } }),
   )
-  await act(() =>
-    container
-      .querySelector('input')!
-      .dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true }),
-      ),
-  )
+  const event = new KeyboardEvent('keydown', {
+    key,
+    code: key,
+    isComposing,
+    keyCode: key === 'Tab' ? 9 : 13,
+    bubbles: true,
+    cancelable: true,
+  })
+  await act(() => container.querySelector('input')!.dispatchEvent(event))
+  return event
 }
 
 it('should call onCreateOption instead of onChange when provided (#14635)', async () => {
   const onCreateOption = vi.fn()
   const onChange = vi.fn()
-  await enterOption({ onCreateOption, onChange })
+  await enterOption({ props: { onCreateOption, onChange } })
   expect(onCreateOption).toHaveBeenCalledExactlyOnceWith('new-tag')
   expect(onChange).not.toHaveBeenCalled()
 })
 
 it('should respect isValidNewOption on keyboard creation', async () => {
   const onChange = vi.fn()
-  await enterOption({ onChange, isValidNewOption: () => false })
+  await enterOption({ props: { onChange, isValidNewOption: () => false } })
   expect(onChange).not.toHaveBeenCalled()
 })
 
 it('should use getNewOptionData when creating a value', async () => {
   const onChange = vi.fn()
   await enterOption({
-    onChange,
-    getNewOptionData: (value) => ({ value: value.toUpperCase(), label: 'Custom label' }),
+    props: {
+      onChange,
+      getNewOptionData: (value) => ({ value: value.toUpperCase(), label: 'Custom label' }),
+    },
   })
   expect(onChange).toHaveBeenCalledWith(
     [{ value: 'NEW-TAG', label: 'Custom label' }],
@@ -90,9 +105,90 @@ it('should use getNewOptionData when creating a value', async () => {
 
 it('should create a single value through the native creatable path', async () => {
   const onChange = vi.fn()
-  await enterOption({ onChange, isMulti: false, value: undefined })
+  await enterOption({ props: { onChange, isMulti: false, value: undefined } })
   expect(onChange).toHaveBeenCalledWith(
     expect.objectContaining({ value: 'new-tag', label: 'new-tag' }),
     expect.objectContaining({ action: 'create-option' }),
   )
+})
+
+it.each(['Enter', 'Tab'])('should create hasMany text with a closed menu using %s', async (key) => {
+  const onChange = vi.fn()
+  const existing = { label: 'existing', value: 'existing' }
+  await enterOption({ props: { menuIsOpen: false, value: [existing], onChange }, key })
+  expect(onChange).toHaveBeenCalledExactlyOnceWith(
+    [existing, expect.objectContaining({ label: 'new-tag', value: 'new-tag' })],
+    expect.objectContaining({ action: 'create-option' }),
+  )
+  expect(container.querySelector('input')!.value).toBe('')
+  expect(container.querySelector('[role="listbox"]')).toBeNull()
+})
+
+it('should honor custom creation callbacks with a closed menu', async () => {
+  const onCreateOption = vi.fn()
+  const onChange = vi.fn()
+  await enterOption({ props: { menuIsOpen: false, onCreateOption, onChange } })
+  expect(onCreateOption).toHaveBeenCalledExactlyOnceWith('new-tag')
+  expect(onChange).not.toHaveBeenCalled()
+})
+
+it.each([
+  { isValidNewOption: () => false },
+  { filterOption: () => false },
+  { disabled: true },
+  {
+    options: [{ label: 'Group', options: [{ label: 'existing', value: 'existing' }] }],
+    isValidNewOption: () => false,
+    filterOption: () => true,
+  },
+])('should reject creation in a closed menu with %o', async (props) => {
+  const onChange = vi.fn()
+  await enterOption({ props: { ...props, menuIsOpen: false, onChange } })
+  expect(onChange).not.toHaveBeenCalled()
+})
+
+it('should honor custom option data with a closed menu', async () => {
+  const onChange = vi.fn()
+  await enterOption({
+    props: {
+      menuIsOpen: false,
+      onChange,
+      getNewOptionData: (value) => ({ label: 'Custom label', value: value.toUpperCase() }),
+    },
+  })
+  expect(onChange).toHaveBeenCalledExactlyOnceWith(
+    [{ label: 'Custom label', value: 'NEW-TAG' }],
+    expect.objectContaining({ action: 'create-option' }),
+  )
+})
+
+it('should create a single value with a closed menu', async () => {
+  const onChange = vi.fn()
+  await enterOption({ props: { menuIsOpen: false, isMulti: false, value: undefined, onChange } })
+  expect(onChange).toHaveBeenCalledExactlyOnceWith(
+    expect.objectContaining({ label: 'new-tag', value: 'new-tag' }),
+    expect.objectContaining({ action: 'create-option' }),
+  )
+})
+
+it.each([
+  { inputValue: '   ' },
+  { isComposing: true },
+  { props: { value: [{ label: 'new-tag', value: 'new-tag' }] } },
+  { props: { options: [{ label: 'new-tag', value: 'new-tag' }] } },
+])('should ignore whitespace, composition and duplicates with a closed menu: %o', async (args) => {
+  const onChange = vi.fn()
+  await enterOption({ ...args, props: { ...args.props, menuIsOpen: false, onChange } })
+  expect(onChange).not.toHaveBeenCalled()
+})
+
+it('should leave Tab available to exit when no text is pending', async () => {
+  const onChange = vi.fn()
+  const event = await enterOption({
+    props: { menuIsOpen: false, onChange },
+    key: 'Tab',
+    inputValue: '',
+  })
+  expect(event.defaultPrevented).toBe(false)
+  expect(onChange).not.toHaveBeenCalled()
 })

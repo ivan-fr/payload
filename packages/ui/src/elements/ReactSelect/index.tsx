@@ -1,10 +1,10 @@
 'use client'
 import type { KeyboardEventHandler } from 'react'
-import type { GroupBase, MenuListProps, MenuProps } from 'react-select'
+import type { GroupBase, MenuListProps, MenuProps, SelectInstance } from 'react-select'
 
 import { arrayMove, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import { getTranslation } from '@payloadcms/translations'
-import React, { useCallback, useEffect, useId, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 
@@ -36,6 +36,7 @@ const DEFAULT_MAX_MENU_HEIGHT = 300
 const SelectAdapter: React.FC<ReactSelectAdapterProps> = (props) => {
   const { i18n, t } = useTranslation()
   const [inputValue, setInputValue] = useState('') // for creatable select
+  const creatableRef = useRef<SelectInstance<Option, boolean, GroupBase<Option>>>(null)
   const uuid = useId()
   const [hasMounted, setHasMounted] = useState(false)
 
@@ -237,7 +238,32 @@ const SelectAdapter: React.FC<ReactSelectAdapterProps> = (props) => {
       }
     }
 
-    // CreatableSelect owns Enter/Tab creation, including validation and custom callbacks.
+    if (
+      props.menuIsOpen !== false ||
+      disabled ||
+      !inputValue.trim() ||
+      event.nativeEvent.isComposing ||
+      event.keyCode === 229 ||
+      (event.key !== 'Enter' && event.key !== 'Tab')
+    ) {
+      return
+    }
+
+    // Text hasMany deliberately hides its menu. Select only the generated create option
+    // through react-select so its validation, custom callbacks and announcements still apply.
+    const select = creatableRef.current
+    const createOption = select?.props.options.find(
+      (option) => !options?.some((originalOption) => originalOption === option),
+    )
+    const newOption = select
+      ?.buildCategorizedOptions()
+      .find(
+        (option) => option.type === 'option' && !option.isDisabled && option.data === createOption,
+      )
+    if (newOption?.type === 'option') {
+      select.selectOption(newOption.data)
+      event.preventDefault()
+    }
   }
 
   return (
@@ -248,6 +274,7 @@ const SelectAdapter: React.FC<ReactSelectAdapterProps> = (props) => {
         inputValue={inputValue}
         onInputChange={(newValue) => setInputValue(newValue)}
         onKeyDown={handleKeyDown}
+        ref={creatableRef}
         value={value}
       />
     </div>
