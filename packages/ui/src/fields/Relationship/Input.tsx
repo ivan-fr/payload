@@ -38,6 +38,7 @@ import { sanitizeFilterOptionsQuery } from '../../utilities/sanitizeFilterOption
 import { fieldBaseClass } from '../shared/index.js'
 import { createRelationMap } from './createRelationMap.js'
 import { findOptionsByValue } from './findOptionsByValue.js'
+import { getRelationshipIDsToLoad } from './getRelationshipIDsToLoad.js'
 import { optionsReducer } from './optionsReducer.js'
 import './index.css'
 import { MultiValueLabel } from './select-components/MultiValueLabel/index.js'
@@ -432,13 +433,7 @@ export const RelationshipInput: React.FC<RelationshipInputProps> = (props) => {
     void Object.entries(relationMap).reduce(async (priorRelation, [relation, ids]) => {
       await priorRelation
 
-      const idsToLoad = ids.filter((id) => {
-        return !options.find((optionGroup) =>
-          optionGroup?.options?.find(
-            (option) => option.value === id && option.relationTo === relation,
-          ),
-        )
-      })
+      const idsToLoad = getRelationshipIDsToLoad({ ids, options, relation })
 
       if (idsToLoad.length > 0) {
         const collection = getEntityConfig({ collectionSlug: relation })

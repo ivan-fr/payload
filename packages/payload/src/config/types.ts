@@ -934,6 +934,10 @@ export type WidgetWidth = 'full' | 'large' | 'medium' | 'small' | 'x-large' | 'x
 export type Widget = {
   Component: PayloadComponent
   fields?: Field[]
+  /** Alternative text for the widget thumbnail in the widget picker. */
+  imageAltText?: string
+  /** Thumbnail URL displayed in the widget picker. */
+  imageURL?: string
   /**
    * Human-friendly label for the widget.
    * Supports i18n by passing an object with locale keys, or a function with `t` for translations.
@@ -943,8 +947,6 @@ export type Widget = {
   maxWidth?: WidgetWidth
   minWidth?: WidgetWidth
   slug: string
-  // Maybe:
-  // ImageURL?: string // similar to Block
 }
 
 /**
@@ -952,6 +954,8 @@ export type Widget = {
  */
 export type ClientWidget = {
   fields?: ClientField[]
+  imageAltText?: string
+  imageURL?: string
   label?: StaticLabel
   maxWidth?: WidgetWidth
   minWidth?: WidgetWidth

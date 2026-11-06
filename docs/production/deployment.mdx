@@ -220,7 +220,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* .yarnrc* ./
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
@@ -280,6 +280,8 @@ ENV PORT 3000
 CMD HOSTNAME="0.0.0.0" node server.js
 ```
 
+The dependency stage copies optional project-level package-manager configuration as well as the lockfile. Keep settings used when generating the lockfile (for example, npm's `legacy-peer-deps`) available during the frozen install.
+
 ### TanStack Start
 
 TanStack Start builds with Vite, so there's no `next.config` or `standalone` output step. The `build` script produces a `dist/client` and `dist/server` bundle, and the `start` script serves them with [`srvx`](https://srvx.h3.dev):
@@ -294,7 +296,7 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* .yarnrc* ./
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \

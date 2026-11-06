@@ -237,34 +237,7 @@ const SelectAdapter: React.FC<ReactSelectAdapterProps> = (props) => {
       }
     }
 
-    if (!value || !inputValue || inputValue.trim() === '') {
-      return
-    }
-
-    if (filterOption && !filterOption(null, inputValue)) {
-      return
-    }
-
-    if (event.nativeEvent.isComposing) {
-      return
-    }
-
-    switch (event.key) {
-      case 'Enter':
-      case 'Tab':
-        onChange([
-          ...(value as Option[]),
-          {
-            label: inputValue,
-            value: inputValue,
-          },
-        ])
-        setInputValue('')
-        event.preventDefault()
-        break
-      default:
-        break
-    }
+    // CreatableSelect owns Enter/Tab creation, including validation and custom callbacks.
   }
 
   return (
