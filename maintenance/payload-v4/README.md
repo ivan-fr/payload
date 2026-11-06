@@ -273,3 +273,7 @@ Based on PR #6 head `f843623b652c0357c233e74b3157a11c251aacb4`, this batch adds 
 Configured dashboard widgets no longer receive duplicate built-ins and can declare picker thumbnails. Creatable selects use the underlying library's validation/custom creation behavior. Relationship placeholders can recover their real titles. Website image size hints use CSS lengths in ascending breakpoint order. Field-guard documentation uses the actual shared export, and Docker dependency stages retain optional package-manager configuration in the docs and all eight templates.
 
 The historical 565-report snapshot now contains **129 scoped fixes + 436 unassessed**, plus **9 later fixes**, for **138 scoped fork fixes**. See [batch-23.md](batch-23.md) for test boundaries, pending native-browser/Docker verification and the existing PR Sonar duplication finding.
+
+## PR #6 analysis follow-up
+
+The [review follow-up](pr-6-review.md) records the Sonar findings on `b409089`, the widget registration cleanup and the explicit duplication-only treatment of declarative locale resources. Those files remain in normal analysis; a new AST-based test enforces the resource-only boundary. The duplication threshold remains 3%. This review adds no upstream issue to the count.
