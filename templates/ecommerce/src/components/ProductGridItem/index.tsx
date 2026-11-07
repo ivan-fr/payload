@@ -11,22 +11,22 @@ type Props = {
 }
 
 export const ProductGridItem: React.FC<Props> = ({ product }) => {
-  const { gallery, priceInUSD, title } = product
+  const { gallery, priceInUSD, priceInUSDEnabled, title } = product
 
-  let price = priceInUSD
+  let price = priceInUSDEnabled ? priceInUSD : undefined
 
   const variants = product.variants?.docs
 
-  if (variants && variants.length > 0) {
-    const variant = variants[0]
-    if (
-      variant &&
+  const pricedVariant = variants?.find(
+    (variant): variant is Variant =>
+      Boolean(variant) &&
       typeof variant === 'object' &&
-      variant?.priceInUSD &&
-      typeof variant.priceInUSD === 'number'
-    ) {
-      price = variant.priceInUSD
-    }
+      variant.priceInUSDEnabled === true &&
+      typeof variant.priceInUSD === 'number',
+  )
+
+  if (pricedVariant) {
+    price = pricedVariant.priceInUSD
   }
 
   const image =

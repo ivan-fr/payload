@@ -291,3 +291,7 @@ The current inventory contains **134 scoped fixes + 431 unassessed** in the orig
 ## November 7 branch: twenty-four scoped fixes
 
 [Batch 27](batch-27.md) adds six reports: configurable ecommerce inventory, nested request file isolation, idle PostgreSQL pool errors, filtered Add Below choices, byte-preserving unadjusted animated uploads, and numeric draft-parent search. The branch now contains **24 scoped issue fixes**, with no PR opened. The inventory contains **146 scoped fixes + 419 unassessed** in the original snapshot, plus **16 later scoped fixes**: **162 scoped fork fixes**.
+
+## November 7 branch: thirty scoped fixes
+
+[Batch 28](batch-28.md) adds six reports: authenticated collection title validation, Form Builder upload overrides, reserved SQL array names, GraphQL block interfaces, conditional layout type generation and disabled storefront prices. The branch now contains **30 scoped issue fixes**, with no PR opened. The inventory contains **152 scoped fixes + 413 unassessed** in the original snapshot, plus **16 later scoped fixes**: **168 scoped fork fixes**.

@@ -138,11 +138,14 @@ export const generateFormCollection = (
               // Special handling for upload field - factory takes slug list; after it runs,
               // inject resolved collection labels into the uploadCollection select.
               if (fieldKey === 'upload') {
-                return applyUploadCollectionLabels({
+                const uploadBlock = applyUploadCollectionLabels({
                   block: block(formConfig.uploadCollections || []),
                   collections,
                   uploadCollections: formConfig.uploadCollections,
                 })
+                return typeof fieldConfig === 'object'
+                  ? deepMergeWithSourceArrays(uploadBlock, fieldConfig)
+                  : uploadBlock
               }
               return block(fieldConfig)
             }
