@@ -122,38 +122,7 @@ export const generateFormCollection = (
       type: 'blocks',
       blocks: Object.entries(formConfig?.fields || {})
         .map(([fieldKey, fieldConfig]) => {
-          // let the config enable/disable fields with either boolean values or objects
-          if (fieldConfig !== false) {
-            const block = fields[fieldKey]
-
-            if (block === undefined && typeof fieldConfig === 'object') {
-              return fieldConfig
-            }
-
-            if (typeof block === 'object' && typeof fieldConfig === 'object') {
-              return deepMergeWithSourceArrays(block, fieldConfig)
-            }
-
-            if (typeof block === 'function') {
-              // Special handling for upload field - factory takes slug list; after it runs,
-              // inject resolved collection labels into the uploadCollection select.
-              if (fieldKey === 'upload') {
-                const uploadBlock = applyUploadCollectionLabels({
-                  block: block(formConfig.uploadCollections || []),
-                  collections,
-                  uploadCollections: formConfig.uploadCollections,
-                })
-                return typeof fieldConfig === 'object'
-                  ? deepMergeWithSourceArrays(uploadBlock, fieldConfig)
-                  : uploadBlock
-              }
-              return block(fieldConfig)
-            }
-
-            return block
-          }
-
-          return null
+          return resolveFormBlock({ collections, fieldConfig, fieldKey, formConfig })
         })
         .filter(Boolean) as Block[],
       label: ({ t }) =>
@@ -342,4 +311,48 @@ export const generateFormCollection = (
   }
 
   return config
+}
+
+const resolveFormBlock = ({
+  collections,
+  fieldConfig,
+  fieldKey,
+  formConfig,
+}: {
+  collections?: Config['collections']
+  fieldConfig: NonNullable<FormBuilderPluginConfig['fields']>[string]
+  fieldKey: string
+  formConfig: FormBuilderPluginConfig
+}) => {
+  // let the config enable/disable fields with either boolean values or objects
+  if (fieldConfig === false) {
+    return null
+  }
+  const block = fields[fieldKey]
+
+  if (block === undefined && typeof fieldConfig === 'object') {
+    return fieldConfig
+  }
+
+  if (typeof block === 'object' && typeof fieldConfig === 'object') {
+    return deepMergeWithSourceArrays(block, fieldConfig)
+  }
+
+  if (typeof block === 'function') {
+    // Special handling for upload field - factory takes slug list; after it runs,
+    // inject resolved collection labels into the uploadCollection select.
+    if (fieldKey === 'upload') {
+      const uploadBlock = applyUploadCollectionLabels({
+        block: block(formConfig.uploadCollections || []),
+        collections,
+        uploadCollections: formConfig.uploadCollections,
+      })
+      return typeof fieldConfig === 'object'
+        ? deepMergeWithSourceArrays(uploadBlock, fieldConfig)
+        : uploadBlock
+    }
+    return block(fieldConfig)
+  }
+
+  return block
 }

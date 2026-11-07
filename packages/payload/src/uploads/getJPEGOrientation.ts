@@ -9,32 +9,7 @@ export async function getJPEGOrientation({
   tempFilePath?: string
 }): Promise<number | undefined> {
   const handle = tempFilePath ? await fs.open(tempFilePath, 'r') : undefined
-  const read = async ({
-    length,
-    position,
-  }: {
-    length: number
-    position: number
-  }): Promise<Buffer> => {
-    if (!handle) {
-      return data?.subarray(position, position + length) ?? Buffer.alloc(0)
-    }
-    const buffer = Buffer.alloc(length)
-    let totalRead = 0
-    while (totalRead < length) {
-      const { bytesRead } = await handle.read(
-        buffer,
-        totalRead,
-        length - totalRead,
-        position + totalRead,
-      )
-      if (bytesRead === 0) {
-        break
-      }
-      totalRead += bytesRead
-    }
-    return buffer.subarray(0, totalRead)
-  }
+  const read = createReader({ data, handle })
 
   try {
     const signature = await read({ length: 2, position: 0 })
@@ -42,44 +17,7 @@ export async function getJPEGOrientation({
       return undefined
     }
 
-    let position = 2
-
-    for (let markerCount = 0; markerCount < 1024; markerCount++) {
-      const marker = await read({ length: 2, position })
-      if (marker.length !== 2 || marker[0] !== 0xff) {
-        return undefined
-      }
-      if (marker[1] === 0xff) {
-        position++
-        continue
-      }
-      if (marker[1] === 0xda || marker[1] === 0xd9) {
-        return undefined
-      }
-      position += 2
-      if (marker[1] === 0x01 || (marker[1]! >= 0xd0 && marker[1]! <= 0xd7)) {
-        continue
-      }
-
-      const lengthBytes = await read({ length: 2, position })
-      if (lengthBytes.length !== 2) {
-        return undefined
-      }
-      const length = lengthBytes.readUInt16BE(0)
-      if (length < 2) {
-        return undefined
-      }
-
-      if (marker[1] === 0xe1) {
-        const segment = await read({ length: length - 2, position: position + 2 })
-        const orientation = readExifOrientation({ segment })
-        if (orientation !== undefined) {
-          return orientation
-        }
-      }
-      position += length
-    }
-    return undefined
+    return await readJPEGMarkers({ read })
   } finally {
     await handle?.close()
   }
@@ -120,6 +58,96 @@ function readExifOrientation({ segment }: { segment: Buffer }): number | undefin
       const orientation = read16({ offset: offset + 8 })
       return orientation >= 1 && orientation <= 8 ? orientation : undefined
     }
+  }
+  return undefined
+}
+
+type ReadJPEGBytes = (args: { length: number; position: number }) => Promise<Buffer>
+
+const createReader = ({
+  data,
+  handle,
+}: {
+  data?: Buffer
+  handle?: fs.FileHandle
+}): ReadJPEGBytes => {
+  return async ({ length, position }: { length: number; position: number }): Promise<Buffer> => {
+    if (!handle) {
+      return data?.subarray(position, position + length) ?? Buffer.alloc(0)
+    }
+    const buffer = Buffer.alloc(length)
+    let totalRead = 0
+    while (totalRead < length) {
+      const { bytesRead } = await handle.read(
+        buffer,
+        totalRead,
+        length - totalRead,
+        position + totalRead,
+      )
+      if (bytesRead === 0) {
+        break
+      }
+      totalRead += bytesRead
+    }
+    return buffer.subarray(0, totalRead)
+  }
+}
+
+const isStandaloneMarker = ({ marker }: { marker: number }): boolean =>
+  marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)
+
+const readSegment = async ({
+  marker,
+  position,
+  read,
+}: {
+  marker: number
+  position: number
+  read: ReadJPEGBytes
+}): Promise<{ length: number; orientation?: number } | undefined> => {
+  const lengthBytes = await read({ length: 2, position })
+  if (lengthBytes.length !== 2) {
+    return undefined
+  }
+  const length = lengthBytes.readUInt16BE(0)
+  if (length < 2) {
+    return undefined
+  }
+  if (marker !== 0xe1) {
+    return { length }
+  }
+  const segment = await read({ length: length - 2, position: position + 2 })
+  return { length, orientation: readExifOrientation({ segment }) }
+}
+
+const readJPEGMarkers = async ({ read }: { read: ReadJPEGBytes }): Promise<number | undefined> => {
+  let position = 2
+
+  for (let markerCount = 0; markerCount < 1024; markerCount++) {
+    const marker = await read({ length: 2, position })
+    if (marker.length !== 2 || marker[0] !== 0xff) {
+      return undefined
+    }
+    if (marker[1] === 0xff) {
+      position++
+      continue
+    }
+    if (marker[1] === 0xda || marker[1] === 0xd9) {
+      return undefined
+    }
+    position += 2
+    if (isStandaloneMarker({ marker: marker[1]! })) {
+      continue
+    }
+
+    const segment = await readSegment({ marker: marker[1]!, position, read })
+    if (!segment) {
+      return undefined
+    }
+    if (segment.orientation !== undefined) {
+      return segment.orientation
+    }
+    position += segment.length
   }
   return undefined
 }

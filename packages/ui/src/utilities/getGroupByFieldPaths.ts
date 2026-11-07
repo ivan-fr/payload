@@ -15,59 +15,60 @@ const supportedTypes = new Set<Field['type']>([
   'upload',
 ])
 
+type GroupingField = ClientField | Field
+
 /** A group key must resolve to one scalar value per document, never an array/block descendant. */
 export const getGroupByFieldPaths = ({
   fields,
   parentPath = '',
 }: {
-  fields: readonly (ClientField | Field)[]
+  fields: readonly GroupingField[]
   parentPath?: string
-}): Set<string> => {
-  const paths = new Set<string>()
-  const append = (args: { fields: readonly (ClientField | Field)[]; parentPath: string }) => {
-    for (const path of getGroupByFieldPaths(args)) {
-      paths.add(path)
-    }
-  }
+}): Set<string> => new Set(fields.flatMap((field) => getFieldPaths({ field, parentPath })))
 
-  for (const field of fields) {
-    if (isFieldDisabled(field, 'groupBy') || ('virtual' in field && field.virtual === true)) {
-      continue
-    }
-    if (field.type === 'tabs') {
-      for (const tab of field.tabs) {
-        append({
-          fields: tab.fields,
-          parentPath: 'name' in tab && tab.name ? `${parentPath}${tab.name}.` : parentPath,
-        })
-      }
-      continue
-    }
-    if (field.type === 'array' || field.type === 'blocks' || field.type === 'join') {
-      continue
-    }
-    if ('fields' in field) {
-      append({
+const getQueryName = ({ field }: { field: GroupingField }): string => {
+  if ('virtual' in field && typeof field.virtual === 'string') {
+    return field.virtual
+  }
+  return 'name' in field ? field.name : ''
+}
+
+const getFieldPaths = ({
+  field,
+  parentPath,
+}: {
+  field: GroupingField
+  parentPath: string
+}): string[] => {
+  if (isFieldDisabled(field, 'groupBy') || ('virtual' in field && field.virtual === true)) {
+    return []
+  }
+  if (field.type === 'array' || field.type === 'blocks' || field.type === 'join') {
+    return []
+  }
+  if (field.type === 'tabs') {
+    return field.tabs.flatMap((tab) => [
+      ...getGroupByFieldPaths({
+        fields: tab.fields,
+        parentPath: 'name' in tab && tab.name ? `${parentPath}${tab.name}.` : parentPath,
+      }),
+    ])
+  }
+  const queryName = getQueryName({ field })
+  const path = `${parentPath}${queryName}`
+
+  if ('fields' in field) {
+    return [
+      ...getGroupByFieldPaths({
         fields: field.fields,
-        parentPath: 'name' in field && field.name ? `${parentPath}${field.name}.` : parentPath,
-      })
-      continue
-    }
-    if (
-      'name' in field &&
-      supportedTypes.has(field.type) &&
-      !('hasMany' in field && field.hasMany)
-    ) {
-      const queryPath =
-        'virtual' in field && typeof field.virtual === 'string' ? field.virtual : field.name
-      const path = `${parentPath}${queryPath}`
-      if (path !== 'id') {
-        paths.add(path)
-      }
-    }
+        parentPath: queryName ? `${path}.` : parentPath,
+      }),
+    ]
   }
-
-  return paths
+  if (!supportedTypes.has(field.type) || ('hasMany' in field && field.hasMany)) {
+    return []
+  }
+  return path === 'id' ? [] : [path]
 }
 
 export const resolveGroupBy = ({

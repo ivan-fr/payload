@@ -351,7 +351,7 @@ export const traverseFields = <T extends Record<string, unknown>>({
                     fields: block.flattenedFields,
                     numbers,
                     parentIsLocalized: parentIsLocalized || field.localized,
-                    path: `${blockFieldPath}.${typeof storedOrder === 'number' && storedOrder > 0 ? storedOrder - 1 : i}`,
+                    path: `${blockFieldPath}.${getBlockIndex({ index: i, storedOrder })}`,
                     relationships,
                     table: row,
                     tablePath: '',
@@ -730,3 +730,6 @@ export const traverseFields = <T extends Record<string, unknown>>({
 
   return formatted as T
 }
+
+const getBlockIndex = ({ index, storedOrder }: { index: number; storedOrder: unknown }): number =>
+  typeof storedOrder === 'number' && storedOrder > 0 ? storedOrder - 1 : index

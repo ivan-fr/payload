@@ -50,7 +50,7 @@ export const createJSONQuery = ({ column, operator, pathSegments, value }: Creat
   }
 
   const quoteIdentifier = ({ identifier }: { identifier: string }) =>
-    `"${identifier.replace(/"/g, '""')}"`
+    `"${identifier.replaceAll('"', '""')}"`
   const columnName =
     typeof column === 'object'
       ? `${quoteIdentifier({ identifier: getTableName(column.table) })}.${quoteIdentifier({ identifier: column.name })}`

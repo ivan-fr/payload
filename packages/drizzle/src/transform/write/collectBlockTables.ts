@@ -27,31 +27,7 @@ export const collectBlockTables = ({
     }
 
     if (field.type === 'blocks') {
-      for (const block of field.blocks) {
-        const definition =
-          typeof block === 'string'
-            ? (adapter.payload.blocks[block] ??
-              adapter.payload.config.blocks.find((item) => item.slug === block))
-            : block
-
-        if (!definition || visited.has(definition)) {
-          continue
-        }
-        visited.add(definition)
-        blocksToDelete.add(
-          resolveBlockTableName(
-            definition,
-            adapter.tableNameMap.get(`${baseTableName}_blocks_${toSnakeCase(definition.slug)}`),
-          ),
-        )
-        collectBlockTables({
-          adapter,
-          baseTableName,
-          blocksToDelete,
-          fields: definition.flattenedFields,
-          visited,
-        })
-      }
+      collectFieldBlockTables({ adapter, baseTableName, blocksToDelete, field, visited })
     } else if ('flattenedFields' in field) {
       collectBlockTables({
         adapter,
@@ -63,5 +39,46 @@ export const collectBlockTables = ({
     }
   }
 
+  return blocksToDelete
+}
+
+const collectFieldBlockTables = ({
+  adapter,
+  baseTableName,
+  blocksToDelete,
+  field,
+  visited,
+}: {
+  adapter: DrizzleAdapter
+  baseTableName: string
+  blocksToDelete: Set<string>
+  field: Extract<FlattenedField, { type: 'blocks' }>
+  visited: Set<FlattenedBlock>
+}): Set<string> => {
+  for (const block of field.blocks) {
+    const definition =
+      typeof block === 'string'
+        ? (adapter.payload.blocks[block] ??
+          adapter.payload.config.blocks.find((item) => item.slug === block))
+        : block
+
+    if (!definition || visited.has(definition)) {
+      continue
+    }
+    visited.add(definition)
+    blocksToDelete.add(
+      resolveBlockTableName(
+        definition,
+        adapter.tableNameMap.get(`${baseTableName}_blocks_${toSnakeCase(definition.slug)}`),
+      ),
+    )
+    collectBlockTables({
+      adapter,
+      baseTableName,
+      blocksToDelete,
+      fields: definition.flattenedFields,
+      visited,
+    })
+  }
   return blocksToDelete
 }

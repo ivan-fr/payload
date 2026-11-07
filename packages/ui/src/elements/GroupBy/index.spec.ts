@@ -70,3 +70,30 @@ it('should retain a relationship-backed virtual scalar with its query path', () 
   expect(markup).toContain('unrestricted.name')
   expect(markup).toContain('true')
 })
+
+it('should offer virtual group descendants using the same backing paths as the options reducer', () => {
+  const markup = renderToStaticMarkup(
+    React.createElement(GroupByButton, {
+      collectionSlug: 'posts',
+      onChange: vi.fn(),
+      value: 'unrestricted.info.title',
+      fields: [
+        {
+          name: 'virtualInfo',
+          type: 'group',
+          label: 'Virtual info',
+          virtual: 'unrestricted.info',
+          admin: {},
+          fields: [
+            { name: 'title', type: 'text', label: 'Title', admin: {} },
+            { name: 'description', type: 'textarea', label: 'Description', admin: {} },
+          ],
+        },
+      ] as ClientField[],
+    }),
+  )
+  expect(markup).toContain('unrestricted.info.title')
+  expect(markup).toContain('unrestricted.info.description')
+  expect(markup).not.toContain('virtualInfo')
+  expect(markup).toContain('true')
+})

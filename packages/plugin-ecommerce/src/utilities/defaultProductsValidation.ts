@@ -3,7 +3,6 @@ import type { ProductsValidation } from '../types/index.js'
 import { MissingPrice, OutOfStock } from './errorCodes.js'
 
 export const defaultProductsValidation: ProductsValidation = ({
-  currenciesConfig,
   currency,
   inventory,
   product,
@@ -24,14 +23,16 @@ export const defaultProductsValidation: ProductsValidation = ({
 
     if (
       inventory !== false &&
-      (variant[inventoryField] === 0 ||
-        (variant[inventoryField] && variant[inventoryField] < quantity))
+      hasInsufficientInventory({ inventory: variant[inventoryField], quantity })
     ) {
       throw new Error(
         `Variant with ID ${variant.id} is out of stock or does not have enough inventory.`,
       )
     }
-  } else if (product) {
+    return
+  }
+
+  if (product) {
     // Validate the product's details only if the variant is not provided as it can have its own inventory and price
     if (!product[priceField]) {
       throw new Error(`Product does not have a price in.`, {
@@ -41,8 +42,7 @@ export const defaultProductsValidation: ProductsValidation = ({
 
     if (
       inventory !== false &&
-      (product[inventoryField] === 0 ||
-        (product[inventoryField] && product[inventoryField] < quantity))
+      hasInsufficientInventory({ inventory: product[inventoryField], quantity })
     ) {
       throw new Error(`Product is out of stock or does not have enough inventory.`, {
         cause: { code: OutOfStock, codes: [product.id] },
@@ -50,3 +50,11 @@ export const defaultProductsValidation: ProductsValidation = ({
     }
   }
 }
+
+const hasInsufficientInventory = ({
+  inventory,
+  quantity,
+}: {
+  inventory?: null | number
+  quantity: number
+}): boolean => inventory === 0 || Boolean(inventory && inventory < quantity)

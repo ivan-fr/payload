@@ -1,3 +1,7 @@
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import { getJPEGOrientation } from './getJPEGOrientation.js'
@@ -79,4 +83,19 @@ describe('bounded JPEG EXIF reader', () => {
       }),
     ).toBeUndefined()
   })
+})
+
+it('should read a temporary file and skip standalone JPEG markers', async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'payload-exif-'))
+  const tempFilePath = path.join(directory, 'image.jpg')
+  const jpeg = exifJPEG({ isLittleEndian: false, orientation: 8 })
+  try {
+    await writeFile(
+      tempFilePath,
+      Buffer.concat([jpeg.subarray(0, 2), Buffer.from([0xff, 0x01, 0xff, 0xd0]), jpeg.subarray(2)]),
+    )
+    expect(await getJPEGOrientation({ tempFilePath })).toBe(8)
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
 })

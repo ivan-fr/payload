@@ -68,3 +68,24 @@ it('should accept relationship-backed scalar query paths and reject computed vir
   expect(resolveGroupBy({ fields, groupBy: 'related.title' })).toBe('related.title')
   expect(resolveGroupBy({ fields, groupBy: 'computed' })).toBe('')
 })
+
+it('should resolve virtual group descendants relative to the backing relationship', () => {
+  const fields: Field[] = [
+    {
+      name: 'alias',
+      type: 'group',
+      virtual: 'related.info',
+      fields: [
+        { name: 'title', type: 'text' },
+        { name: 'tags', type: 'text', hasMany: true },
+      ],
+    },
+    {
+      name: 'meta',
+      type: 'group',
+      fields: [{ name: 'alias', type: 'text', virtual: 'related.name' }],
+    },
+  ]
+  expect([...getGroupByFieldPaths({ fields })]).toEqual(['related.info.title', 'meta.related.name'])
+  expect(resolveGroupBy({ fields, groupBy: '-related.info.title' })).toBe('-related.info.title')
+})
