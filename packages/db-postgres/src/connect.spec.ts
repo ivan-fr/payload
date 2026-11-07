@@ -1,5 +1,6 @@
 import type { Payload } from 'payload'
 
+import { EventEmitter } from 'node:events'
 import { setImmediate } from 'node:timers/promises'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -14,7 +15,7 @@ function createAdapter() {
     pool: {},
     push: false,
     pg: {
-      Pool: class {
+      Pool: class extends EventEmitter {
         connect() {
           return Promise.reject(original)
         }
@@ -53,6 +54,45 @@ describe('postgres initialization failures (#18656)', () => {
         process.off('unhandledRejection', listener)
         await adapter.initializing.catch(() => undefined)
       }
+    },
+  )
+})
+
+describe('idle pool errors (#16939)', () => {
+  it.each([false, true])(
+    'should log idle connection termination without throwing (replicas: %s)',
+    async (hasReplicas) => {
+      const pools: EventEmitter[] = []
+      const error = vi.fn()
+      const adapter = postgresAdapter({
+        pool: {},
+        push: false,
+        ...(hasReplicas ? { readReplicas: ['postgres://replica/test'] } : {}),
+        pg: {
+          Pool: class extends EventEmitter {
+            constructor() {
+              super()
+              pools.push(this)
+            }
+            connect() {
+              const client = new EventEmitter()
+              return Promise.resolve(Object.assign(client, { release: vi.fn() }))
+            }
+          },
+        } as never,
+      }).init({ payload: { config: {}, logger: { error, info: vi.fn() } } as unknown as Payload })
+      adapter.createExtensions = vi.fn().mockResolvedValue(undefined)
+      await adapter.connect!()
+      const failure = Object.assign(
+        new Error('terminating connection due to administrator command'),
+        { code: '57P01' },
+      )
+      for (const pool of pools) {
+        expect(() => pool.emit('error', failure)).not.toThrow()
+        expect(pool.listenerCount('error')).toBe(1)
+      }
+      expect(pools).toHaveLength(hasReplicas ? 2 : 1)
+      expect(error).toHaveBeenCalledWith(expect.objectContaining({ err: failure }))
     },
   )
 })

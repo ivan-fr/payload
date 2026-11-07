@@ -29,6 +29,7 @@ import type {
 import { APIError } from '../../../errors/index.js'
 import { getFileByPath } from '../../../uploads/getFileByPath.js'
 import { createPayloadRequest } from '../../../utilities/createPayloadRequest.js'
+import { isolateObjectProperty } from '../../../utilities/isolateObjectProperty.js'
 import { updateOperation } from '../update.js'
 import { updateByIDOperation } from '../updateByID.js'
 
@@ -245,10 +246,13 @@ async function updateLocal<
     )
   }
 
-  const req = await createPayloadRequest({
-    ...(options as Omit<CreatePayloadRequestArgs, 'payload'>),
-    payload,
-  })
+  const req = isolateObjectProperty(
+    await createPayloadRequest({
+      ...(options as Omit<CreatePayloadRequestArgs, 'payload'>),
+      payload,
+    }),
+    'file',
+  )
   req.file = file ?? (await getFileByPath(filePath!))
 
   const args = {

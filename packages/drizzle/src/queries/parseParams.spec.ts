@@ -2,7 +2,14 @@ import type { FlattenedField } from 'payload'
 
 import { DatabaseSync } from 'node:sqlite'
 import { like, notLike } from 'drizzle-orm'
-import { PgDialect, pgTable, serial, text as pgText, uuid } from 'drizzle-orm/pg-core'
+import {
+  PgDialect,
+  pgTable,
+  serial,
+  integer as pgInteger,
+  text as pgText,
+  uuid,
+} from 'drizzle-orm/pg-core'
 import { integer, SQLiteSyncDialect, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { describe, expect, it } from 'vitest'
 
@@ -202,4 +209,41 @@ describe('Postgres literal search SQL (#18325)', () => {
       expect(query.sql).not.toContain('50%')
     },
   )
+})
+
+describe('draft parent ID and title searches (#15648)', () => {
+  it('should compile a valid Postgres OR query for nonnumeric search text', () => {
+    const table = pgTable('_posts_v', {
+      id: serial('id'),
+      parent: pgInteger('parent_id'),
+      version_title: pgText('version_title'),
+    })
+    const adapter = {
+      idType: 'serial',
+      name: 'postgres',
+      operators: operatorMap,
+      payload: { config: {}, collections: { posts: { config: { slug: 'posts' } } } },
+      tables: { _posts_v: table },
+      tableNameMap: new Map(),
+    } as unknown as DrizzleAdapter
+    const constraint = parseParams({
+      adapter,
+      context: { sort: undefined },
+      fields: [
+        { name: 'parent', type: 'relationship', relationTo: 'posts' },
+        { name: 'version_title', type: 'text' },
+      ] as FlattenedField[],
+      joins: [],
+      parentIsLocalized: false,
+      selectFields: {},
+      tableName: '_posts_v',
+      where: { or: [{ parent: { equals: 'Needle' } }, { version_title: { like: 'Needle' } }] },
+    })
+    const query = new PgDialect().sqlToQuery(constraint)
+    expect(query.params.some((value) => typeof value === 'number' && Number.isNaN(value))).toBe(
+      false,
+    )
+    expect(query.params).toContain('%Needle%')
+    expect(query.sql).toContain(' or ')
+  })
 })

@@ -287,3 +287,7 @@ The current inventory contains **134 scoped fixes + 431 unassessed** in the orig
 ## November 7 branch: eighteen scoped fixes
 
 [Batch 26](batch-26.md) adds six more reports: nested Lexical beforeValidate hooks, session-only writes for localized accounts, API-key form-state preservation, numeric preset cell rendering, sparse SQL block recovery, and public archive access. The branch now has **18 scoped issue fixes**, with no PR opened. The inventory contains **140 scoped fixes + 425 unassessed** in the original snapshot, plus **16 later scoped fixes**: **156 scoped fork fixes**.
+
+## November 7 branch: twenty-four scoped fixes
+
+[Batch 27](batch-27.md) adds six reports: configurable ecommerce inventory, nested request file isolation, idle PostgreSQL pool errors, filtered Add Below choices, byte-preserving unadjusted animated uploads, and numeric draft-parent search. The branch now contains **24 scoped issue fixes**, with no PR opened. The inventory contains **146 scoped fixes + 419 unassessed** in the original snapshot, plus **16 later scoped fixes**: **162 scoped fork fixes**.

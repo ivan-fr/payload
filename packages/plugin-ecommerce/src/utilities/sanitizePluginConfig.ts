@@ -47,10 +47,7 @@ export const sanitizePluginConfig = ({ pluginConfig }: Props): SanitizedEcommerc
     }
   }
 
-  if (
-    typeof config.inventory === 'undefined' ||
-    (typeof config.inventory === 'boolean' && config.inventory === true)
-  ) {
+  if (typeof pluginConfig.inventory === 'undefined' || pluginConfig.inventory === true) {
     config.inventory = {
       fieldName: 'inventory',
     }

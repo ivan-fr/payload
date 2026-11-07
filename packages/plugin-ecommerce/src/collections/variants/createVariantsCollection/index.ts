@@ -84,7 +84,13 @@ export const createVariantsCollection: (props: Props) => CollectionConfig = (pro
       required: true,
       validate: validateOptions({ productsCollectionSlug: productsSlug }),
     },
-    ...(inventory ? [inventoryField()] : []),
+    ...(inventory
+      ? [
+          inventoryField({
+            fieldName: typeof inventory === 'object' ? inventory.fieldName : undefined,
+          }),
+        ]
+      : []),
   ]
 
   if (supportedCurrencies?.length && supportedCurrencies.length > 0) {

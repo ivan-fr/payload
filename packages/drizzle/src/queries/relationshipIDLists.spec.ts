@@ -70,3 +70,23 @@ describe('typed relationship lists and parameter budgets (#18251)', () => {
     expect(value({ ids: [id, id], idType: 'uuid' })).toEqual([id])
   })
 })
+
+describe('numeric version parent searches (#15648)', () => {
+  it('should never send NaN as a numeric relationship parameter', () => {
+    const result = sanitizeQueryValue({
+      adapter: {
+        idType: 'serial',
+        payload: { collections: { posts: {} } },
+      } as unknown as DrizzleAdapter,
+      field: { name: 'parent', type: 'relationship', relationTo: 'posts' },
+      isUUID: false,
+      operator: 'equals',
+      relationOrPath: 'parent',
+      val: 'some title',
+    })
+    expect(result.value).toBeNull()
+  })
+  it('should discard invalid numeric ID list entries without discarding zero', () => {
+    expect(value({ ids: ['title', '0', 0, '12', 12] })).toEqual([0, 12])
+  })
+})

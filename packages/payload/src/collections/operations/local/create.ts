@@ -28,6 +28,7 @@ import {
 } from '../../../index.js'
 import { getFileByPath } from '../../../uploads/getFileByPath.js'
 import { createPayloadRequest } from '../../../utilities/createPayloadRequest.js'
+import { isolateObjectProperty } from '../../../utilities/isolateObjectProperty.js'
 import { createOperation } from '../create.js'
 
 type BaseOptions<TSlug extends CollectionSlug, TSelect extends SelectType> = {
@@ -211,10 +212,13 @@ export async function createLocal<
     )
   }
 
-  const req = await createPayloadRequest({
-    ...(options as Omit<CreatePayloadRequestArgs, 'payload'>),
-    payload,
-  })
+  const req = isolateObjectProperty(
+    await createPayloadRequest({
+      ...(options as Omit<CreatePayloadRequestArgs, 'payload'>),
+      payload,
+    }),
+    'file',
+  )
 
   req.file = file ?? (await getFileByPath(filePath!))
 

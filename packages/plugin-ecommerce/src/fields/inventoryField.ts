@@ -1,15 +1,16 @@
 import type { NumberField } from 'payload'
 
 type Props = {
+  fieldName?: string
   overrides?: Partial<NumberField>
 }
 
 export const inventoryField: (props?: Props) => NumberField = (props) => {
-  const { overrides } = props || {}
+  const { fieldName = 'inventory', overrides } = props || {}
 
   // @ts-expect-error - issue with payload types
   const field: NumberField = {
-    name: 'inventory',
+    name: fieldName,
     type: 'number',
     defaultValue: 0,
     // @ts-expect-error - translations are not typed in plugins yet

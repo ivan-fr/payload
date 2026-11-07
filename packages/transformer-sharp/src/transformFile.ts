@@ -63,7 +63,7 @@ async function transformMain({
     })
   }
 
-  if (!fileIsAnimatedType && !fileHasAdjustments) {
+  if (!fileHasAdjustments) {
     return { status: 'continue' }
   }
 

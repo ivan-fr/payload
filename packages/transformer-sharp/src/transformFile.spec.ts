@@ -1,5 +1,6 @@
 import type { PayloadRequest } from 'payload'
 
+import { readFileSync } from 'node:fs'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
@@ -75,6 +76,44 @@ const sampleRawPixel = ({
 
 describe('createTransformFile', () => {
   describe('main (transformMain)', () => {
+    it.each(['animated.webp', 'animated.gif'])(
+      'should preserve unmodified %s bytes across repeated uploads',
+      async (name) => {
+        const source = readFileSync(new URL('../../../test/uploads/animated.webp', import.meta.url))
+        const buffer = name.endsWith('gif')
+          ? await sharp(source, { animated: true }).gif().toBuffer()
+          : source
+        const file = new File([buffer], name, {
+          type: name.endsWith('gif') ? 'image/gif' : 'image/webp',
+        })
+        const transformFile = createTransformFile({ sharpDependency: sharp })
+        let current = file
+        for (let i = 0; i < 2; i++) {
+          const result = await transformFile({
+            file: current,
+            options: { collectionUpload: {}, kind: 'main' },
+            req: makeReq(),
+          })
+          current = result.file ?? current
+          expect((await toBuffer(current)).equals(buffer)).toBe(true)
+        }
+      },
+    )
+
+    it('should preserve single-frame WebP metadata without adjustments', async () => {
+      const buffer = await sharp(await makeImageBuffer({ height: 20, width: 30 }))
+        .webp({ quality: 95 })
+        .withMetadata()
+        .toBuffer()
+      const file = new File([buffer], 'photo.webp', { type: 'image/webp' })
+      const result = await createTransformFile({ sharpDependency: sharp })({
+        file,
+        options: { collectionUpload: {}, kind: 'main' },
+        req: makeReq(),
+      })
+      expect((await toBuffer(result.file ?? file)).equals(buffer)).toBe(true)
+    })
+
     it('should trim uniform-colour padding from the main file', async () => {
       const square = await makeImageBuffer({
         background: { b: 0, g: 0, r: 0 },

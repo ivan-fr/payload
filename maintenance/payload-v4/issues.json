@@ -1478,8 +1478,10 @@
       "url": "https://github.com/payloadcms/payload/issues/15648",
       "labels": ["db: postgres", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
     },
     {
       "number": 15664,
@@ -1577,8 +1579,10 @@
       "url": "https://github.com/payloadcms/payload/issues/15829",
       "labels": ["status: needs-triage", "area: ui", "stale", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
     },
     {
       "number": 15837,
@@ -1676,8 +1680,10 @@
       "url": "https://github.com/payloadcms/payload/issues/15975",
       "labels": ["status: needs-triage", "stale", "area: core", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
     },
     {
       "number": 15976,
@@ -2679,8 +2685,10 @@
       "url": "https://github.com/payloadcms/payload/issues/16939",
       "labels": ["db: postgres", "stale", "invalid-reproduction", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
     },
     {
       "number": 16952,
@@ -4012,8 +4020,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18288",
       "labels": ["plugin: ecommerce", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
     },
     {
       "number": 18294,
@@ -4283,8 +4293,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18386",
       "labels": ["status: needs-triage", "area: core", "Bug", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
     },
     {
       "number": 18403,
@@ -5609,5 +5621,5 @@
       "last_checked_date": "2026-11-07"
     }
   ],
-  "branch_fix_count": 156
+  "branch_fix_count": 162
 }

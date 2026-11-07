@@ -41,6 +41,7 @@ const createHarness = ({
     secret: 'cart-secret',
   },
   initialTransactionID,
+  inventory,
   transaction = {
     amount: 1000,
     currency: 'USD',
@@ -54,6 +55,7 @@ const createHarness = ({
   adapter?: (args: ConfirmArgs) => Promise<Record<string, unknown>>
   cart?: Record<string, unknown>
   data?: Record<string, unknown>
+  inventory?: Parameters<typeof confirmOrderHandler>[0]['inventory']
   initialTransactionID?: Request['transactionID']
   transaction?: Record<string, unknown>
   user?: null | Record<string, unknown>
@@ -157,7 +159,7 @@ const createHarness = ({
       state.inventoryUpdates.push({
         collection,
         id,
-        quantity: updateData.inventory.$inc,
+        quantity: Object.values(updateData)[0].$inc,
       })
 
       return { id }
@@ -181,6 +183,7 @@ const createHarness = ({
     user: user ?? undefined,
   } as unknown as Request
   const handler = confirmOrderHandler({
+    inventory,
     currenciesConfig: {
       defaultCurrency: 'USD',
       supportedCurrencies: [],
@@ -558,4 +561,20 @@ describe('confirmOrderHandler', () => {
     )
     expect(harness.req.user).toMatchObject({ collection: 'api-keys', email: 'machine@example.com' })
   })
+})
+
+describe('configured inventory settlement (#18288)', () => {
+  it.each([false, { fieldName: 'stock' }])(
+    'should honor %j when settling an order',
+    async (inventory) => {
+      const harness = createHarness({ inventory })
+      const { response } = await runHandler(harness)
+      expect(response.status).toBe(200)
+      const updates = harness.updateOne.mock.calls
+        .map(([args]) => args)
+        .filter(({ collection }) => collection === 'products')
+      if (inventory === false) expect(updates).toHaveLength(0)
+      else expect(updates).toEqual([expect.objectContaining({ data: { stock: { $inc: -2 } } })])
+    },
+  )
 })
