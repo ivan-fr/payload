@@ -2,6 +2,7 @@
 
 import type { LexicalEditor } from 'lexical'
 
+import { useTranslation } from '@payloadcms/ui'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
@@ -46,6 +47,7 @@ export function TableGridPopup({
   onInsert,
   position,
 }: TableGridPopupProps) {
+  const { t } = useTranslation()
   const [hoverCol, setHoverCol] = useState(0)
   const [hoverRow, setHoverRow] = useState(0)
   const [inputCols, setInputCols] = useState('')
@@ -152,8 +154,13 @@ export function TableGridPopup({
 
   return createPortal(
     <React.Fragment>
-      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-      <div className="table-grid-popup__backdrop" onClick={onClose} />
+      <button
+        aria-label={t('general:close')}
+        className="table-grid-popup__backdrop"
+        onClick={onClose}
+        tabIndex={-1}
+        type="button"
+      />
       <div
         className="table-grid-popup"
         ref={popupRef}

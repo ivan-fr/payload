@@ -18,9 +18,9 @@ test.suite(
     db: (adapter) => adapter.startsWith('postgres'),
   },
   () => {
-    test('ensure running jobs uses minimal db calls', async ({ payload }) => {
+    test('should keep the job SQL budget with a concurrency lookup', async ({ payload }) => {
       await withoutAutoRun(async () => {
-        await payload.jobs.queue({
+        const job = await payload.jobs.queue({
           input: {
             message: 'test',
           },
@@ -28,17 +28,29 @@ test.suite(
           task: 'DoNothingTask',
         })
 
-        // Count every console log (= db call)
         const consoleCount = vitest.spyOn(console, 'log').mockImplementation(() => {})
 
-        const res = await payload.jobs.run({ overrideAccess: true })
+        try {
+          const res = await payload.jobs.run({ overrideAccess: true })
 
-        expect(res).toEqual({
-          jobStatus: { '1': { status: 'success' } },
-          remainingJobsFromQueried: 0,
-        })
-        expect(consoleCount).toHaveBeenCalledTimes(16)
-        consoleCount.mockRestore()
+          expect(res).toEqual({
+            jobStatus: { [job.id]: { status: 'success' } },
+            remainingJobsFromQueried: 0,
+          })
+
+          const queries = consoleCount.mock.calls
+            .map(([message]) => message)
+            .filter(
+              (message): message is string =>
+                typeof message === 'string' && message.startsWith('Query: '),
+            )
+          const concurrencyLookup = 'Query: select "id", "concurrency_key" from '
+
+          expect(queries.filter((query) => query.startsWith(concurrencyLookup))).toHaveLength(1)
+          expect(queries.filter((query) => !query.startsWith(concurrencyLookup))).toHaveLength(16)
+        } finally {
+          consoleCount.mockRestore()
+        }
       })
     })
 

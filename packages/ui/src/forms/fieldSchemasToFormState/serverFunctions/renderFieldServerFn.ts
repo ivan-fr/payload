@@ -38,14 +38,17 @@ export type RenderFieldServerFnArgs = {
 }
 export type RenderFieldServerFnReturnType = {} & FieldState['customComponents']
 
+type RenderFieldHandler = (
+  args: Parameters<ServerFunction<RenderFieldServerFnArgs>>[0],
+) => Promise<RenderFieldServerFnReturnType>
+
 /**
  * @experimental - may break in minor releases
  */
-export const _internal_renderFieldHandler: ServerFunction<
-  RenderFieldServerFnArgs,
-  Promise<RenderFieldServerFnReturnType>
-  // eslint-disable-next-line @typescript-eslint/require-await
-> = async ({ name, hidden, initialValue, label, path, req, schemaPath, user }) => {
+// eslint-disable-next-line @typescript-eslint/require-await -- Server handlers preserve Promise results and rejected errors.
+export const _internal_renderFieldHandler: RenderFieldHandler = async (args) => {
+  const { name, hidden, initialValue, label, path, req, schemaPath, user } = args
+
   if (!req.user) {
     throw new UnauthorizedError()
   }
