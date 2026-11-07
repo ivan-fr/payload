@@ -31,8 +31,15 @@ export const optionsReducer = (state: OptionGroup[], action: Action): OptionGrou
     case 'ADD': {
       const { collection, config, docs, i18n, ids = [], sort } = action
       const relation = collection.slug
-      const loadedIDs = reduceToIDs(state)
-      const newOptions = [...state]
+      const incomingIDs = new Set(docs.map((doc) => doc.id))
+      const newOptions = state.map((group) => ({
+        ...group,
+        options: group.options.filter(
+          (option) =>
+            !(option.relationTo === relation && !option.doc && incomingIDs.has(option.value)),
+        ),
+      }))
+      const loadedIDs = reduceToIDs(newOptions)
       const optionsToAddTo = newOptions.find(
         (optionGroup) => optionGroup.label === getTranslation(collection.labels.plural, i18n),
       )

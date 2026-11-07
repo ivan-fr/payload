@@ -9,6 +9,7 @@ export const PostsCollection: CollectionConfig = {
   },
   access: { create: () => true, update: () => true, delete: () => true, read: () => true },
   fields: [
+    { name: 'localizedText', type: 'text', localized: true },
     {
       name: 'text',
       type: 'text',

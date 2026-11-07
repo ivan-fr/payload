@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes 126 reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This branch fixes 138 reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **120 snapshot issues have scoped fixes here; 445 snapshot issues remain unassessed**. Six reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **126 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **129 snapshot issues have scoped fixes here; 436 snapshot issues remain unassessed**. Nine reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **138 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -257,3 +257,23 @@ Six additional open reports are fixed on the existing PR #5: [#18116](https://gi
 ## Twenty-first batch: six more fixes on PR #5
 
 Official reports [#17164](https://github.com/payloadcms/payload/issues/17164), [#17239](https://github.com/payloadcms/payload/issues/17239), [#17248](https://github.com/payloadcms/payload/issues/17248), [#17473](https://github.com/payloadcms/payload/issues/17473), [#17758](https://github.com/payloadcms/payload/issues/17758), and [#18348](https://github.com/payloadcms/payload/issues/18348) add six more scoped fixes to PR #5, now eighteen relative to fork main. See [batch-21.md](batch-21.md) for failure reproductions, global autosave integration coverage, SEO pending/error behavior, queue lifecycle and accessibility evidence limits.
+
+## Twenty-second batch: SDK, Lexical and Admin fixes
+
+Based on merged fork main `4661f5e8598027a0ccec44fc351279f3ca41ff97` (PR #5), on branch `fix/payload-six-issues-20261106`. Six more official reports were checked open on 2026-11-06: #19387, #19385, #19337, #19150, #18403 and #18875. The SDK and drawer reports were opened that morning.
+
+The SDK preserves an explicit disabled locale fallback; drawer submit validation has an independent cancellation channel; initial block defaults merge into the preceding undo step; the native Account anchor includes the application base path; load-more counts use translated messages; and multi-field rows/dashboard dragging avoid broad `:has` wildcard selectors. The historical snapshot now contains 123 scoped fixes and 442 unassessed reports; nine post-snapshot fixes bring the fork total to 132.
+
+See [batch-22.md](batch-22.md) for reproduction evidence, test boundaries and pending browser/accessibility verification. No upstream issue is closed, and no dependencies, workflows, retries, timeouts or quality gates change.
+
+## Twenty-third batch: six more scoped fixes in PR #6
+
+Based on PR #6 head `f843623b652c0357c233e74b3157a11c251aacb4`, this batch adds #16250, #14635, #17425, #16751, #16909 and #17106. All six were checked open on 2026-11-06. The PR now covers twelve reports.
+
+Configured dashboard widgets no longer receive duplicate built-ins and can declare picker thumbnails. Creatable selects use the underlying library's validation/custom creation behavior. Relationship placeholders can recover their real titles. Website image size hints use CSS lengths in ascending breakpoint order. Field-guard documentation uses the actual shared export, and Docker dependency stages retain optional package-manager configuration in the docs and all eight templates.
+
+The historical 565-report snapshot now contains **129 scoped fixes + 436 unassessed**, plus **9 later fixes**, for **138 scoped fork fixes**. See [batch-23.md](batch-23.md) for test boundaries, pending native-browser/Docker verification and the existing PR Sonar duplication finding.
+
+## PR #6 analysis follow-up
+
+The [review follow-up](pr-6-review.md) records the Sonar findings on `b409089`, the widget registration cleanup and the explicit duplication-only treatment of declarative locale resources. Those files remain in normal analysis; a new AST-based test enforces the resource-only boundary. The duplication threshold remains 3%. This review adds no upstream issue to the count.

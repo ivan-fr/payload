@@ -213,48 +213,49 @@ const addDefaultDashboardWidgets = ({
 
   const adminConfig: NonNullable<Config['admin']> = config.admin ?? { dashboard: { widgets: [] } }
   const dashboard: DashboardConfig = (adminConfig.dashboard ??= { widgets: [] })
-
-  dashboard.widgets.push({
-    slug: 'welcome',
-    Component: '@payloadcms/ui/rsc#WelcomeWidget',
-    label: ({ t }) => t('general:welcome'),
-    maxWidth: 'full',
-    minWidth: 'full',
-  })
-  dashboard.widgets.push({
-    slug: 'collections',
-    Component: '@payloadcms/ui/rsc#CollectionCards',
-    minWidth: 'full',
-  })
-  dashboard.widgets.push({
-    slug: 'collection-query',
-    Component: '@payloadcms/ui/rsc#CollectionQueryWidget',
-    fields: sanitizeFields({
-      config: config as unknown as Config,
-      existingFieldNames: new Set(),
-      fields: collectionQueryFields,
-      parentIsLocalized: false,
-      richTextSanitizers,
-      validRelationships,
-    }),
-    minWidth: 'x-small',
-  })
-  dashboard.widgets.push({
-    slug: 'activity',
-    Component: '@payloadcms/ui/rsc#ActivityWidget',
-    fields: sanitizeFields({
-      config: config as unknown as Config,
-      existingFieldNames: new Set(),
-      fields: recentlyViewedFields,
-      parentIsLocalized: false,
-      richTextSanitizers,
-      validRelationships,
-    }),
-    label: ({ t }) => t('dashboard:widgetRecentsAndPinned'),
-    minWidth: 'small',
-  })
+  const defaultWidgets: Widget[] = [
+    {
+      slug: 'welcome',
+      Component: '@payloadcms/ui/rsc#WelcomeWidget',
+      label: ({ t }) => t('general:welcome'),
+      maxWidth: 'full',
+      minWidth: 'full',
+    },
+    {
+      slug: 'collections',
+      Component: '@payloadcms/ui/rsc#CollectionCards',
+      minWidth: 'full',
+    },
+    {
+      slug: 'collection-query',
+      Component: '@payloadcms/ui/rsc#CollectionQueryWidget',
+      fields: sanitizeFields({
+        config: config as unknown as Config,
+        existingFieldNames: new Set(),
+        fields: collectionQueryFields,
+        parentIsLocalized: false,
+        richTextSanitizers,
+        validRelationships,
+      }),
+      minWidth: 'x-small',
+    },
+    {
+      slug: 'activity',
+      Component: '@payloadcms/ui/rsc#ActivityWidget',
+      fields: sanitizeFields({
+        config: config as unknown as Config,
+        existingFieldNames: new Set(),
+        fields: recentlyViewedFields,
+        parentIsLocalized: false,
+        richTextSanitizers,
+        validRelationships,
+      }),
+      label: ({ t }) => t('dashboard:widgetRecentsAndPinned'),
+      minWidth: 'small',
+    },
+  ]
   if (uploadCollections.length > 0) {
-    dashboard.widgets.push({
+    defaultWidgets.push({
       slug: 'upload-dropzone',
       Component: '@payloadcms/ui/rsc#UploadDropzoneWidget',
       fields: sanitizeFields({
@@ -285,6 +286,11 @@ const addDefaultDashboardWidgets = ({
       minWidth: 'x-small',
     })
   }
+  dashboard.widgets.push(
+    ...defaultWidgets.filter(
+      ({ slug }) => !dashboard.widgets.some((widget) => widget.slug === slug),
+    ),
+  )
   dashboard.defaultLayout ??= [
     {
       widgetSlug: 'welcome',

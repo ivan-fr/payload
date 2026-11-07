@@ -45,6 +45,7 @@ import {
   reduceFormStateToBlockData,
 } from '../getCachedFormStateIfDataMatches.js'
 import { $isInlineBlockNode } from '../nodes/InlineBlocksNode.js'
+import { updateInitialBlockFields } from '../updateInitialBlockFields.js'
 
 export type InlineBlockComponentProps<
   TFormData extends Record<string, unknown> = InlineBlockFields,
@@ -262,8 +263,9 @@ export const InlineBlockComponent: React.FC<InlineBlockComponentProps<InlineBloc
         ) as InlineBlockFields
 
         // Things like default values may come back from the server => update the node with the new data
-        editor.update(
-          () => {
+        updateInitialBlockFields({
+          editor,
+          update: () => {
             const node = $getNodeByKey(nodeKey)
             if (node && $isInlineBlockNode(node)) {
               const newData = newFormStateData
@@ -272,10 +274,7 @@ export const InlineBlockComponent: React.FC<InlineBlockComponentProps<InlineBloc
               node.setFields(newData, true)
             }
           },
-          // Without this, the outer editor's reconciler resets DOM selection
-          // back into its own root, kicking focus out of any nested richText.
-          { tag: SKIP_DOM_SELECTION_TAG },
-        )
+        })
 
         setInitialState(state)
         if (!CustomLabelFromProps) {

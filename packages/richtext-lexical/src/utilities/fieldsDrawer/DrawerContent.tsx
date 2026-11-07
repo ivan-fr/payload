@@ -1,5 +1,6 @@
 'use client'
 import type { FormState } from 'payload'
+import type { RefObject } from 'react'
 
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable'
 import {
@@ -39,6 +40,7 @@ export const DrawerContent: React.FC<
   const isEditable = useLexicalEditable()
 
   const onChangeAbortControllerRef = useRef(new AbortController())
+  const beforeSubmitAbortControllerRef = useRef(new AbortController())
 
   const [initialState, setInitialState] = useState<false | FormState | undefined>(false)
 
@@ -99,11 +101,17 @@ export const DrawerContent: React.FC<
   ])
 
   const onChange = useCallback(
-    async ({ formState: prevFormState }: { formState: FormState }) => {
-      abortAndIgnore(onChangeAbortControllerRef.current)
+    async ({
+      abortControllerRef = onChangeAbortControllerRef,
+      formState: prevFormState,
+    }: {
+      abortControllerRef?: RefObject<AbortController>
+      formState: FormState
+    }) => {
+      abortAndIgnore(abortControllerRef.current)
 
       const controller = new AbortController()
-      onChangeAbortControllerRef.current = controller
+      abortControllerRef.current = controller
 
       const { state } = await getFormState({
         id,
@@ -140,10 +148,17 @@ export const DrawerContent: React.FC<
     ],
   )
 
+  const beforeSubmit = useCallback(
+    ({ formState }: { formState: FormState }) =>
+      onChange({ abortControllerRef: beforeSubmitAbortControllerRef, formState }),
+    [onChange],
+  )
+
   // cleanup effect
   useEffect(() => {
     return () => {
       abortAndIgnore(onChangeAbortControllerRef.current)
+      abortAndIgnore(beforeSubmitAbortControllerRef.current)
     }
   }, [])
 
@@ -153,7 +168,7 @@ export const DrawerContent: React.FC<
 
   return (
     <Form
-      beforeSubmit={[onChange]}
+      beforeSubmit={[beforeSubmit]}
       className="fields-drawer"
       disableValidationOnSubmit
       fields={Array.isArray(fields) ? fields : []}

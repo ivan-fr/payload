@@ -7,6 +7,7 @@ import type {
   Props as ReactSelectStateManagerProps,
   StylesConfig,
 } from 'react-select'
+import type { CreatableProps } from 'react-select/creatable'
 
 import type { DocumentDrawerProps } from '../DocumentDrawer/types.js'
 
@@ -69,6 +70,16 @@ export type OptionGroup = {
   label: string
   options: Option[]
 }
+
+type CreatableOptions = Pick<
+  CreatableProps<Option, boolean, GroupBase<Option>>,
+  | 'allowCreateWhileLoading'
+  | 'createOptionPosition'
+  | 'formatCreateLabel'
+  | 'getNewOptionData'
+  | 'isValidNewOption'
+  | 'onCreateOption'
+>
 
 export type ReactSelectAdapterProps = {
   'aria-describedby'?: AriaAttributes['aria-describedby']
@@ -138,4 +149,4 @@ export type ReactSelectAdapterProps = {
   showError?: boolean
   styles?: StylesConfig<Option>
   value?: Option | Option[]
-}
+} & CreatableOptions

@@ -166,6 +166,7 @@ export interface User {
  * via the `definition` "posts".
  */
 export interface Post {
+  localizedText?: string | null;
   id: string;
   text?: string | null;
   number?: number | null;
@@ -343,6 +344,7 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
+  localizedText?: T;
   text?: T;
   number?: T;
   number2?: T;
@@ -434,6 +436,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  * via the `definition` "global".
  */
 export interface Global {
+  localizedText?: string | null;
   id: string;
   text?: string | null;
   createdBy?: {
@@ -452,6 +455,7 @@ export interface Global {
  * via the `definition` "global_select".
  */
 export interface GlobalSelect<T extends boolean = true> {
+  localizedText?: T;
   text?: T;
   createdBy?: T;
   updatedBy?: T;
