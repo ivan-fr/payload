@@ -27,6 +27,7 @@ import type {
 } from '../../config/types.js'
 
 import { APIError } from '../../../errors/index.js'
+import { createFileRequest } from '../../../uploads/createFileRequest.js'
 import { getFileByPath } from '../../../uploads/getFileByPath.js'
 import { createPayloadRequest } from '../../../utilities/createPayloadRequest.js'
 import { updateOperation } from '../update.js'
@@ -245,9 +246,11 @@ async function updateLocal<
     )
   }
 
-  const req = await createPayloadRequest({
-    ...(options as Omit<CreatePayloadRequestArgs, 'payload'>),
-    payload,
+  const req = createFileRequest({
+    req: await createPayloadRequest({
+      ...(options as Omit<CreatePayloadRequestArgs, 'payload'>),
+      payload,
+    }),
   })
   req.file = file ?? (await getFileByPath(filePath!))
 

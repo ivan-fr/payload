@@ -1,7 +1,10 @@
+import type { MigrateUpArgs } from '@payloadcms/drizzle/postgres'
 import type { Payload, PayloadRequest } from 'payload'
 
 import { migratePostgresLocalizeStatus } from '@payloadcms/drizzle/postgres'
 import { toSnakeCase } from 'payload/migrations'
+
+import type { PostgresAdapter } from '../types.js'
 
 /**
  * Migrate all collections and globals with per-locale status enabled to use per-locale _status.
@@ -12,12 +15,12 @@ import { toSnakeCase } from 'payload/migrations'
  * 3. Drops the `snapshot` column from each version table
  */
 export async function migrateLocalizeStatus({
-  db,
+  db: migrationDB,
   payload,
   req,
   sql,
 }: {
-  db: any
+  db: MigrateUpArgs['db'] | PostgresAdapter
   payload: Payload
   req: PayloadRequest
   sql: any
@@ -28,6 +31,13 @@ export async function migrateLocalizeStatus({
     })
     return
   }
+
+  const adapter = payload.db as Pick<PostgresAdapter, 'execute' | 'schemaName'>
+  // Generated migrations receive the transaction, while older direct callers pass the adapter.
+  const db =
+    'drizzle' in migrationDB
+      ? migrationDB
+      : { drizzle: migrationDB, execute: adapter.execute, schemaName: adapter.schemaName }
 
   const collections = payload.config.collections.filter(
     (c) =>

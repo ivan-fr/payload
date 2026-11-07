@@ -277,3 +277,25 @@ The historical 565-report snapshot now contains **129 scoped fixes + 436 unasses
 ## PR #6 analysis follow-up
 
 The [review follow-up](pr-6-review.md) records the Sonar findings on `b409089`, the widget registration cleanup and the explicit duplication-only treatment of declarative locale resources. Those files remain in normal analysis; a new AST-based test enforces the resource-only boundary. The duplication threshold remains 3%. This review adds no upstream issue to the count.
+
+## November 7 branch: twelve more scoped fixes
+
+`fix/payload-six-issues-20261107` starts from the merged PR #6. Its first six fixes cover tenant redirects, TanStack search parameters, exists filters, header actions, remote JSON schemas and PostgreSQL migration transactions. The next six address orphaned nested blocks, PostgreSQL JSON queries, image orientation/resize limits, renamed upload URLs and invalid list grouping. See [batch-25.md](batch-25.md) for the twelve report numbers, reproduction evidence, validation limits and accessibility assessment. No PR has been opened for this branch.
+
+The current inventory contains **134 scoped fixes + 431 unassessed** in the original snapshot, plus **16 later scoped fixes**: **150 scoped fork fixes**.
+
+## November 7 branch: eighteen scoped fixes
+
+[Batch 26](batch-26.md) adds six more reports: nested Lexical beforeValidate hooks, session-only writes for localized accounts, API-key form-state preservation, numeric preset cell rendering, sparse SQL block recovery, and public archive access. The branch now has **18 scoped issue fixes**, with no PR opened. The inventory contains **140 scoped fixes + 425 unassessed** in the original snapshot, plus **16 later scoped fixes**: **156 scoped fork fixes**.
+
+## November 7 branch: twenty-four scoped fixes
+
+[Batch 27](batch-27.md) adds six reports: configurable ecommerce inventory, nested request file isolation, idle PostgreSQL pool errors, filtered Add Below choices, byte-preserving unadjusted animated uploads, and numeric draft-parent search. The branch now contains **24 scoped issue fixes**, with no PR opened. The inventory contains **146 scoped fixes + 419 unassessed** in the original snapshot, plus **16 later scoped fixes**: **162 scoped fork fixes**.
+
+## November 7 branch: thirty scoped fixes
+
+[Batch 28](batch-28.md) adds six reports: authenticated collection title validation, Form Builder upload overrides, reserved SQL array names, GraphQL block interfaces, conditional layout type generation and disabled storefront prices. The branch now contains **30 scoped issue fixes**, with no PR opened. The inventory contains **152 scoped fixes + 413 unassessed** in the original snapshot, plus **16 later scoped fixes**: **168 scoped fork fixes**.
+
+## PR #7 review follow-up
+
+[The review follow-up](pr-7-review.md) records the CI failures on `af08312`: upload request proxies lost file rollback ownership, cloud metadata tests assumed request object identity, and grouping excluded relationship-backed virtual scalar paths. The corrective changes retain file isolation while sharing cleanup ownership and restore eligible virtual options. This review adds no upstream issue to the count.

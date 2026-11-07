@@ -12,9 +12,7 @@ import { formatOptions } from './formatOptions.js'
 
 export const Select: React.FC<Props> = ({
   disabled,
-  field: {
-    admin: { placeholder },
-  },
+  field,
   isClearable,
   onChange,
   operator,
@@ -22,6 +20,7 @@ export const Select: React.FC<Props> = ({
   value,
 }) => {
   const { i18n } = useTranslation()
+  const placeholder = field?.admin?.placeholder
   const [options, setOptions] = React.useState(formatOptions(optionsFromProps))
 
   const isMulti = ['in', 'not_in'].includes(operator)

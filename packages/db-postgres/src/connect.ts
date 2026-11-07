@@ -20,6 +20,9 @@ const connectWithReconnect = async function ({
   let result
 
   if (!reconnect) {
+    pool.on('error', (err) => {
+      adapter.payload.logger.error({ err, msg: 'Unexpected error on idle Postgres client' })
+    })
     result = await pool.connect()
   } else {
     try {

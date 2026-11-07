@@ -4,6 +4,7 @@ import type { ResizeOptions, SharpOptions } from 'sharp'
 import type { SharpDependency, SharpUploadTaskOptions } from './types.js'
 
 import { createSharpFromFile } from './createSharpFromFile.js'
+import { getImageResizeAction } from './getImageResizeAction.js'
 import { optionallyAppendMetadata } from './optionallyAppendMetadata.js'
 
 const ANIMATED_MIME_TYPES = ['image/avif', 'image/gif', 'image/webp']
@@ -62,7 +63,7 @@ async function transformMain({
     })
   }
 
-  if (!fileIsAnimatedType && !fileHasAdjustments) {
+  if (!fileHasAdjustments) {
     return { status: 'continue' }
   }
 
@@ -196,7 +197,14 @@ async function transformSize({
 
   let resized = sharpBase.clone()
 
-  if (focalPoint) {
+  if (
+    focalPoint &&
+    getImageResizeAction({
+      dimensions: adjustedDimensions,
+      hasFocalPoint: true,
+      imageResizeConfig,
+    }) === 'resizeWithFocalPoint'
+  ) {
     let { height: resizeHeight, width: resizeWidth } = imageResizeConfig
 
     const originalAspectRatio = adjustedDimensions.width / adjustedDimensions.height

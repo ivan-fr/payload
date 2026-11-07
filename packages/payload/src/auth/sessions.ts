@@ -63,7 +63,7 @@ export const addSessionToUser = async ({
       id: user.id,
       collection: collectionConfig.slug,
       data: {
-        ...user,
+        sessions: user.sessions,
         // Prevent updatedAt from being updated when only adding a session
         updatedAt: null,
       },
@@ -124,7 +124,6 @@ export const extendSession = async ({
     id: user.id,
     collection: collectionConfig.slug,
     data: {
-      ...user,
       // Prevent updatedAt from being updated when only extending a session
       sessions: removeExpiredSessions(user.sessions!),
       updatedAt: null,
@@ -156,7 +155,10 @@ export const revokeSession = async ({
     await payload.db.updateOne({
       id: user.id,
       collection: collectionConfig.slug,
-      data: user,
+      data: {
+        sessions: user.sessions,
+        updatedAt: null,
+      },
       req,
       returning: false,
     })

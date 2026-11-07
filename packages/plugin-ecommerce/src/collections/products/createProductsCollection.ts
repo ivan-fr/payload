@@ -40,6 +40,7 @@ export const createProductsCollection: (props: Props) => CollectionConfig = (pro
     ...(inventory
       ? [
           inventoryField({
+            fieldName: typeof inventory === 'object' ? inventory.fieldName : undefined,
             overrides: {
               admin: {
                 condition: ({ enableVariants }) => !enableVariants,

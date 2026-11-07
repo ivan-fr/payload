@@ -26,12 +26,15 @@ const flattenedFieldsCache = new WeakMap<Field[], FlattenedField[]>()
 export const flattenAllFields = ({
   cache,
   fields,
+  hasConditionalParent = false,
 }: {
   /** Allows you to get FlattenedField[] from Field[] anywhere without performance overhead by caching. */
   cache?: boolean
   fields: Field[]
+  /** Only applies to the immediate data fields produced by flattening this layout. */
+  hasConditionalParent?: boolean
 }): FlattenedField[] => {
-  if (cache) {
+  if (cache && !hasConditionalParent) {
     const maybeFields = flattenedFieldsCache.get(fields)
     if (maybeFields) {
       return maybeFields
@@ -47,7 +50,10 @@ export const flattenAllFields = ({
         if (fieldAffectsData(field)) {
           result.push({ ...field, flattenedFields: flattenAllFields({ fields: field.fields }) })
         } else {
-          for (const nestedField of flattenAllFields({ fields: field.fields })) {
+          for (const nestedField of flattenAllFields({
+            fields: field.fields,
+            hasConditionalParent: Boolean(field.admin?.condition),
+          })) {
             result.push(nestedField)
           }
         }
@@ -75,7 +81,10 @@ export const flattenAllFields = ({
 
       case 'collapsible':
       case 'row': {
-        for (const nestedField of flattenAllFields({ fields: field.fields })) {
+        for (const nestedField of flattenAllFields({
+          fields: field.fields,
+          hasConditionalParent: Boolean(field.admin?.condition),
+        })) {
           result.push(nestedField)
         }
         break
@@ -89,13 +98,17 @@ export const flattenAllFields = ({
       case 'tabs': {
         for (const tab of field.tabs) {
           if (!tabHasName(tab)) {
-            for (const nestedField of flattenAllFields({ fields: tab.fields })) {
+            for (const nestedField of flattenAllFields({
+              fields: tab.fields,
+              hasConditionalParent: Boolean(field.admin?.condition || tab.admin?.condition),
+            })) {
               result.push(nestedField)
             }
           } else {
             result.push({
               ...tab,
               type: 'tab',
+              ...(field.admin?.condition ? { hasConditionalParent: true } : {}),
               flattenedFields: flattenAllFields({ fields: tab.fields }),
             })
           }
@@ -109,6 +122,10 @@ export const flattenAllFields = ({
         }
       }
     }
+  }
+
+  if (hasConditionalParent) {
+    return result.map((field) => ({ ...field, hasConditionalParent: true }))
   }
 
   flattenedFieldsCache.set(fields, result)

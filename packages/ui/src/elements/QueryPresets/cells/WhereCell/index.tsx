@@ -25,7 +25,7 @@ const transformWhereToNaturalLanguage = (where: Where): string => {
     if (typeof value === 'string') {
       return `${toWords(key)} ${operator} ${toWords(value)}`
     } else if (Array.isArray(value)) {
-      return `${toWords(key)} ${operator} ${value.map((val) => toWords(val)).join(' or ')}`
+      return `${toWords(key)} ${operator} ${value.map((val) => toWords(String(val ?? ''))).join(' or ')}`
     }
   }
 

@@ -24,6 +24,10 @@ export const BlocksDrawer: React.FC<Props> = (props) => {
   const { i18n, t } = useTranslation()
   const [searchTermOverride, setSearchTermOverride] = useState('')
   const [selectedBlock, setSelectedBlock] = useState<null | string>(null)
+  const canInsertSelectedBlock = Boolean(
+    selectedBlock &&
+    blocks.some((block) => (typeof block === 'string' ? block : block.slug) === selectedBlock),
+  )
 
   useEffect(() => {
     if (!isModalOpen(drawerSlug)) {
@@ -33,25 +37,28 @@ export const BlocksDrawer: React.FC<Props> = (props) => {
   }, [isModalOpen, drawerSlug])
 
   const handleInsert = useCallback(() => {
-    if (selectedBlock) {
+    if (canInsertSelectedBlock) {
       void addRow(addRowIndex, selectedBlock)
       closeModal(drawerSlug)
     }
-  }, [selectedBlock, addRow, addRowIndex, closeModal, drawerSlug])
+  }, [canInsertSelectedBlock, selectedBlock, addRow, addRowIndex, closeModal, drawerSlug])
 
   const handleDoubleClick = useCallback(
     (slug: string) => {
+      if (!blocks.some((block) => (typeof block === 'string' ? block : block.slug) === slug)) {
+        return
+      }
       void addRow(addRowIndex, slug)
       closeModal(drawerSlug)
     },
-    [addRow, addRowIndex, closeModal, drawerSlug],
+    [blocks, addRow, addRowIndex, closeModal, drawerSlug],
   )
 
   return (
     <Drawer
       headerActions={[
         {
-          disabled: !selectedBlock,
+          disabled: !canInsertSelectedBlock,
           label: 'Insert',
           onClick: handleInsert,
           style: 'primary',

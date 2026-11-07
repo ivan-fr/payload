@@ -1,5 +1,7 @@
 import * as qs from 'qs-esm'
 
+const originalSearch = Symbol('payload.originalSearch')
+
 /**
  * `parseSearch` for TanStack Router's `createRouter`, required for Payload's
  * admin UI. Pair with {@link payloadStringifySearch}.
@@ -32,14 +34,30 @@ import * as qs from 'qs-esm'
  * }
  * ```
  */
-export const payloadParseSearch = (searchStr: string) =>
-  qs.parse(searchStr, { depth: 10, ignoreQueryPrefix: true })
+export const payloadParseSearch = (searchStr: string) => {
+  const search = qs.parse(searchStr, { depth: 10, ignoreQueryPrefix: true })
+
+  // Router reserializes even untouched URLs. Preserve their literal keys for custom views,
+  // while retaining the nested parsed values used by the admin's query-state hooks.
+  return Object.assign(search, {
+    [originalSearch]: {
+      canonical: qs.stringify(search),
+      original: searchStr.replace(/^\?/, ''),
+    },
+  })
+}
 
 /**
  * `stringifySearch` for TanStack Router's `createRouter`, required for Payload's
  * admin UI. Pair with {@link payloadParseSearch}; see it for the full rationale.
  */
 export const payloadStringifySearch = (search: Record<string, unknown>) => {
-  const searchStr = qs.stringify(search)
+  const canonical = qs.stringify(search)
+  const original = (
+    search as {
+      [originalSearch]?: { canonical: string; original: string }
+    } & Record<string, unknown>
+  )[originalSearch]
+  const searchStr = original?.canonical === canonical ? original.original : canonical
   return searchStr ? `?${searchStr}` : ''
 }

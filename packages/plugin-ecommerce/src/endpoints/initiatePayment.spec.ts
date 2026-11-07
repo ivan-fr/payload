@@ -13,7 +13,11 @@ function createHarness({
   variant = { id: 'variant', inventory: 1, priceInUSD: 150 },
   item = { product: 'product', variant: 'variant', quantity: 2 },
   productsValidation,
+  inventory,
+  product = { id: 'product', inventory: 4, priceInUSD: 100 },
 }: {
+  inventory?: Parameters<typeof initiatePaymentHandler>[0]['inventory']
+  product?: Record<string, unknown>
   variant?: null | Record<string, unknown>
   item?: Record<string, unknown>
   productsValidation?: Parameters<typeof initiatePaymentHandler>[0]['productsValidation']
@@ -26,7 +30,7 @@ function createHarness({
         ? { currency: 'USD', items: [item] }
         : collection === 'variants'
           ? variant
-          : { id: 'product', inventory: 4, priceInUSD: 100 },
+          : product,
     )
   const req = {
     data: { cartID: 'cart', customerEmail: 'buyer@example.com' },
@@ -40,6 +44,7 @@ function createHarness({
     },
     paymentMethod: { name: 'offline', initiatePayment } as never,
     productsValidation,
+    inventory,
   })
 
   return { handler, req, initiatePayment, findByID }
@@ -80,5 +85,73 @@ describe('payment variant validation (#18339)', () => {
     const { handler, req, initiatePayment } = createHarness({ item })
     expect((await handler(req)).status).toBe(200)
     expect(initiatePayment).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('configured inventory (#18288)', () => {
+  it.each([false, { fieldName: 'stock' }])(
+    'should honor inventory config %j for variants',
+    async (inventory) => {
+      const { handler, req, findByID } = createHarness({
+        inventory,
+        variant: { id: 'variant', inventory: 0, stock: 4, priceInUSD: 150 },
+      })
+      expect((await handler(req)).status).toBe(200)
+      expect(findByID).toHaveBeenCalledWith(
+        expect.objectContaining({
+          collection: 'variants',
+          select: inventory === false ? { priceInUSD: true } : { stock: true, priceInUSD: true },
+        }),
+      )
+    },
+  )
+
+  it('should reject insufficient custom stock before contacting the provider', async () => {
+    const { handler, req, initiatePayment } = createHarness({
+      inventory: { fieldName: 'stock' },
+      variant: { id: 'variant', stock: 0, inventory: 99, priceInUSD: 150 },
+    })
+    expect((await handler(req)).status).toBe(400)
+    expect(initiatePayment).not.toHaveBeenCalled()
+  })
+})
+
+describe('product inventory configuration (#18288)', () => {
+  it.each([false, { fieldName: 'stock' }])(
+    'should use %j for products and expose it to custom validation',
+    async (inventory) => {
+      const productsValidation = vi.fn()
+      const harness = createHarness({
+        inventory,
+        productsValidation,
+        item: { product: 'product', quantity: 2 },
+      })
+      expect((await harness.handler(harness.req)).status).toBe(200)
+      expect(productsValidation).toHaveBeenCalledWith(expect.objectContaining({ inventory }))
+      expect(harness.findByID).toHaveBeenCalledWith(
+        expect.objectContaining({
+          collection: 'products',
+          select: inventory === false ? { priceInUSD: true } : { stock: true, priceInUSD: true },
+        }),
+      )
+    },
+  )
+  it('should reject an out-of-stock product in the configured field', async () => {
+    const harness = createHarness({
+      inventory: { fieldName: 'stock' },
+      item: { product: 'product', quantity: 1 },
+      product: { id: 'product', stock: 0, inventory: 99, priceInUSD: 100 },
+    })
+    expect((await harness.handler(harness.req)).status).toBe(400)
+    expect(harness.initiatePayment).not.toHaveBeenCalled()
+  })
+  it('should still reject missing prices with inventory disabled', async () => {
+    const harness = createHarness({
+      inventory: false,
+      item: { product: 'product', quantity: 1 },
+      product: { id: 'product', inventory: 0 },
+    })
+    expect((await harness.handler(harness.req)).status).toBe(400)
+    expect(harness.initiatePayment).not.toHaveBeenCalled()
   })
 })
