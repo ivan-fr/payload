@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import chalk from 'chalk'
-import path from 'path'
+import path from 'node:path'
 import terminalLink from 'terminal-link'
 
 import type { PackageManager, ProjectTemplate } from '../types.js'

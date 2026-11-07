@@ -2,7 +2,7 @@ import type { JSONSchema4 } from 'json-schema'
 import type { SerializedLexicalNode } from 'lexical'
 import type { DefaultDocumentIDType, Field } from 'payload'
 
-import { createHash } from 'crypto'
+import { createHash } from 'node:crypto'
 import { fieldsToJSONSchema, flattenAllFields } from 'payload'
 
 import type { SerializedLexicalElementBase } from '../../../types/nodeTypes.js'

@@ -1,7 +1,7 @@
 import type { I18n } from '@payloadcms/translations'
 import type { JSONSchema4, JSONSchema4TypeName } from 'json-schema'
 
-import { createHash } from 'crypto'
+import { createHash } from 'node:crypto'
 
 import type { Auth } from '../auth/types.js'
 import type { SanitizedCollectionConfig } from '../collections/config/types.js'
@@ -25,7 +25,7 @@ const fieldIsInputExcluded = (field: FlattenedField): boolean =>
   field.type === 'join' || fieldIsVirtual(field)
 
 const fieldIsRequired = (field: FlattenedField): boolean => {
-  const isConditional = Boolean(field?.admin && field?.admin?.condition)
+  const isConditional = Boolean(field.hasConditionalParent || field.admin?.condition)
   if (isConditional) {
     return false
   }

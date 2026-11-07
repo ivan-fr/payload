@@ -1,6 +1,6 @@
 import type { JSONSchema4 } from 'json-schema'
 
-import { createHash } from 'crypto'
+import { createHash } from 'node:crypto'
 
 import type { JSONSchemaArgs } from '../features/typesServer.js'
 import type { SanitizedServerEditorConfig } from '../lexical/config/types.js'

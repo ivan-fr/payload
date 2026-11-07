@@ -204,7 +204,7 @@ describe('Number', () => {
         testInfo,
       })
 
-      expect(scanResults.violations.length).toBe(0)
+      expect(scanResults.violations).toHaveLength(0)
     })
 
     // Equally, test is caught up on select issues @todo: re-enable this test when possible

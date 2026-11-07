@@ -22,7 +22,7 @@ const getJWTAuthenticationReference = (
   if (
     typeof collection !== 'string' ||
     (typeof id !== 'number' && typeof id !== 'string') ||
-    (typeof sid !== 'undefined' && typeof sid !== 'string')
+    (sid !== undefined && typeof sid !== 'string')
   ) {
     return null
   }

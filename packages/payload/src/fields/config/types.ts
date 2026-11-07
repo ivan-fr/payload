@@ -1147,7 +1147,7 @@ export type JSONField = {
 
   jsonSchema?: {
     fileMatch: string[]
-    schema: JSONSchema4
+    schema?: JSONSchema4
     uri: string
   }
   type: 'json'
@@ -1790,7 +1790,10 @@ export type FlattenedJoinField = {
   targetField: RelationshipField | UploadField
 } & JoinField
 
-export type FlattenedField =
+export type FlattenedField = {
+  /** A non-data layout ancestor has a condition, so this field can be absent. */
+  hasConditionalParent?: boolean
+} & (
   | CheckboxField
   | CodeField
   | DateField
@@ -1811,6 +1814,7 @@ export type FlattenedField =
   | TextareaField
   | TextField
   | UploadField
+)
 export type Field =
   | ArrayField
   | BlocksField

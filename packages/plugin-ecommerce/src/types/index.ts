@@ -634,6 +634,8 @@ export type ProductsValidation = (args: {
    * The ISO 4217 currency code being usen in this transaction.
    */
   currency?: string
+  /** Inventory tracking options; false disables stock checks. */
+  inventory?: false | InventoryConfig
   /**
    * The full product data.
    */
@@ -815,7 +817,7 @@ export type SanitizedEcommercePluginConfig = {
   access: SanitizedAccessConfig
   addresses: { addressFields: Field[] } & Omit<AddressesConfig, 'addressFields'>
   currencies: Required<CurrenciesConfig>
-  inventory?: InventoryConfig
+  inventory?: false | InventoryConfig
   payments: {
     paymentMethods: [] | PaymentAdapter[]
   }

@@ -1,4 +1,4 @@
-import { spawnSync } from 'child_process'
+import { spawnSync } from 'node:child_process'
 
 /**
  * Runs a shell command with stdout streamed live. Stderr is captured, printed, and included in the

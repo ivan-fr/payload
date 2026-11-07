@@ -89,7 +89,7 @@ test.suite(
         overrideAccess: true,
       })
 
-      expect(searchDocs.length).toBe(1)
+      expect(searchDocs).toHaveLength(1)
     })
   },
 )

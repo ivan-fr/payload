@@ -302,6 +302,7 @@ export const traverseFields = <T extends Record<string, unknown>>({
           }
 
           result[field.name] = blocksByPath.reduce((acc, row, i) => {
+            const storedOrder = row._order
             delete row._order
             if (row._uuid) {
               row.id = row._uuid
@@ -350,7 +351,7 @@ export const traverseFields = <T extends Record<string, unknown>>({
                     fields: block.flattenedFields,
                     numbers,
                     parentIsLocalized: parentIsLocalized || field.localized,
-                    path: `${blockFieldPath}.${i}`,
+                    path: `${blockFieldPath}.${getBlockIndex({ index: i, storedOrder })}`,
                     relationships,
                     table: row,
                     tablePath: '',
@@ -480,7 +481,7 @@ export const traverseFields = <T extends Record<string, unknown>>({
 
       if (count) {
         const countPath = `${fieldName}_count`
-        if (typeof table[countPath] !== 'undefined') {
+        if (table[countPath] !== undefined) {
           let value = Number(table[countPath])
           if (Number.isNaN(value)) {
             value = 0
@@ -729,3 +730,6 @@ export const traverseFields = <T extends Record<string, unknown>>({
 
   return formatted as T
 }
+
+const getBlockIndex = ({ index, storedOrder }: { index: number; storedOrder: unknown }): number =>
+  typeof storedOrder === 'number' && storedOrder > 0 ? storedOrder - 1 : index

@@ -7,7 +7,7 @@ import type {
   UploadCollectionSlug,
 } from 'payload'
 
-import { createHash } from 'crypto'
+import { createHash } from 'node:crypto'
 import { fieldsToJSONSchema, flattenAllFields } from 'payload'
 
 import type { LexicalElementFormat } from '../../../types/nodeTypes.js'

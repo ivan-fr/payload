@@ -81,7 +81,7 @@ export const columnToCodeConverter: ColumnToCodeConverter = ({
     code = `${code}.primaryKey()`
   }
 
-  if (typeof column.default !== 'undefined') {
+  if (column.default !== undefined) {
     let sanitizedDefault = column.default
 
     if (column.type === 'geometry') {

@@ -71,7 +71,7 @@ export const C = () => {
     })
 
     const importMatches = result.match(/from '@payloadcms\/ui'/g) ?? []
-    expect(importMatches.length).toBe(1)
+    expect(importMatches).toHaveLength(1)
     expect(result).toContain('useDocumentTitle')
     expect(result).toContain('useDocumentInfo')
   })

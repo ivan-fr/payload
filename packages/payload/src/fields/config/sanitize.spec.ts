@@ -584,7 +584,7 @@ describe('sanitizeFields', () => {
 
       const sanitizedBlock = sanitizedField.blocks[0]
 
-      expect(sanitizedBlock.admin?.disableBlockName).toStrictEqual(undefined)
+      expect(sanitizedBlock.admin?.disableBlockName).toBeUndefined()
     })
   })
 

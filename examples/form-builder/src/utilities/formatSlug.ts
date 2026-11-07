@@ -3,7 +3,7 @@ import type { FieldHook } from 'payload'
 const format = (val: string): string =>
   val
     .trim()
-    .replace(/ /g, '-')
+    .replaceAll(' ', '-')
     .replace(/[^\w-]+/g, '')
     .toLowerCase()
 

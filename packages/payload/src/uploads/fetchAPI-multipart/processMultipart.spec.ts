@@ -398,8 +398,8 @@ describe('multipart streaming', () => {
         options: { tempFileDir: directory, useTempFiles: true },
         request: await requestFor(fileForm(100_000)),
       })
-      expect((await readFile(result.files.file.tempFilePath!)).length).toBe(100_000)
-      expect(result.files.file.data.length).toBe(0)
+      expect(await readFile(result.files.file.tempFilePath!)).toHaveLength(100_000)
+      expect(result.files.file.data).toHaveLength(0)
     } finally {
       await rm(directory, { recursive: true, force: true })
     }

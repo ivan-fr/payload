@@ -15,7 +15,7 @@ export const addDataAndFileToRequest: AddDataAndFileToRequest = async (req) => {
 
   if (method && ['PATCH', 'POST', 'PUT'].includes(method.toUpperCase()) && body) {
     const [contentType] = (headers.get('Content-Type') || '').split(';', 1)
-    const bodyByteSize = parseInt(req.headers.get('Content-Length') || '0', 10)
+    const bodyByteSize = Number.parseInt(req.headers.get('Content-Length') || '0', 10)
     const hasBodyStream = req.body !== null
 
     if (contentType === 'application/json') {

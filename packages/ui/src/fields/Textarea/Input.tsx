@@ -58,7 +58,7 @@ export const TextareaInput: React.FC<TextAreaInputProps> = (props) => {
         CustomComponent={Label}
         Fallback={
           <FieldLabel
-            htmlFor={`field-${path.replace(/\./g, '__')}`}
+            htmlFor={`field-${path.replaceAll('.', '__')}`}
             label={label}
             localized={localized}
             path={path}
@@ -77,7 +77,7 @@ export const TextareaInput: React.FC<TextAreaInputProps> = (props) => {
             className="form-input"
             data-rtl={rtl}
             disabled={readOnly}
-            id={`field-${path.replace(/\./g, '__')}`}
+            id={`field-${path.replaceAll('.', '__')}`}
             name={path}
             onChange={onChange}
             placeholder={getTranslation(placeholder, i18n)}

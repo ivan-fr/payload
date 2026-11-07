@@ -43,6 +43,26 @@ describe('Lexical Fully Featured', () => {
     await expect(lexical.editor.first()).toBeVisible()
     await lexical.editor.first().focus()
   })
+
+  test('should dismiss the table picker with its accessible control and Escape', async ({
+    page,
+  }) => {
+    await lexical.slashCommand('table')
+    const popup = page.locator('.table-grid-popup')
+    const closeButton = page.getByRole('button', { name: 'Close', exact: true })
+
+    await expect(closeButton).toBeVisible()
+    await closeButton.focus()
+    await closeButton.press('Enter')
+    await expect(popup).toBeHidden()
+
+    await lexical.editor.first().focus()
+    await lexical.slashCommand('table')
+    await page.getByRole('spinbutton', { name: 'Columns', exact: true }).fill('3')
+    await page.keyboard.press('Escape')
+    await expect(popup).toBeHidden()
+  })
+
   test('prevent extra paragraph when inserting decorator blocks like blocks or upload node', async () => {
     await lexical.slashCommand('myblock')
     await expect(lexical.editor.locator('.LexicalEditorTheme__block')).toBeVisible()

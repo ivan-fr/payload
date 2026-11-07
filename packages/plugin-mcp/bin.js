@@ -10,8 +10,8 @@
  * `--disable-transpile` if your config is already JS (or you've registered your
  * own loader).
  */
-import path from 'path'
-import { fileURLToPath, pathToFileURL } from 'url'
+import path from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const disableTranspile = process.argv.includes('--disable-transpile')
 

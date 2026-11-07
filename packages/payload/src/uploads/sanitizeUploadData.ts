@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 
 import type { FlattenedField } from '../fields/config/types.js'
 
@@ -97,7 +97,7 @@ const validateFilename = (filename: unknown): void => {
     return
   }
 
-  const pathSegments = filename.replace(/\\/g, '/').split('/')
+  const pathSegments = filename.replaceAll('\\', '/').split('/')
 
   if (
     path.posix.isAbsolute(filename) ||

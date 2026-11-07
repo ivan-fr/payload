@@ -1330,7 +1330,7 @@ test.suite('Hierarchy', { config: './config.ts', resetBetweenTests: false }, () 
         overrideAccess: true,
       })
 
-      expect(results.docs.length).toBe(5)
+      expect(results.docs).toHaveLength(5)
 
       // Verify cache statistics
       const stats = cacheStats

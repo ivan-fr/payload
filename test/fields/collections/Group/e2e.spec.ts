@@ -150,7 +150,7 @@ describe('Group', () => {
         testInfo,
       })
 
-      expect(scanResults.violations.length).toBe(0)
+      expect(scanResults.violations).toHaveLength(0)
     })
   })
 })

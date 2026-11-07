@@ -204,7 +204,7 @@ describe('SlugField', () => {
         testInfo,
       })
 
-      expect(scanResults.violations.length).toBe(0)
+      expect(scanResults.violations).toHaveLength(0)
     })
 
     test('Slug inputs have focus indicators', async ({}, testInfo) => {

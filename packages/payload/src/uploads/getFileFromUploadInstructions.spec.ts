@@ -128,7 +128,7 @@ describe('getFileFromUploadInstructions', () => {
     expect(file.tempFilePath).toBeTruthy()
     tempFilesToClean.push(file.tempFilePath!)
 
-    expect(file.data.length).toBe(0)
+    expect(file.data).toHaveLength(0)
     expect(fs.readFileSync(file.tempFilePath!, 'utf8')).toBe('some file contents')
     expect(file.uploadReference).toEqual({
       _objectKey: 'upload-1',
@@ -494,7 +494,7 @@ describe('getFileFromUploadInstructions', () => {
     expect(handler).toHaveBeenCalledTimes(1)
     expect(file.tempFilePath).toBeTruthy()
     tempFilesToClean.push(file.tempFilePath!)
-    expect(file.data.length).toBe(0)
+    expect(file.data).toHaveLength(0)
     expect(fs.readFileSync(file.tempFilePath!)).toEqual(MINIMAL_PNG)
   })
 

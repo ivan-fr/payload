@@ -35,7 +35,7 @@ export function setHandlePosition(
     // No need to let line height affect the re-positioning of the floating element if line height has no
     // visual effect on the element. Otherwise, the floating element will be positioned incorrectly.
     const actualLineHeight = doesLineHeightAffectElement(targetElem)
-      ? parseInt(targetStyle.lineHeight, 10)
+      ? Number.parseInt(targetStyle.lineHeight, 10)
       : 0
 
     top = targetRect.top + (actualLineHeight - floatingElemRect.height) / 2 - anchorElementRect.top

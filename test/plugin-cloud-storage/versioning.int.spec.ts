@@ -105,7 +105,10 @@ test.suite('versioned cloud storage', { config: './config.ts' }, () => {
           if (doc.filename !== 'outer-original.png' || hookReq.context.skipCloudStorage) {
             return
           }
-          expect(hookReq).toBe(req)
+          // Local upload input is isolated; context and the transaction still belong to the caller.
+          expect(hookReq.context).toBe(req.context)
+          expect(hookReq.transactionID).toBe(req.transactionID)
+          const outerFile = hookReq.file
           expect(hookReq.context._payloadManagedCloudStorage).toBe(true)
           const metadata = hookReq.context._payloadManagedCloudMetadata
           expect(metadata).toMatchObject({ storageMarker: doc.storageMarker })
@@ -127,6 +130,7 @@ test.suite('versioned cloud storage', { config: './config.ts' }, () => {
               : await payload.update({ ...args, id: existing![1].id })
           expect(hookReq.context._payloadManagedCloudStorage).toBe(true)
           expect(hookReq.context._payloadManagedCloudMetadata).toBe(metadata)
+          expect(hookReq.file).toBe(outerFile)
         },
         ...afterChange,
       ]

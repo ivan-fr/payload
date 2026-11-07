@@ -111,7 +111,7 @@ export const Autosave: React.FC<Props> = ({ id, collection, global: globalDoc })
     queueTask(
       async () => {
         if (modified) {
-          startTimestamp = new Date().getTime()
+          startTimestamp = Date.now()
 
           setSaving(true)
 

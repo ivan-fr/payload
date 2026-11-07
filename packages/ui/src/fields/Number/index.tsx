@@ -55,7 +55,7 @@ const NumberFieldComponent: React.FC<NumberFieldClientProps> = (props) => {
 
   const handleChange = useCallback(
     (e) => {
-      const val = parseFloat(e.target.value)
+      const val = Number.parseFloat(e.target.value)
       let newVal = val
 
       if (Number.isNaN(val)) {

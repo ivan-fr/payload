@@ -1,5 +1,5 @@
-import fs from 'fs/promises'
-import path from 'path'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 
 import { NEXT_PAYLOAD_ROUTE_GROUP, TANSTACK_PAYLOAD_DIR } from '../frameworkConventions.js'
 

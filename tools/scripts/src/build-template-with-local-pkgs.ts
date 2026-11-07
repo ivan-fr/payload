@@ -1,8 +1,8 @@
 import { TEMPLATES_DIR } from '@tools/constants'
 import chalk from 'chalk'
-import { execSync, spawn } from 'child_process'
-import fs from 'fs/promises'
-import path from 'path'
+import { execSync, spawn } from 'node:child_process'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 
 import { mapTarballsToFileSpecs } from './local-package-tarballs.js'
 

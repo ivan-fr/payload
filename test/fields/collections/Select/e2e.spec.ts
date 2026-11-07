@@ -215,7 +215,7 @@ describe('Select', () => {
         testInfo,
       })
 
-      expect(scanResults.violations.length).toBe(0)
+      expect(scanResults.violations).toHaveLength(0)
     })
 
     test.fixme('Edit view should have no accessibility violations', async ({}, testInfo) => {
@@ -232,7 +232,7 @@ describe('Select', () => {
         testInfo,
       })
 
-      expect(scanResults.violations.length).toBe(0)
+      expect(scanResults.violations).toHaveLength(0)
     })
 
     test.fixme('Select fields have focus indicators', async ({}, testInfo) => {

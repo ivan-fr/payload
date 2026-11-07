@@ -1,7 +1,7 @@
 import { PROJECT_ROOT } from '@tools/constants'
-import { execFileSync } from 'child_process'
-import fs from 'fs'
-import path from 'path'
+import { execFileSync } from 'node:child_process'
+import fs from 'node:fs'
+import path from 'node:path'
 
 /**
  * Writes `text` to `filePath`, applies oxlint's auto-fixes and returns the fixed content.

@@ -9,6 +9,7 @@ import {
 
 import type {
   CurrenciesConfig,
+  InventoryConfig,
   PaymentAdapter,
   ProductsValidation,
   UserWithCart,
@@ -33,6 +34,8 @@ type Args = {
    * The slug of the customers collection, defaults to 'users'.
    */
   customersSlug?: string
+  /** Inventory tracking options; false disables stock updates. */
+  inventory?: false | InventoryConfig
   /**
    * The slug of the orders collection, defaults to 'orders'.
    */
@@ -67,6 +70,7 @@ export const confirmOrderHandler: ConfirmOrderHandler =
     cartsSlug = 'carts',
     currenciesConfig,
     customersSlug = 'users',
+    inventory,
     ordersSlug = 'orders',
     paymentMethod,
     productsSlug = 'products',
@@ -227,6 +231,7 @@ export const confirmOrderHandler: ConfirmOrderHandler =
           order = await finalizeTransactionOrder({
             cartID: canonicalCartID,
             cartsSlug,
+            inventory,
             orderData,
             ordersSlug,
             productsSlug,
@@ -330,6 +335,7 @@ const isValidDocumentID = (id: unknown): id is DefaultDocumentIDType =>
 const finalizeTransactionOrder = async ({
   cartID,
   cartsSlug,
+  inventory,
   orderData,
   ordersSlug,
   productsSlug,
@@ -340,6 +346,7 @@ const finalizeTransactionOrder = async ({
 }: {
   cartID: DefaultDocumentIDType
   cartsSlug: string
+  inventory?: false | InventoryConfig
   orderData: Record<string, unknown>
   ordersSlug: string
   productsSlug: string
@@ -427,12 +434,15 @@ const finalizeTransactionOrder = async ({
     req,
   })
 
-  await decrementInventory({
-    items: transaction.items,
-    productsSlug,
-    req,
-    variantsSlug,
-  })
+  if (inventory !== false) {
+    await decrementInventory({
+      fieldName: inventory?.fieldName || 'inventory',
+      items: transaction.items,
+      productsSlug,
+      req,
+      variantsSlug,
+    })
+  }
 
   await req.payload.update({
     id: transactionID,
@@ -446,11 +456,13 @@ const finalizeTransactionOrder = async ({
 }
 
 const decrementInventory = async ({
+  fieldName,
   items,
   productsSlug,
   req,
   variantsSlug,
 }: {
+  fieldName: string
   items: unknown
   productsSlug: string
   req: ConfirmOrderArgs['req']
@@ -480,7 +492,7 @@ const decrementInventory = async ({
     const updatedInventory = await req.payload.db.updateOne({
       id,
       collection: hasVariant ? variantsSlug : productsSlug,
-      data: { inventory: { $inc: item.quantity * -1 } },
+      data: { [fieldName]: { $inc: item.quantity * -1 } },
       req,
     })
 

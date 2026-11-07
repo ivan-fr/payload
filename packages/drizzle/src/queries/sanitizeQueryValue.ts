@@ -67,7 +67,7 @@ export const sanitizeQueryValue = ({
       formattedValue = createArrayFromCommaDelineated(formattedValue)
 
       if (field.type === 'number') {
-        formattedValue = formattedValue.map((arrayVal) => parseFloat(arrayVal))
+        formattedValue = formattedValue.map((arrayVal) => Number.parseFloat(arrayVal))
       }
     } else if (typeof formattedValue === 'number') {
       formattedValue = [formattedValue]
@@ -210,20 +210,25 @@ export const sanitizeQueryValue = ({
       if (Array.isArray(formattedValue)) {
         formattedValue = [
           ...new Set(
-            formattedValue.map((value) => {
-              if (idType === 'number') {
-                return Number(value)
-              }
-              if (idType === 'text') {
-                return String(value)
-              }
-              return value
-            }),
+            formattedValue
+              .map((value) => {
+                if (idType === 'number') {
+                  return Number(value)
+                }
+                if (idType === 'text') {
+                  return String(value)
+                }
+                return value
+              })
+              .filter((value) => typeof value !== 'number' || !Number.isNaN(value)),
           ),
         ]
       } else {
         if (idType === 'number') {
           formattedValue = Number(val)
+          if (Number.isNaN(formattedValue)) {
+            formattedValue = null
+          }
         }
         if (idType === 'text') {
           formattedValue = String(val)

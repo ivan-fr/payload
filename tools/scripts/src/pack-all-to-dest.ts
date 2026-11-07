@@ -1,13 +1,13 @@
 import type { PackageDetails } from '@tools/releaser'
-import type { ExecSyncOptions } from 'child_process'
+import type { ExecSyncOptions } from 'node:child_process'
 
 import { PROJECT_ROOT } from '@tools/constants'
 import { getPackageDetails } from '@tools/releaser'
 import chalk from 'chalk'
-import { exec as execOrig, execSync } from 'child_process'
 import minimist from 'minimist'
-import path from 'path'
-import util from 'util'
+import { exec as execOrig, execSync } from 'node:child_process'
+import path from 'node:path'
+import util from 'node:util'
 
 const execOpts: ExecSyncOptions = { stdio: 'inherit', cwd: PROJECT_ROOT }
 

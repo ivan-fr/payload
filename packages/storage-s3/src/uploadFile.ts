@@ -1,7 +1,7 @@
 import type * as AWS from '@aws-sdk/client-s3'
 
 import { Upload } from '@aws-sdk/lib-storage'
-import fs from 'fs'
+import fs from 'node:fs'
 
 interface UploadArgs {
   acl?: 'private' | 'public-read'

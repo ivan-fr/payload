@@ -7,5 +7,5 @@ export const generateFieldID = (
   if (!path) {
     return undefined
   }
-  return `${prefix}-${path.replace(/\./g, '__')}${editDepth > 1 ? `-${editDepth}` : ''}${uuid ? `-${uuid}` : ''}`
+  return `${prefix}-${path.replaceAll('.', '__')}${editDepth > 1 ? `-${editDepth}` : ''}${uuid ? `-${uuid}` : ''}`
 }

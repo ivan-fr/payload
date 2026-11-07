@@ -7,7 +7,7 @@ export type Props = {
 }
 
 export const OrderableRowDragPreview = ({ children, className, rowId }: Props) =>
-  typeof rowId === 'undefined' ? null : (
+  rowId === undefined ? null : (
     <div className={className}>
       <table cellPadding={0} cellSpacing={0}>
         <tbody>{children}</tbody>

@@ -17,7 +17,7 @@ export function sanitizeUploadPrefix(prefix: string): string {
 
   return (
     decodedPrefix
-      .replace(/\\/g, '/')
+      .replaceAll('\\', '/')
       // eslint-disable-next-line no-control-regex
       .replace(/[\x00-\x1f\x80-\x9f]/g, '')
       .split('/')

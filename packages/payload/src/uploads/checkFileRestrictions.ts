@@ -1,5 +1,5 @@
 import { fileTypeFromBuffer, fileTypeFromFile } from 'file-type'
-import fs from 'fs/promises'
+import fs from 'node:fs/promises'
 
 import type { checkFileRestrictionsParams, FileAllowList } from './types.js'
 

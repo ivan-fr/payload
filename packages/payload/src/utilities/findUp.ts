@@ -1,5 +1,5 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 /**
  * Synchronously walks up parent directories until a condition is met and/or one of the file names within the fileNames array is found.

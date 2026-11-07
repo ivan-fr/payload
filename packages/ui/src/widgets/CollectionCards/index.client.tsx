@@ -89,7 +89,7 @@ export const CollectionCardsClient: React.FC<CollectionCardsData> = ({
                         const lockDurationInMilliseconds = lockDuration * 1000
                         const lockExpirationTime = lastEditedAt + lockDurationInMilliseconds
 
-                        if (new Date().getTime() > lockExpirationTime) {
+                        if (Date.now() > lockExpirationTime) {
                           isLocked = false
                           userEditing = null
                         }

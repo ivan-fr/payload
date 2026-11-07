@@ -371,7 +371,7 @@ function useInlineToolbar(
         setIsText(false)
       }
 
-      const rawTextContent = selection.getTextContent().replace(/\n/g, '')
+      const rawTextContent = selection.getTextContent().replaceAll('\n', '')
       if (!selection.isCollapsed() && rawTextContent === '') {
         setIsText(false)
         return

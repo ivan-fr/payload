@@ -148,7 +148,7 @@ export const CodeComponent: React.FC<AdditionalCodeComponentProps & CodeFieldCli
           })
 
           monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-            noSemanticValidation: typescript?.enableSemanticValidation ? false : true,
+            noSemanticValidation: !typescript?.enableSemanticValidation,
             noSyntaxValidation: false,
           })
 

@@ -20,7 +20,7 @@ export function parseDocumentID({ id, collectionSlug, payload }: ParseDocumentID
   const idType = payload.collections[collectionSlug]?.customIDType ?? payload.db.defaultIDType
 
   if (idType === 'number') {
-    return isNumber(id) ? parseFloat(String(id)) : id
+    return isNumber(id) ? Number.parseFloat(String(id)) : id
   }
 
   return String(id)

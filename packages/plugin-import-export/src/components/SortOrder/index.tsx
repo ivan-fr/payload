@@ -111,7 +111,7 @@ export const SortOrder: React.FC<SelectFieldClientProps> = (props) => {
       <FieldLabel label={props.field.label} path={props.path} />
       <ReactSelect
         disabled={props.readOnly}
-        inputId={`field-${props.path.replace(/\./g, '__')}`}
+        inputId={`field-${props.path.replaceAll('.', '__')}`}
         isClearable={false}
         isSearchable={false}
         // @ts-expect-error react-select option typing differs from our local type

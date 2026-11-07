@@ -42,7 +42,7 @@ export function getLocalizedValue({
   const requestedValue = value[locale]
 
   // Determine if we should use fallback
-  const isNullOrUndefined = typeof requestedValue === 'undefined' || requestedValue === null
+  const isNullOrUndefined = requestedValue === undefined || requestedValue === null
 
   // For text/textarea fields, empty string also triggers fallback
   const shouldUseFallback =

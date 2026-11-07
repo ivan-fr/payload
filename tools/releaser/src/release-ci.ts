@@ -11,8 +11,8 @@
  * preview still runs.
  */
 import minimist from 'minimist'
+import { pathToFileURL } from 'node:url'
 import semver from 'semver'
-import { pathToFileURL } from 'url'
 
 import type { Workspace } from './lib/getWorkspace.js'
 

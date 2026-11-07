@@ -182,7 +182,7 @@ const sanitizeRelationship = ({
     result = value.map((val) => {
       // Skip null/undefined entries so a stray null in a hasMany relationship
       // array doesn't get coerced or crash downstream sanitization.
-      if (val === null || typeof val === 'undefined') {
+      if (val === null || val === undefined) {
         return val
       }
 
@@ -878,7 +878,7 @@ export const transform = ({
   })
 
   if (operation === 'write') {
-    if (typeof data.updatedAt === 'undefined') {
+    if (data.updatedAt === undefined) {
       // If data.updatedAt is explicitly set to `null` we should not set it - this means we don't want to change the value of updatedAt.
       data.updatedAt = new Date().toISOString()
     } else if (data.updatedAt === null) {

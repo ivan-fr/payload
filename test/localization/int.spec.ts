@@ -203,7 +203,7 @@ test.suite('Localization', { config: './config.ts', resetBetweenTests: false }, 
         })
 
         expect(resultAllLocales.items.en[0].text).toEqual('localized array item')
-        expect(resultAllLocales.items.es).toEqual(undefined)
+        expect(resultAllLocales.items.es).toBeUndefined()
 
         const resultSpanishLocale: any = await payload.findByID({
           id: localizedArrayPost.id,
@@ -1636,7 +1636,7 @@ test.suite('Localization', { config: './config.ts', resetBetweenTests: false }, 
           overrideAccess: true,
         })
 
-        expect(updatedSpanishDoc.items).toStrictEqual(null)
+        expect(updatedSpanishDoc.items).toBeNull()
       })
 
       test('should allow optional fallback data', async ({ payload }) => {
@@ -1671,7 +1671,7 @@ test.suite('Localization', { config: './config.ts', resetBetweenTests: false }, 
         })
 
         if (isMongoose(payload)) {
-          expect(docWithoutFallback.items).toStrictEqual(null)
+          expect(docWithoutFallback.items).toBeNull()
         } else {
           // TODO: build out compatability with SQL databases
           // Currently SQL databases always fallback since the localized values are joined in.
@@ -2070,7 +2070,7 @@ test.suite('Localization', { config: './config.ts', resetBetweenTests: false }, 
           overrideAccess: true,
         })
 
-        expect(allLocales?.title?.en).toBe(undefined)
+        expect(allLocales?.title?.en).toBeUndefined()
         expect(allLocales?.title?.es).toBe(spanishTitle)
         expect(allLocales?.description).toBe('keep me')
       })

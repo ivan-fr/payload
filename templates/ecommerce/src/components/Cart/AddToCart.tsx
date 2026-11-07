@@ -85,10 +85,8 @@ export function AddToCart({ product }: Props) {
       if (selectedVariant.inventory === 0) {
         return true
       }
-    } else {
-      if (product.inventory === 0) {
-        return true
-      }
+    } else if (product.inventory === 0) {
+      return true
     }
 
     return false

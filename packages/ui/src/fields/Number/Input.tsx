@@ -85,7 +85,7 @@ export const NumberInput: React.FC<NumberInputProps> = (props) => {
         {BeforeInput}
         {hasMany ? (
           <ReactSelect
-            className={`field-${path.replace(/\./g, '__')}`}
+            className={`field-${path.replaceAll('.', '__')}`}
             components={{ DropdownIndicator: null }}
             disabled={readOnly}
             filterOption={(_, rawInput) => {
@@ -119,7 +119,7 @@ export const NumberInput: React.FC<NumberInputProps> = (props) => {
               aria-label={ariaLabel || getTranslation(label, i18n) || path}
               className="form-input"
               disabled={readOnly}
-              id={`field-${path.replace(/\./g, '__')}`}
+              id={`field-${path.replaceAll('.', '__')}`}
               max={max}
               min={min}
               name={path}

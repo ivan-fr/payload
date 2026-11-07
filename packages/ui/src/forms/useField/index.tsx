@@ -253,8 +253,9 @@ export const useField = <TValue,>(options?: Options): FieldType<TValue> => {
     // a nested <Form /> we should use instead => 'form'
     const currentPath = options?.path || pathFromContext || options?.potentiallyStalePath
 
-    hasFieldContext.current =
-      fieldContext && currentPath && fieldContext.path === currentPath ? true : false
+    hasFieldContext.current = Boolean(
+      fieldContext && currentPath && fieldContext.path === currentPath,
+    )
   }
 
   if (hasFieldContext.current === true) {

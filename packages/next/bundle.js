@@ -1,8 +1,8 @@
 import * as esbuild from 'esbuild'
-import fs from 'fs'
+import fs from 'node:fs'
 import { sassPlugin } from 'esbuild-sass-plugin'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 

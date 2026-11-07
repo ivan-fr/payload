@@ -81,7 +81,7 @@ const batchAndLoadDocs =
       const batchKey = JSON.stringify(batchKeyArray)
 
       const idType = payload.collections?.[collection]?.customIDType || payload.db.defaultIDType
-      const sanitizedID = idType === 'number' ? parseFloat(id) : id
+      const sanitizedID = idType === 'number' ? Number.parseFloat(id) : id
 
       if (isValidID(sanitizedID, idType)) {
         batchByFindArgs[batchKey] = [...(batchByFindArgs[batchKey] || []), sanitizedID]

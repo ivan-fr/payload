@@ -59,7 +59,7 @@ export async function validateSearchParam({
   if (incomingPath === '_id') {
     sanitizedPath = 'id'
   } else {
-    sanitizedPath = incomingPath.replace(/__/g, '.')
+    sanitizedPath = incomingPath.replaceAll('__', '.')
   }
   let paths: PathToQuery[] = []
   const { slug } = (collectionConfig || globalConfig)!

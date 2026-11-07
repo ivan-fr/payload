@@ -120,7 +120,7 @@ export const SelectInput: React.FC<SelectInputProps> = (props) => {
         .filter(Boolean)
         .join(' ')}
       data-size={size}
-      id={`field-${path.replace(/\./g, '__')}`}
+      id={`field-${path.replaceAll('.', '__')}`}
       style={style}
     >
       <RenderCustomComponent

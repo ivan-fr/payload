@@ -11,10 +11,10 @@
  */
 import { PROJECT_ROOT } from '@tools/constants'
 import execa from 'execa'
-import fs from 'fs'
 import minimist from 'minimist'
-import path from 'path'
-import { pathToFileURL } from 'url'
+import fs from 'node:fs'
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 import type { SbomPackage } from './lib/sbom/formats.js'
 

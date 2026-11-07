@@ -14,7 +14,7 @@ const initialConfig = {
     throw error
   },
 }
-const Fixture = ({ readOnly }: { readOnly: boolean }) => (
+const Fixture = ({ readOnly }: { readonly readOnly: boolean }) => (
   <LexicalComposer initialConfig={initialConfig}>
     <EditablePlugin readOnly={readOnly} />
     <PlainTextPlugin
@@ -33,6 +33,7 @@ test('should enable the same editor after initialization and retain text through
   await screen.rerender(<Fixture readOnly={false} />)
   await expect.element(editor).toHaveAttribute('contenteditable', 'true')
   await editor.fill('Unsaved content')
+  await expect.element(editor).toHaveFocus()
   await screen.rerender(<Fixture readOnly />)
   await expect.element(editor).toHaveAttribute('contenteditable', 'false')
   await expect.element(editor).toHaveTextContent('Unsaved content')
@@ -40,4 +41,5 @@ test('should enable the same editor after initialization and retain text through
   await expect.element(editor).toHaveAttribute('contenteditable', 'true')
   expect(editor.element()).toBe(element)
   await expect.element(editor).toHaveTextContent('Unsaved content')
+  await expect.element(editor).toHaveFocus()
 })

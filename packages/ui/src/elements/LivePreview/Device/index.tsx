@@ -64,14 +64,12 @@ export const DeviceContainer: React.FC<{
         } else {
           x = '0'
         }
+      } else if (zoom >= 1) {
+        x = `${scaledDeviceDifferencePixels / 2}px`
       } else {
-        if (zoom >= 1) {
-          x = `${scaledDeviceDifferencePixels / 2}px`
-        } else {
-          const differenceFromDeviceToFrame = outerFrameSize.width - scaledDeviceWidth
-          x = `${differenceFromDeviceToFrame / 2}px`
-          margin = '0'
-        }
+        const differenceFromDeviceToFrame = outerFrameSize.width - scaledDeviceWidth
+        x = `${differenceFromDeviceToFrame / 2}px`
+        margin = '0'
       }
     }
   }

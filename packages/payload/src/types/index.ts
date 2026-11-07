@@ -1,7 +1,7 @@
 import type { I18n, TFunction } from '@payloadcms/translations'
 import type DataLoader from 'dataloader'
+import type { URL } from 'node:url'
 import type { OptionalKeys, RequiredKeys } from 'ts-essentials'
-import type { URL } from 'url'
 
 import type { ServerAdapter } from '../admin/adapters/server.js'
 import type {
@@ -34,6 +34,10 @@ export interface PayloadRequestAPI {
   REST: true
 }
 
+// Add the reserved value without widening generated locale unions or excluding
+// the null locale used by configurations without localization.
+type LocaleWithAll<TLocale> = 'all' | TLocale
+
 export type CustomPayloadRequestProperties = {
   context: RequestContext
   /** The locale that should be used for a field when it is not translated to the requested locale */
@@ -48,11 +52,8 @@ export type CustomPayloadRequestProperties = {
   /**
    * The requested locale if specified
    * Only available for localized collections
-   *
-   * Suppressing warning below as it is a valid use case - won't be an issue if generated types exist
    */
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  locale?: 'all' | TypedLocale
+  locale?: LocaleWithAll<TypedLocale>
   /**
    * The payload object
    */

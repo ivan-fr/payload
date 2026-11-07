@@ -117,19 +117,17 @@ export const sanitizeQueryValue = ({
 
         if (!isValid) {
           return { operator: formattedOperator, val: undefined }
+        } else if (['in', 'not_in'].includes(operator)) {
+          formattedValue = createArrayFromCommaDelineated(formattedValue).map(
+            (id) => new Types.ObjectId(id),
+          )
         } else {
-          if (['in', 'not_in'].includes(operator)) {
-            formattedValue = createArrayFromCommaDelineated(formattedValue).map(
-              (id) => new Types.ObjectId(id),
-            )
-          } else {
-            formattedValue = new Types.ObjectId(val)
-          }
+          formattedValue = new Types.ObjectId(val)
         }
       }
 
       if (field.type === 'number') {
-        const parsedNumber = parseFloat(val)
+        const parsedNumber = Number.parseFloat(val)
 
         if (Number.isNaN(parsedNumber)) {
           return { operator: formattedOperator, val: undefined }
@@ -151,7 +149,7 @@ export const sanitizeQueryValue = ({
           }
 
           if (field.type === 'number') {
-            const parsedNumber = parseFloat(inVal)
+            const parsedNumber = Number.parseFloat(inVal)
             if (!Number.isNaN(parsedNumber)) {
               formattedValues.push(parsedNumber)
             }
@@ -179,7 +177,7 @@ export const sanitizeQueryValue = ({
     formattedValue = createArrayFromCommaDelineated(formattedValue)
 
     if (field.type === 'number' && Array.isArray(formattedValue)) {
-      formattedValue = formattedValue.map((arrayVal) => parseFloat(arrayVal))
+      formattedValue = formattedValue.map((arrayVal) => Number.parseFloat(arrayVal))
     }
   }
 
@@ -268,7 +266,7 @@ export const sanitizeQueryValue = ({
 
         if (typeof relationTo === 'string' && payload.collections[relationTo]?.customIDType) {
           if (payload.collections[relationTo].customIDType === 'number') {
-            const parsedNumber = parseFloat(inVal)
+            const parsedNumber = Number.parseFloat(inVal)
             if (!Number.isNaN(parsedNumber)) {
               formattedValues.push(parsedNumber)
               return formattedValues
@@ -313,7 +311,7 @@ export const sanitizeQueryValue = ({
         // Convert array values to proper types (ObjectId or custom ID type)
         formattedValue = formattedValue.map((v) => {
           if (customIDType === 'number') {
-            const parsed = parseFloat(v)
+            const parsed = Number.parseFloat(v)
             return Number.isNaN(parsed) ? v : parsed
           }
           if (!Types.ObjectId.isValid(v)) {
@@ -328,7 +326,7 @@ export const sanitizeQueryValue = ({
             const relTo = item.relationTo
             const customIDType = payload.collections[relTo]?.customIDType
             if (customIDType === 'number') {
-              const parsed = parseFloat(item.value)
+              const parsed = Number.parseFloat(item.value)
               return { relationTo: relTo, value: Number.isNaN(parsed) ? item.value : parsed }
             }
             if (Types.ObjectId.isValid(item.value)) {
@@ -352,7 +350,7 @@ export const sanitizeQueryValue = ({
 
         if (customIDType) {
           if (customIDType === 'number') {
-            formattedValue = parseFloat(val)
+            formattedValue = Number.parseFloat(val)
 
             if (Number.isNaN(formattedValue)) {
               return { operator: formattedOperator, val: undefined }
@@ -421,15 +419,15 @@ export const sanitizeQueryValue = ({
       formattedValue = undefined
     } else {
       formattedValue = {
-        $geometry: { type: 'Point', coordinates: [parseFloat(lng), parseFloat(lat)] },
+        $geometry: { type: 'Point', coordinates: [Number.parseFloat(lng), Number.parseFloat(lat)] },
       }
 
       if (maxDistance && !Number.isNaN(Number(maxDistance))) {
-        formattedValue.$maxDistance = parseFloat(maxDistance)
+        formattedValue.$maxDistance = Number.parseFloat(maxDistance)
       }
 
       if (minDistance && !Number.isNaN(Number(minDistance))) {
-        formattedValue.$minDistance = parseFloat(minDistance)
+        formattedValue.$minDistance = Number.parseFloat(minDistance)
       }
     }
   }

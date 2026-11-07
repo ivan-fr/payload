@@ -1516,7 +1516,7 @@ describe('Versions', () => {
           testInfo,
         })
 
-        expect(scanResults.violations.length).toBe(0)
+        expect(scanResults.violations).toHaveLength(0)
       })
 
       test('Versions list view elements have focus indicators', async ({}, testInfo) => {
@@ -1559,7 +1559,7 @@ describe('Versions', () => {
           testInfo,
         })
 
-        expect(scanResults.violations.length).toBe(0)
+        expect(scanResults.violations).toHaveLength(0)
       })
 
       test('Version view elements have focus indicators', async ({}, testInfo) => {

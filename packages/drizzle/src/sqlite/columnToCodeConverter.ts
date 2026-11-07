@@ -113,7 +113,7 @@ export const columnToCodeConverter: ColumnToCodeConverter = ({
 
   if (defaultStatement) {
     code = `${code}.${defaultStatement}`
-  } else if (typeof column.default !== 'undefined') {
+  } else if (column.default !== undefined) {
     let sanitizedDefault = column.default
 
     if (column.type === 'jsonb' || column.type === 'geometry') {

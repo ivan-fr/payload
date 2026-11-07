@@ -26,12 +26,10 @@ export const buildDrizzleRelations = ({ adapter }: { adapter: DrizzleAdapter }) 
               ),
               relationName: relation.relationName,
             })
-          } else {
-            if (adapter.tables[relation.to]) {
-              result[key] = many(adapter.tables[relation.to], {
-                relationName: relation.relationName,
-              })
-            }
+          } else if (adapter.tables[relation.to]) {
+            result[key] = many(adapter.tables[relation.to], {
+              relationName: relation.relationName,
+            })
           }
         }
 

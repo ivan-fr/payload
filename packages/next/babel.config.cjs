@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require('node:fs')
 
 // Plugin options can be found here: https://github.com/facebook/react/blob/main/compiler/packages/babel-plugin-react-compiler/src/Entrypoint/Options.ts#L38
 const ReactCompilerConfig = {

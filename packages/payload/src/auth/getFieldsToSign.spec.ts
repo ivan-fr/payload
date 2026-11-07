@@ -70,7 +70,7 @@ describe('getFieldsToSign', () => {
       } as PayloadRequest['user'],
     })
 
-    expect(Object.getPrototypeOf(result)).toBe(null)
+    expect(Object.getPrototypeOf(result)).toBeNull()
     expect(result).toEqual({
       collection: 'users',
       email: 'account@example.com',
@@ -109,7 +109,7 @@ describe('getFieldsToSign', () => {
     })
     const roundTripped = JSON.parse(JSON.stringify(result)) as Record<string, unknown>
 
-    expect(Object.getPrototypeOf(result)).toBe(null)
+    expect(Object.getPrototypeOf(result)).toBeNull()
     expect(Object.hasOwn(result, '__proto__')).toBe(true)
     expect(Object.hasOwn(result, 'constructor')).toBe(true)
     expect(Object.hasOwn(roundTripped, '__proto__')).toBe(true)

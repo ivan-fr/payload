@@ -72,7 +72,7 @@ export const generateSubmissionCollection = (
             // Might not be possible to use this validation function.
             // Instead, might need to do all validation in a `beforeValidate` collection hook.
 
-            if (typeof value !== 'undefined') {
+            if (value !== undefined) {
               return true
             }
 

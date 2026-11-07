@@ -4,17 +4,17 @@
  * Outputs licenses.csv in the root directory
  */
 
-import type { ExecSyncOptions } from 'child_process'
+import type { ExecSyncOptions } from 'node:child_process'
 
 import { PROJECT_ROOT } from '@tools/constants'
 import { getPackageDetails } from '@tools/releaser'
 import chalk from 'chalk'
-import { exec as execOrig } from 'child_process'
 import { stringify } from 'csv-stringify/sync'
-import fs from 'fs/promises'
+import { exec as execOrig } from 'node:child_process'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import path from 'path'
-import util from 'util'
+import util from 'node:util'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)

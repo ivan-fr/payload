@@ -1,6 +1,7 @@
 import type { PayloadRequest } from '../types/index.js'
 import type { ProbedImageSize } from './types.js'
 
+import { getJPEGOrientation } from './getJPEGOrientation.js'
 import { probeImageSize, probeImageSizeFromPath } from './probeImageSize.js'
 
 /**
@@ -16,9 +17,12 @@ export async function getImageSize({
   // `tempFilePath` may be an empty string when the file is held in memory
   const tempFilePath = file?.tempFilePath || undefined
 
-  if (tempFilePath) {
-    return probeImageSizeFromPath(tempFilePath)
-  }
+  const dimensions = tempFilePath
+    ? await probeImageSizeFromPath(tempFilePath)
+    : probeImageSize(file!.data)
+  const orientation = await getJPEGOrientation({ data: file?.data, tempFilePath })
 
-  return probeImageSize(file!.data)
+  return orientation && orientation >= 5
+    ? { height: dimensions.width, width: dimensions.height }
+    : dimensions
 }

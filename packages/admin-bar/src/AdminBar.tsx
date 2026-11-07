@@ -49,12 +49,10 @@ export const PayloadAdminBar: React.FC<PayloadAdminBarProps> = (props) => {
 
         if (user) {
           setUser(user)
+        } else if (devMode !== true) {
+          setUser(null)
         } else {
-          if (devMode !== true) {
-            setUser(null)
-          } else {
-            setUser(dummyUser)
-          }
+          setUser(dummyUser)
         }
       } catch (err) {
         console.warn(err)

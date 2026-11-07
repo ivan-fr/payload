@@ -151,11 +151,9 @@ export const reduceFieldsToOptions = ({
 
       if (fieldAffectsData(field)) {
         // Make sure we handle deeply nested groups
-        const pathWithPrefix = field.name
+        const pathWithPrefix = shouldIgnoreFieldName
           ? pathPrefix
-            ? pathPrefix + '.' + field.name
-            : field.name
-          : pathPrefix
+          : createNestedClientFieldPath(pathPrefix || '', field)
 
         reduced.push(
           ...reduceFieldsToOptions({

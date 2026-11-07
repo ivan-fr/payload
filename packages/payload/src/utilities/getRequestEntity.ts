@@ -66,7 +66,7 @@ export const getRequestCollectionWithID = <T extends boolean>(
 
   // If we still should sanitize, parse float
   if (shouldSanitize) {
-    sanitizedID = parseFloat(sanitizedID)
+    sanitizedID = Number.parseFloat(sanitizedID)
   }
 
   return {

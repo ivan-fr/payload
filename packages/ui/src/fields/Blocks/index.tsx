@@ -425,7 +425,7 @@ const BlocksFieldComponent: React.FC<BlocksFieldClientProps> = (props) => {
       ]
         .filter(Boolean)
         .join(' ')}
-      id={`field-${path?.replace(/\./g, '__')}`}
+      id={`field-${path?.replaceAll('.', '__')}`}
       ref={fieldRef}
       style={styles}
     >
@@ -529,6 +529,7 @@ const BlocksFieldComponent: React.FC<BlocksFieldClientProps> = (props) => {
                     <BlockRow
                       {...draggableSortableItemProps}
                       addRow={addRow}
+                      availableBlocks={clientBlocksAfterFilter}
                       block={blockConfig}
                       // Pass all blocks, not just clientBlocksAfterFilter, as existing blocks should still be displayed even if they don't match the new filter
                       blocks={clientBlocks}

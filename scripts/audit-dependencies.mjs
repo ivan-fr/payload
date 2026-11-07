@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import { execFileSync } from 'child_process'
-import fs from 'fs'
-import path from 'path'
+import { execFileSync } from 'node:child_process'
+import fs from 'node:fs'
+import path from 'node:path'
 import chalk from 'chalk'
 
 // Simple semver check functions - avoid external dependency
@@ -261,22 +261,20 @@ const vulnerabilities = Object.entries(advisories)
                 // Calculate direct dep version
                 if (i === actualDirectDepIndex) {
                   directDepVersion = latestVersion
-                } else {
-                  if (actualDirectDepName) {
-                    try {
-                      const directDepLatest = execFileSync(
-                        'pnpm',
-                        ['view', actualDirectDepName, 'version'],
-                        {
-                          encoding: 'utf-8',
-                          maxBuffer: 10 * 1024 * 1024,
-                          stdio: ['pipe', 'pipe', 'ignore'],
-                        },
-                      ).trim()
-                      directDepVersion = directDepLatest
-                    } catch (e) {
-                      directDepVersion = latestVersion
-                    }
+                } else if (actualDirectDepName) {
+                  try {
+                    const directDepLatest = execFileSync(
+                      'pnpm',
+                      ['view', actualDirectDepName, 'version'],
+                      {
+                        encoding: 'utf-8',
+                        maxBuffer: 10 * 1024 * 1024,
+                        stdio: ['pipe', 'pipe', 'ignore'],
+                      },
+                    ).trim()
+                    directDepVersion = directDepLatest
+                  } catch (e) {
+                    directDepVersion = latestVersion
                   }
                 }
                 break

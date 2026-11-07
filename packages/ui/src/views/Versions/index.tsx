@@ -59,7 +59,7 @@ export async function VersionsView(props: DocumentViewServerProps) {
     limit: limitToUse,
     locale: req.locale,
     overrideAccess: false,
-    page: page ? parseInt(page.toString(), 10) : undefined,
+    page: page ? Number.parseInt(page.toString(), 10) : undefined,
     parentID: id,
     req,
     sort,

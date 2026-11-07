@@ -47,6 +47,36 @@ describe('capComments', () => {
 })
 
 describe('sanitizeMarkdown link normalisation', () => {
+  it('should preserve a long malformed link without catastrophic backtracking', () => {
+    const input = '[link](' + 'x'.repeat(100_000)
+
+    expect(sanitizeMarkdown(input, input.length)).toBe(input)
+  })
+
+  it('should preserve repeated unmatched opening brackets in linear time', () => {
+    const input = '['.repeat(100_000) + 'unclosed label'
+
+    expect(sanitizeMarkdown(input, input.length)).toBe(input)
+  })
+
+  it('should still normalize a valid link inside a malformed outer link', () => {
+    expect(sanitizeMarkdown('[broken](text [hidden](https://example.com)')).toBe(
+      '[broken](text [https://example.com](https://example.com)',
+    )
+  })
+
+  it('should preserve balanced nested parentheses in a link destination', () => {
+    expect(sanitizeMarkdown('[hidden](https://example.com/a(b(c)))')).toBe(
+      '[https://example.com/a(b(c))](https://example.com/a(b(c)))',
+    )
+  })
+
+  it('should normalize multiple links while retaining intervening malformed labels', () => {
+    expect(sanitizeMarkdown('[one](#one) [not a link] [two](javascript:void(0))')).toBe(
+      '[one](#one) [not a link] two',
+    )
+  })
+
   it('should normalise https links so display text becomes the URL', () => {
     const result = sanitizeMarkdown('[click here](https://evil.example/phishing)')
     expect(result).toBe('[https://evil.example/phishing](https://evil.example/phishing)')

@@ -2,8 +2,8 @@ import * as p from '@clack/prompts'
 import chalk from 'chalk'
 import execa from 'execa'
 import fse from 'fs-extra'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import path from 'path'
 
 import type {
   CliArgs,

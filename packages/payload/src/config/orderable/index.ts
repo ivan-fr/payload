@@ -286,11 +286,7 @@ export const addOrderableEndpoint = (
       })
     }
 
-    if (
-      typeof target !== 'object' ||
-      typeof target.id === 'undefined' ||
-      typeof target.key !== 'string'
-    ) {
+    if (typeof target !== 'object' || target.id === undefined || typeof target.key !== 'string') {
       return new Response(JSON.stringify({ error: 'target must be an object with id' }), {
         headers: { 'Content-Type': 'application/json' },
         status: 400,

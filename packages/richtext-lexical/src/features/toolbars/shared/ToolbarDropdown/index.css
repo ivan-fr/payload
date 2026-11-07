@@ -98,7 +98,7 @@
       display: flex;
       align-items: center;
       gap: var(--spacer-1);
-      margin-inline-end: -var(--spacer-3);
+      margin-inline-end: calc(-1 * var(--spacer-3));
 
       .text {
         overflow: hidden;
@@ -138,8 +138,7 @@
 
       .btn__icon {
         --btn-icon-size: var(--spacer-4);
-        background: none !important;
-        background-color: none !important;
+        background: none;
       }
     }
   }

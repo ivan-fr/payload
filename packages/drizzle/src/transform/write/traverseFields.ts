@@ -13,9 +13,9 @@ import type {
 } from './types.js'
 
 import { isArrayOfRows } from '../../utilities/isArrayOfRows.js'
-import { resolveBlockTableName } from '../../utilities/validateExistingBlockIsIdentical.js'
 import { transformArray } from './array.js'
 import { transformBlocks } from './blocks.js'
+import { collectBlockTables } from './collectBlockTables.js'
 import { transformNumbers } from './numbers.js'
 import { transformRelationship } from './relationships.js'
 import { transformSelects } from './selects.js'
@@ -141,6 +141,10 @@ export const traverseFields = ({
     const isLocalized = fieldShouldBeLocalized({ field, parentIsLocalized })
 
     if (field.type === 'array') {
+      if (fieldData === undefined) {
+        return
+      }
+
       const arrayTableName = adapter.tableNameMap.get(`${parentTableName}_${columnName}`)
 
       if (isLocalized) {
@@ -198,7 +202,7 @@ export const traverseFields = ({
       } else {
         let value = data[field.name]
         let push = false
-        if (typeof value === 'object' && '$push' in value) {
+        if (value && typeof value === 'object' && '$push' in value) {
           value = Array.isArray(value.$push) ? value.$push : [value.$push]
           push = true
         }
@@ -240,19 +244,7 @@ export const traverseFields = ({
     }
 
     if (field.type === 'blocks' && !adapter.blocksAsJSON) {
-      field.blocks.forEach((block) => {
-        const matchedBlock =
-          typeof block === 'string'
-            ? adapter.payload.config.blocks.find((each) => each.slug === block)
-            : block
-
-        blocksToDelete.add(
-          resolveBlockTableName(
-            matchedBlock,
-            adapter.tableNameMap.get(`${baseTableName}_blocks_${toSnakeCase(matchedBlock.slug)}`),
-          ),
-        )
-      })
+      collectBlockTables({ adapter, baseTableName, blocksToDelete, fields: [field] })
 
       if (isLocalized) {
         if (typeof data[field.name] === 'object' && data[field.name] !== null) {
@@ -586,27 +578,25 @@ export const traverseFields = ({
           relationships,
         })
         return
-      } else {
-        if (
-          !isLocalized &&
-          fieldData &&
-          typeof fieldData === 'object' &&
-          'id' in fieldData &&
-          fieldData?.id
-        ) {
-          fieldData = fieldData.id
-        } else if (isLocalized) {
-          if (typeof fieldData === 'object') {
-            Object.entries(fieldData).forEach(([localeKey, localeData]) => {
-              if (typeof localeData === 'object') {
-                if (localeData && 'id' in localeData && localeData?.id) {
-                  fieldData[localeKey] = localeData.id
-                }
-              } else {
-                fieldData[localeKey] = localeData
+      } else if (
+        !isLocalized &&
+        fieldData &&
+        typeof fieldData === 'object' &&
+        'id' in fieldData &&
+        fieldData?.id
+      ) {
+        fieldData = fieldData.id
+      } else if (isLocalized) {
+        if (typeof fieldData === 'object') {
+          Object.entries(fieldData).forEach(([localeKey, localeData]) => {
+            if (typeof localeData === 'object') {
+              if (localeData && 'id' in localeData && localeData?.id) {
+                fieldData[localeKey] = localeData.id
               }
-            })
-          }
+            } else {
+              fieldData[localeKey] = localeData
+            }
+          })
         }
       }
     }
@@ -769,19 +759,17 @@ export const traverseFields = ({
           // If updatedAt is explicitly set to null, skip it entirely - don't add to row
           // This prevents the timestamp from being updated for session-only operations
           return // Skip this iteration
-        } else if (fieldName === 'updatedAt' && typeof formattedValue === 'undefined') {
+        } else if (fieldName === 'updatedAt' && formattedValue === undefined) {
           // If updatedAt is undefined, set it to current time (normal behavior)
           formattedValue = new Date().toISOString()
-        } else {
-          if (typeof value === 'number' && !Number.isNaN(value)) {
-            formattedValue = new Date(value).toISOString()
-          } else if (value instanceof Date) {
-            formattedValue = value.toISOString()
-          }
+        } else if (typeof value === 'number' && !Number.isNaN(value)) {
+          formattedValue = new Date(value).toISOString()
+        } else if (value instanceof Date) {
+          formattedValue = value.toISOString()
         }
       }
 
-      if (typeof value !== 'undefined') {
+      if (value !== undefined) {
         if (value && field.type === 'point' && adapter.name !== 'sqlite') {
           formattedValue = sql`ST_GeomFromGeoJSON(${JSON.stringify(value)})`
         }
@@ -807,7 +795,7 @@ export const traverseFields = ({
         }
       }
 
-      if (typeof formattedValue !== 'undefined') {
+      if (formattedValue !== undefined) {
         if (localeKey) {
           ref[localeKey][fieldName] = formattedValue
         } else {

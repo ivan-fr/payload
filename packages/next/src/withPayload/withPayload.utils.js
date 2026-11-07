@@ -24,15 +24,15 @@
  * SOFTWARE.
  */
 
-import { readFileSync } from 'fs'
-import { fileURLToPath } from 'url'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 
 /**
  * @param {string | undefined} input
  * @returns {number}
  */
 function _parseInt(input) {
-  return parseInt(input || '', 10)
+  return Number.parseInt(input || '', 10)
 }
 
 /**
@@ -63,7 +63,7 @@ export function parseSemver(input) {
 
   const prerelease = match[4]
   const canaryVersion = prerelease?.startsWith('canary.')
-    ? parseInt(prerelease.split('.')[1] || '0', 10)
+    ? Number.parseInt(prerelease.split('.')[1] || '0', 10)
     : undefined
 
   return {

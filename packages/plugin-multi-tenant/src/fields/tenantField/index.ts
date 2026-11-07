@@ -32,10 +32,8 @@ const fieldValidation =
       if (!value || (Array.isArray(value) && value.length === 0)) {
         return options.req.t('validation:required')
       }
-    } else {
-      if (!value) {
-        return options.req.t('validation:required')
-      }
+    } else if (!value) {
+      return options.req.t('validation:required')
     }
 
     if (

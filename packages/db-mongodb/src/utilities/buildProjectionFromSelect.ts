@@ -79,7 +79,7 @@ const traverseFields = ({
       }
 
       if (selectMode === 'exclude') {
-        if (typeof select[field.name] === 'undefined') {
+        if (select[field.name] === undefined) {
           addFieldToProjection({
             adapter,
             databaseSchemaPath,
@@ -140,7 +140,7 @@ const traverseFields = ({
 
           if (
             (selectMode === 'include' && blocksSelect[block.slug] === true) ||
-            (selectMode === 'exclude' && typeof blocksSelect[block.slug] === 'undefined')
+            (selectMode === 'exclude' && blocksSelect[block.slug] === undefined)
           ) {
             traverseFields({
               adapter,

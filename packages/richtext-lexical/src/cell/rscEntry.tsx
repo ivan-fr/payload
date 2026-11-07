@@ -16,10 +16,8 @@ function recurseEditorState(
     i++
     if ('text' in node && node.text) {
       textContent.push(node.text as string)
-    } else {
-      if (!('children' in node)) {
-        textContent.push(<code key={i}>&#32;[{node.type}]</code>)
-      }
+    } else if (!('children' in node)) {
+      textContent.push(<code key={i}>&#32;[{node.type}]</code>)
     }
     if ('children' in node && node.children) {
       textContent = recurseEditorState(node.children as SerializedLexicalNode[], textContent, i)

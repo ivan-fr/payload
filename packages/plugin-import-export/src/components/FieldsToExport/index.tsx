@@ -79,7 +79,7 @@ export const FieldsToExport: React.FC<SelectFieldClientProps> = (props) => {
         className={baseClass}
         disabled={props.readOnly}
         getOptionValue={(option) => String(option.value)}
-        inputId={`field-${props.path.replace(/\./g, '__')}`}
+        inputId={`field-${props.path.replaceAll('.', '__')}`}
         isClearable={true}
         isMulti={true}
         isSortable={true}

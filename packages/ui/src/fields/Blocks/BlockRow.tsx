@@ -23,6 +23,7 @@ const baseClass = 'blocks-field'
 
 type BlocksFieldProps = {
   addRow: (rowIndex: number, blockType: string) => Promise<void> | void
+  availableBlocks?: (ClientBlock | string)[]
   block: ClientBlock
   blocks: (ClientBlock | string)[] | ClientBlock[]
   copyRow: (rowIndex: number) => void
@@ -52,6 +53,7 @@ type BlocksFieldProps = {
 export const BlockRow: React.FC<BlocksFieldProps> = ({
   addRow,
   attributes,
+  availableBlocks,
   block,
   blocks,
   copyRow,
@@ -157,6 +159,7 @@ export const BlockRow: React.FC<BlocksFieldProps> = ({
           !readOnly ? (
             <RowActions
               addRow={addRow}
+              availableBlocks={availableBlocks}
               blocks={blocks}
               blockType={row.blockType}
               copyRow={copyRow}

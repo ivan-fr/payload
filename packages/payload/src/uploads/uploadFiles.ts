@@ -1,4 +1,4 @@
-import fs from 'fs/promises'
+import fs from 'node:fs/promises'
 
 import type { Payload } from '../index.js'
 import type { PayloadRequest } from '../types/index.js'

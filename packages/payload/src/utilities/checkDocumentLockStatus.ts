@@ -79,7 +79,7 @@ export const checkDocumentLockStatus = async ({
     const lockedDoc = lockedDocumentResult?.docs[0]
     if (lockedDoc) {
       const lastEditedAt = new Date(lockedDoc?.updatedAt).getTime()
-      const now = new Date().getTime()
+      const now = Date.now()
 
       const lockDuration =
         typeof lockDocumentsProp === 'object' ? lockDocumentsProp.duration : lockDurationDefault
@@ -179,7 +179,7 @@ export const getLockedDocumentIds = async ({
 
   const lockDurationInMilliseconds = lockDuration * 1000
   const currentUserId = req.user?.id
-  const now = new Date().getTime()
+  const now = Date.now()
   const resolved = new Set<string>()
 
   for (const batch of getLockQueryBatches({ ids, req })) {

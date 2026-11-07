@@ -6,7 +6,7 @@ export const statusBeforeRead: FieldHook = ({ data }) => {
   }
 
   if (data?.createdAt) {
-    const timeNow = new Date().getTime()
+    const timeNow = Date.now()
     const createdAt = new Date(data.createdAt).getTime()
     const differenceToCheck = 7 * 24 * 60 * 60 * 1000 // 7 days
 

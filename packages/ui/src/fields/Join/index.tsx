@@ -201,11 +201,11 @@ const JoinFieldComponent: React.FC<JoinFieldClientProps> = (props) => {
   return (
     <div
       className={[fieldBaseClass, fieldHasErrors && 'error', 'join'].filter(Boolean).join(' ')}
-      id={`field-${path?.replace(/\./g, '__')}`}
+      id={`field-${path?.replaceAll('.', '__')}`}
     >
       <RelationshipTable
         AfterInput={AfterInput}
-        allowCreate={typeof docID !== 'undefined' && allowCreate}
+        allowCreate={docID !== undefined && allowCreate}
         BeforeInput={BeforeInput}
         Description={
           Description || description ? (
@@ -234,7 +234,7 @@ const JoinFieldComponent: React.FC<JoinFieldClientProps> = (props) => {
           </div>
         }
         parent={
-          typeof docID !== 'undefined'
+          docID !== undefined
             ? {
                 id: docID,
                 collectionSlug: docConfig.slug,

@@ -1,8 +1,8 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { sharpTransformer } from '@payloadcms/transformer-sharp'
-import path from 'path'
+import path from 'node:path'
 import { buildConfig, PayloadRequest } from 'payload'
-import { fileURLToPath } from 'url'
+import { fileURLToPath } from 'node:url'
 
 import { Categories } from './collections/Categories'
 import { Media, mediaSharpOptions } from './collections/Media'

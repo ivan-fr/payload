@@ -56,10 +56,8 @@ export const RouteTransitionProvider: React.FC<RouteTransitionProps> = ({ childr
 
     if (isTransitioning) {
       initiateProgress()
-    } else {
-      if (timerID.current) {
-        clearInterval(timerID.current)
-      }
+    } else if (timerID.current) {
+      clearInterval(timerID.current)
     }
   }, [isTransitioning, initiateProgress])
 

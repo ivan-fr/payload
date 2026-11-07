@@ -4,7 +4,7 @@ import type { PayloadRequest, TextFieldClient } from 'payload'
 import { useModal } from '@faceless-ui/modal'
 import { getTranslation } from '@payloadcms/translations'
 import { formatAdminURL, text } from 'payload/shared'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -50,6 +50,20 @@ export const APIKey: React.FC<{ readonly readOnly?: boolean; readonly reveal?: b
 
   const apiKeyLast4 = useFormFields(([fields]) => (fields && fields.apiKeyLast4) || null)
   const dispatchFields = useFormFields(([, dispatch]) => dispatch)
+  const apiKeyFormState = useFormFields(([fields]) => fields[path])
+  const resetAPIKeyField = useCallback(() => {
+    dispatchFields({
+      type: 'UPDATE_MANY',
+      formState: {
+        [path]: {
+          ...apiKeyFormState,
+          initialValue: undefined,
+          isModified: false,
+          value: undefined,
+        },
+      },
+    })
+  }, [apiKeyFormState, dispatchFields])
   const apiKeyField = getEntityConfig({ collectionSlug })?.fields?.find(
     (field) => 'name' in field && field.name === 'apiKey',
   ) as TextFieldClient
@@ -106,7 +120,7 @@ export const APIKey: React.FC<{ readonly readOnly?: boolean; readonly reveal?: b
       const result = await response.json()
       setHasUpdatedPersistedAPIKey(Boolean(apiKey))
       setLast4Value(result.doc?.apiKeyLast4 || null, true)
-      dispatchFields({ type: 'REMOVE', path })
+      resetAPIKeyField()
       if (result.doc?.updatedAt) {
         setData(result.doc)
         setLastUpdateTime(new Date(result.doc.updatedAt).getTime())
@@ -184,10 +198,10 @@ export const APIKey: React.FC<{ readonly readOnly?: boolean; readonly reveal?: b
       setGeneratedAtSubmitCount(null)
       setRevealedKey(null)
       setShowCopyWarning(false)
-      dispatchFields({ type: 'REMOVE', path })
+      resetAPIKeyField()
       setShowKey(false)
     }
-  }, [apiKeyValue, dispatchFields, generatedAtSubmitCount, successfulSubmitCount])
+  }, [apiKeyValue, generatedAtSubmitCount, resetAPIKeyField, successfulSubmitCount])
 
   return (
     <React.Fragment>

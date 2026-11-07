@@ -62,7 +62,7 @@ export const PointFieldComponent: React.FC<PointFieldClientProps> = (props) => {
 
   const handleChange = useCallback(
     (e, index: 0 | 1) => {
-      let val = parseFloat(e.target.value)
+      let val = Number.parseFloat(e.target.value)
       if (Number.isNaN(val)) {
         val = e.target.value
       }

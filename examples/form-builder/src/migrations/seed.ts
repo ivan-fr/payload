@@ -53,19 +53,19 @@ export async function up({ payload }: MigrateUpArgs): Promise<void> {
   })
 
   const homePageJSON = JSON.parse(
-    JSON.stringify(home).replace(/\{\{BASIC_FORM_ID\}\}/g, basicFormID.toString()),
+    JSON.stringify(home).replaceAll('{{BASIC_FORM_ID}}', basicFormID.toString()),
   )
 
   const contactPageJSON = JSON.parse(
-    JSON.stringify(contact).replace(/\{\{CONTACT_FORM_ID\}\}/g, contactFormID.toString()),
+    JSON.stringify(contact).replaceAll('{{CONTACT_FORM_ID}}', contactFormID.toString()),
   )
 
   const advancedPageJSON = JSON.parse(
-    JSON.stringify(advanced).replace(/\{\{ADVANCED_FORM_ID\}\}/g, advancedFormID.toString()),
+    JSON.stringify(advanced).replaceAll('{{ADVANCED_FORM_ID}}', advancedFormID.toString()),
   )
 
   const signupPageJSON = JSON.parse(
-    JSON.stringify(signUp).replace(/\{\{SIGNUP_FORM_ID\}\}/g, signUpFormID.toString()),
+    JSON.stringify(signUp).replaceAll('{{SIGNUP_FORM_ID}}', signUpFormID.toString()),
   )
 
   await payload.create({

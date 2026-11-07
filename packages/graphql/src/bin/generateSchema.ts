@@ -1,7 +1,7 @@
 import type { SanitizedConfig } from 'payload'
 
-import fs from 'fs'
 import { printSchema } from 'graphql'
+import fs from 'node:fs'
 
 import { configToSchema } from '../index.js'
 export function generateSchema(config: SanitizedConfig): void {

@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 
 /**
  * A single secret in the keyring, with its derived keys precomputed.

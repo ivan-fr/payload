@@ -1,8 +1,8 @@
 import type { ContainerClient } from '@azure/storage-blob'
 
 import { AbortController } from '@azure/abort-controller'
-import fs from 'fs'
-import { Readable } from 'stream'
+import fs from 'node:fs'
+import { Readable } from 'node:stream'
 
 interface UploadArgs {
   buffer: Buffer

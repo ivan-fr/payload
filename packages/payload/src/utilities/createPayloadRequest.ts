@@ -168,7 +168,7 @@ export const createPayloadRequest: CreatePayloadRequest = async ({
   req.routeParams = req?.routeParams || {}
   req.query = req?.query || {}
 
-  if (typeof depth !== 'undefined') {
+  if (depth !== undefined) {
     req.query.depth = depth
   }
 

@@ -111,7 +111,7 @@ export const buildDrizzleTable: BuildDrizzleTable = ({ adapter, locales, rawTabl
       columns[key].notNull()
     }
 
-    if (typeof column.default !== 'undefined') {
+    if (column.default !== undefined) {
       let sanitizedDefault = column.default
 
       if (column.type === 'geometry' && Array.isArray(column.default)) {

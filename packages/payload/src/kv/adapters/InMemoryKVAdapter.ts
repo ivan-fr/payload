@@ -15,7 +15,7 @@ export class InMemoryKVAdapter implements KVAdapter {
   async get<T extends KVStoreValue>(key: string): Promise<null | T> {
     const value = this.store.get(key) as T | undefined
 
-    if (typeof value === 'undefined') {
+    if (value === undefined) {
       return null
     }
 

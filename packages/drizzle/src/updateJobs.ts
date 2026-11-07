@@ -95,7 +95,7 @@ export const updateJobs: UpdateJobs = async function updateMany(
       tableName,
     })
 
-    if (typeof row.updatedAt === 'undefined' || row.updatedAt === null) {
+    if (row.updatedAt === undefined || row.updatedAt === null) {
       delete row.updatedAt
     }
 

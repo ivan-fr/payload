@@ -250,7 +250,7 @@ function extractCollectionSharpEntry({
     slugLiteralValue !== undefined && isSafePlainObjectKey(slugLiteralValue)
       ? slugLiteralValue
       : isExternal && !isStringLiteralNode(slugInitializer)
-        ? `'${slugLiteralValue!.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+        ? `'${slugLiteralValue!.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
         : `[${slugInitializer.getText()}]`
 
   return { entryText: `${keyText}: { ${movedTexts.join(', ')} }`, movedProps, uploadObj }

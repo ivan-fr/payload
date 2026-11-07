@@ -46,7 +46,7 @@ test.suite('migrations CLI', { config: './config.ts' }, () => {
       .readdirSync(migrationDir)
       .filter((f) => f.endsWith('.ts') && !f.startsWith('index'))
 
-    expect(migrationFiles.length).toBe(1)
+    expect(migrationFiles).toHaveLength(1)
 
     const migrationContent = fs.readFileSync(path.join(migrationDir, migrationFiles[0]!), 'utf8')
 
@@ -72,7 +72,7 @@ test.suite('migrations CLI', { config: './config.ts' }, () => {
       const migrationFiles = fs
         .readdirSync(migrationDir)
         .filter((f) => f.endsWith('.ts') && !f.startsWith('index'))
-      expect(migrationFiles.length).toBe(1)
+      expect(migrationFiles).toHaveLength(1)
 
       const migrationContent = fs.readFileSync(path.join(migrationDir, migrationFiles[0]!), 'utf8')
 
@@ -99,7 +99,7 @@ test.suite('migrations CLI', { config: './config.ts' }, () => {
     const migrationFiles = fs
       .readdirSync(migrationDir)
       .filter((f) => f.endsWith('.ts') && !f.startsWith('index'))
-    expect(migrationFiles.length).toBe(1)
+    expect(migrationFiles).toHaveLength(1)
 
     const migrationContent = fs.readFileSync(path.join(migrationDir, migrationFiles[0]!), 'utf8')
 

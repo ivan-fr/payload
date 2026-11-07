@@ -167,7 +167,7 @@ export const getAfterChangeHook =
             })
 
             // Persist all adapter metadata, but do not add unselected fields to the response.
-            docWithMetadata = select ? { ...doc, ...updatedDoc } : { ...doc, ...uploadMetadata }
+            docWithMetadata = { ...doc, ...updatedDoc }
           } finally {
             req.context = originalContext
           }

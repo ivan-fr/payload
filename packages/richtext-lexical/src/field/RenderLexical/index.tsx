@@ -77,7 +77,7 @@ export const RenderLexical: React.FC<
   }, [renderLexical])
 
   if (!Component) {
-    return typeof Loading !== 'undefined' ? Loading : <ShimmerEffect />
+    return Loading !== undefined ? Loading : <ShimmerEffect />
   }
 
   /**
@@ -96,7 +96,7 @@ export const RenderLexical: React.FC<
     },
   }
 
-  if (typeof value === 'undefined' && !setValue) {
+  if (value === undefined && !setValue) {
     return (
       <ServerFunctionsContext value={{ ...adjustedServerFunctionContext }}>
         <FieldPathContext key={fieldPath} value={fieldPath}>

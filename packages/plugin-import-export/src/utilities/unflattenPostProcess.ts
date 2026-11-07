@@ -46,7 +46,7 @@ const normalizeHasManyNumbers = (doc: Record<string, unknown>, fields: Flattened
         .map((v) => v.trim())
         .filter((v) => v !== '')
         .map((v) => {
-          const num = parseFloat(v)
+          const num = Number.parseFloat(v)
           return isNaN(num) ? 0 : num
         })
     } else if (Array.isArray(value)) {
@@ -54,13 +54,13 @@ const normalizeHasManyNumbers = (doc: Record<string, unknown>, fields: Flattened
         .filter((v) => v !== null && v !== undefined && v !== '')
         .map((v) => {
           if (typeof v === 'string') {
-            const num = parseFloat(v)
+            const num = Number.parseFloat(v)
             return isNaN(num) ? 0 : num
           }
           return v
         })
     } else if (value !== null && value !== undefined && value !== '') {
-      const num = typeof value === 'string' ? parseFloat(value) : value
+      const num = typeof value === 'string' ? Number.parseFloat(value) : value
       doc[field.name] = isNaN(num as number) ? [] : [num]
     } else {
       doc[field.name] = []

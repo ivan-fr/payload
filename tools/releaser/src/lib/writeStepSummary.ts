@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'node:fs'
 
 /**
  * Appends markdown to the GitHub Actions job summary. Outside Actions the path is

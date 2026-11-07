@@ -49,7 +49,7 @@ export const getDocumentData = async ({
         req: {
           ...rest,
         },
-        trash: isTrashedDoc ? true : false,
+        trash: Boolean(isTrashedDoc),
         user,
       })
     }

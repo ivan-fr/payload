@@ -314,7 +314,7 @@ test.suite('trash', { config: './config.ts', resetBetweenTests: false }, () => {
           },
         })
 
-        expect(result.docs.length).toBe(2)
+        expect(result.docs).toHaveLength(2)
         expect(result.docs.every((doc: DifferentiatedTrashCollection) => doc.deletedAt)).toBe(true)
       })
 
@@ -373,7 +373,7 @@ test.suite('trash', { config: './config.ts', resetBetweenTests: false }, () => {
           },
         })
 
-        expect(remaining.docs.length).toBe(2)
+        expect(remaining.docs).toHaveLength(2)
       })
 
       test('should allow admin to bulk permanently delete trashed documents', async ({
@@ -411,7 +411,7 @@ test.suite('trash', { config: './config.ts', resetBetweenTests: false }, () => {
           },
         })
 
-        expect(result.docs.length).toBe(2)
+        expect(result.docs).toHaveLength(2)
         expect(result.docs.map((d: DifferentiatedTrashCollection) => d.id).sort()).toEqual(
           [doc1.id, doc2.id].sort(),
         )
@@ -428,7 +428,7 @@ test.suite('trash', { config: './config.ts', resetBetweenTests: false }, () => {
           },
         })
 
-        expect(remaining.docs.length).toBe(0)
+        expect(remaining.docs).toHaveLength(0)
       })
     })
   })

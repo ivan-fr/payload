@@ -58,7 +58,7 @@ export async function buildSearchParam({
   val: unknown
 }): Promise<SearchParam | undefined> {
   // Replace GraphQL nested field double underscore formatting
-  let sanitizedPath = incomingPath.replace(/__/g, '.')
+  let sanitizedPath = incomingPath.replaceAll('__', '.')
   if (sanitizedPath === 'id') {
     sanitizedPath = '_id'
   }
@@ -394,7 +394,7 @@ export async function buildSearchParam({
 
             if (hasNumberIDRelation) {
               result.value[multiIDCondition]?.push({
-                [path]: { [operatorKey]: parseFloat(formattedValue) },
+                [path]: { [operatorKey]: Number.parseFloat(formattedValue) },
               })
             }
           }

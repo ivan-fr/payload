@@ -26,6 +26,7 @@ import {
   type TypedLocale,
   type User,
 } from '../../../index.js'
+import { createFileRequest } from '../../../uploads/createFileRequest.js'
 import { getFileByPath } from '../../../uploads/getFileByPath.js'
 import { createPayloadRequest } from '../../../utilities/createPayloadRequest.js'
 import { createOperation } from '../create.js'
@@ -211,9 +212,11 @@ export async function createLocal<
     )
   }
 
-  const req = await createPayloadRequest({
-    ...(options as Omit<CreatePayloadRequestArgs, 'payload'>),
-    payload,
+  const req = createFileRequest({
+    req: await createPayloadRequest({
+      ...(options as Omit<CreatePayloadRequestArgs, 'payload'>),
+      payload,
+    }),
   })
 
   req.file = file ?? (await getFileByPath(filePath!))

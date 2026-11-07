@@ -288,10 +288,21 @@ export const traverseFields = ({
               }
             }
           }
-        } else {
-          if (
-            callback &&
-            !leavesFirst &&
+        } else if (
+          callback &&
+          !leavesFirst &&
+          callback({
+            field: { ...tab, type: 'tab' },
+            next,
+            parentIsLocalized,
+            parentPath,
+            parentRef: currentParentRef,
+            ref: tabRef,
+          })
+        ) {
+          return true
+        } else if (leavesFirst) {
+          callbackStack.push(() =>
             callback({
               field: { ...tab, type: 'tab' },
               next,
@@ -299,21 +310,8 @@ export const traverseFields = ({
               parentPath,
               parentRef: currentParentRef,
               ref: tabRef,
-            })
-          ) {
-            return true
-          } else if (leavesFirst) {
-            callbackStack.push(() =>
-              callback({
-                field: { ...tab, type: 'tab' },
-                next,
-                parentIsLocalized,
-                parentPath,
-                parentRef: currentParentRef,
-                ref: tabRef,
-              }),
-            )
-          }
+            }),
+          )
         }
 
         if (!tabIsLocalized || flattenLocales) {

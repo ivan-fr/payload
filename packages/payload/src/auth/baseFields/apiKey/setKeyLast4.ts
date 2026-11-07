@@ -7,7 +7,7 @@ export const setKeyLast4: FieldHook = ({ data, siblingData }) => {
   if (
     data &&
     'apiKey' in data &&
-    typeof data.apiKey !== 'undefined' &&
+    data.apiKey !== undefined &&
     !(typeof data.apiKey === 'string' && data.apiKey)
   ) {
     return null

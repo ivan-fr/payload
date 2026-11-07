@@ -100,7 +100,7 @@ export const flattenObject = ({
               return
             }
 
-            if (typeof result !== 'undefined') {
+            if (result !== undefined) {
               row[fieldPath] = result
               return
             }
@@ -123,7 +123,7 @@ export const flattenObject = ({
             if (result === null) {
               return
             }
-            if (typeof result === 'undefined') {
+            if (result === undefined) {
               const hookWroteForField = Object.keys(row).some(
                 (k) => !keysBeforeHook.has(k) && (k === fieldPath || k.startsWith(`${fieldPath}_`)),
               )
@@ -144,23 +144,21 @@ export const flattenObject = ({
             flattenWithFilter(value as Record<string, unknown>, fieldPath, fieldSchemaPath)
           }
         }
-      } else {
-        if (hookEntry) {
-          try {
-            const result = invokeHook(hookEntry, fieldPath, value, siblingSource)
-            if (typeof result !== 'undefined') {
-              row[fieldPath] = result
-            }
-          } catch (error) {
-            req.payload.logger.error({
-              err: error,
-              msg: `[plugin-import-export] Field-level beforeExport hook for "${fieldPath}" threw — falling back to original value`,
-            })
-            row[fieldPath] = value
+      } else if (hookEntry) {
+        try {
+          const result = invokeHook(hookEntry, fieldPath, value, siblingSource)
+          if (result !== undefined) {
+            row[fieldPath] = result
           }
-        } else {
+        } catch (error) {
+          req.payload.logger.error({
+            err: error,
+            msg: `[plugin-import-export] Field-level beforeExport hook for "${fieldPath}" threw — falling back to original value`,
+          })
           row[fieldPath] = value
         }
+      } else {
+        row[fieldPath] = value
       }
     })
   }

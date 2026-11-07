@@ -28,6 +28,7 @@ import {
 import React, { Fragment } from 'react'
 
 import { RenderServerComponent } from '../../elements/RenderServerComponent/index.js'
+import { resolveGroupBy } from '../../utilities/getGroupByFieldPaths.js'
 /* eslint-disable payload/no-imports-from-exports-dir -- Server component must reference exports/client bundle for proper client boundary in prod builds */
 import {
   DefaultListView,
@@ -197,7 +198,10 @@ export const renderListView = async (
   if (queryPreset?.where && !query.where) {
     query.where = queryPreset.where
   }
-  query.groupBy = query.groupBy ?? queryPreset?.groupBy ?? collectionPreferences?.groupBy
+  query.groupBy = resolveGroupBy({
+    fields: collectionConfig.fields,
+    groupBy: query.groupBy ?? queryPreset?.groupBy ?? collectionPreferences?.groupBy,
+  })
 
   const columnPreference = query.columns
     ? transformColumnsToPreferences(query.columns)

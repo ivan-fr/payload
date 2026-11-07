@@ -13,17 +13,15 @@ export function getDocumentViewInfo(segments: string[]): {
         viewType: 'version',
       }
     }
-  } else {
-    if (tabSegment === 'versions') {
-      return {
-        documentSubViewType: 'versions',
-        viewType: 'document',
-      }
-    } else if (tabSegment === 'api') {
-      return {
-        documentSubViewType: 'api',
-        viewType: 'document',
-      }
+  } else if (tabSegment === 'versions') {
+    return {
+      documentSubViewType: 'versions',
+      viewType: 'document',
+    }
+  } else if (tabSegment === 'api') {
+    return {
+      documentSubViewType: 'api',
+      viewType: 'document',
     }
   }
 

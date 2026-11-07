@@ -5,7 +5,7 @@
 export const getFilename = () => {
   const now = new Date()
   const yyymmdd = now.toISOString().split('T')[0] // "YYYY-MM-DD"
-  const hhmmss = now.toTimeString().split(' ')[0]?.replace(/:/g, '-') || '' // "HH-MM-SS"
+  const hhmmss = now.toTimeString().split(' ')[0]?.replaceAll(':', '-') || '' // "HH-MM-SS"
 
   return `${yyymmdd}_${hhmmss}`
 }

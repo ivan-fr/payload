@@ -2,6 +2,7 @@
 
 import type { LexicalEditor } from 'lexical'
 
+import { useTranslation } from '@payloadcms/ui'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
@@ -46,6 +47,7 @@ export function TableGridPopup({
   onInsert,
   position,
 }: TableGridPopupProps) {
+  const { t } = useTranslation()
   const [hoverCol, setHoverCol] = useState(0)
   const [hoverRow, setHoverRow] = useState(0)
   const [inputCols, setInputCols] = useState('')
@@ -55,8 +57,10 @@ export function TableGridPopup({
   const colsInputRef = useRef<HTMLInputElement>(null)
   const rowsInputRef = useRef<HTMLInputElement>(null)
 
-  const effectiveCols = hoverCol > 0 ? hoverCol : inputCols ? parseInt(inputCols, 10) || 0 : 5
-  const effectiveRows = hoverRow > 0 ? hoverRow : inputRows ? parseInt(inputRows, 10) || 0 : 5
+  const enteredCols = inputCols ? Number.parseInt(inputCols, 10) || 0 : 5
+  const enteredRows = inputRows ? Number.parseInt(inputRows, 10) || 0 : 5
+  const effectiveCols = hoverCol > 0 ? hoverCol : enteredCols
+  const effectiveRows = hoverRow > 0 ? hoverRow : enteredRows
 
   useEffect(() => {
     if (!isOpen) {
@@ -80,8 +84,8 @@ export function TableGridPopup({
       }
       if (e.key === 'Enter' && focusedInput) {
         e.preventDefault()
-        const cols = parseInt(inputCols, 10)
-        const rows = parseInt(inputRows, 10)
+        const cols = Number.parseInt(inputCols, 10)
+        const rows = Number.parseInt(inputRows, 10)
         if (cols > 0 && rows > 0) {
           onInsert(cols, rows)
         }
@@ -150,8 +154,13 @@ export function TableGridPopup({
 
   return createPortal(
     <React.Fragment>
-      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-      <div className="table-grid-popup__backdrop" onClick={onClose} />
+      <button
+        aria-label={t('general:close')}
+        className="table-grid-popup__backdrop"
+        onClick={onClose}
+        tabIndex={-1}
+        type="button"
+      />
       <div
         className="table-grid-popup"
         ref={popupRef}

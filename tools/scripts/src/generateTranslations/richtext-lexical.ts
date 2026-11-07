@@ -5,8 +5,8 @@ import type {
 } from '@payloadcms/translations'
 
 import * as fs from 'node:fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { translateObject } from './utils/index.js'
 const filename = fileURLToPath(import.meta.url)
@@ -23,10 +23,8 @@ function findFilesRecursively(startPath: string, filter: string): string[] {
 
     if (dirent.isDirectory()) {
       results = results.concat(findFilesRecursively(fullPath, filter))
-    } else {
-      if (dirent.name === filter) {
-        results.push(fullPath)
-      }
+    } else if (dirent.name === filter) {
+      results.push(fullPath)
     }
   })
 

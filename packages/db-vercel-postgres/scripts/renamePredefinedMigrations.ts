@@ -1,5 +1,5 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 /**
  * Adds an .mjs copy of each built .js file for ESM imports of predefined migrations. The .js file

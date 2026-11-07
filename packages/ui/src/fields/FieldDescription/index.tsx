@@ -20,7 +20,7 @@ export const FieldDescription: React.FC<GenericDescriptionProps> = (props) => {
         className={[
           baseClass,
           className,
-          `field-description-${path?.replace(/\./g, '__')}`,
+          `field-description-${path?.replaceAll('.', '__')}`,
           marginPlacement && `${baseClass}--margin-${marginPlacement}`,
         ]
           .filter(Boolean)

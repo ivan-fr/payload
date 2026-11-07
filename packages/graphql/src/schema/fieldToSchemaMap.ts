@@ -41,7 +41,13 @@ import {
   GraphQLUnionType,
 } from 'graphql'
 import { DateTimeResolver, EmailAddressResolver } from 'graphql-scalars'
-import { combineQueries, createDataloaderCacheKey, MissingEditorProp, toWords } from 'payload'
+import {
+  combineQueries,
+  createDataloaderCacheKey,
+  InvalidConfiguration,
+  MissingEditorProp,
+  toWords,
+} from 'payload'
 import { fieldAffectsData, tabHasName } from 'payload/shared'
 
 import type { Context } from '../resolvers/types.js'
@@ -179,46 +185,40 @@ export const fieldToSchemaMap: FieldToSchemaMap = {
     parentIsLocalized,
     parentName,
   }) => {
-    const blockTypes: GraphQLObjectType<any, any>[] = field.blocks.reduce((acc, _block) => {
-      const blockSlug = typeof _block === 'string' ? _block : _block.slug
-      if (!graphqlResult.types.blockTypes[blockSlug]) {
-        // TODO: iterate over blocks mapped to block slug in v4, or pass through payload.blocks
-        const block =
-          typeof _block === 'string' ? config.blocks.find((b) => b.slug === _block) : _block
+    const blockTypesBySlug = new Map<string, GraphQLObjectType>()
+    const blockTypes = field.blocks.reduce<GraphQLObjectType[]>((acc, blockOrSlug) => {
+      const block =
+        typeof blockOrSlug === 'string'
+          ? config.blocks.find((candidate) => candidate.slug === blockOrSlug)
+          : blockOrSlug
+      if (!block) {
+        throw new InvalidConfiguration(
+          `Unknown block "${blockOrSlug}" in GraphQL field "${parentName}.${field.name}".`,
+        )
+      }
+      const interfaceName =
+        block.interfaceName || block.graphQL?.singularName || toWords(block.slug, true)
+      let objectType = graphqlResult.types.blockTypes[interfaceName]
 
-        const interfaceName =
-          block?.interfaceName || block?.graphQL?.singularName || toWords(block.slug, true)
-
-        const objectType = buildObjectType({
+      if (!Object.hasOwn(graphqlResult.types.blockTypes, interfaceName)) {
+        objectType = buildObjectType({
           name: interfaceName,
           config,
-          fields: [
-            ...block.fields,
-            {
-              name: 'blockType',
-              type: 'text',
-            },
-          ],
+          fields: [...block.fields, { name: 'blockType', type: 'text' }],
           forceNullable,
           graphqlResult,
           parentIsLocalized,
           parentName: interfaceName,
         })
-
-        if (Object.keys(objectType.getFields()).length) {
-          // Store block slug in extensions for use in select building
-          objectType.extensions = {
-            ...objectType.extensions,
-            blockSlug: block.slug,
-          }
-          graphqlResult.types.blockTypes[block.slug] = objectType
-        }
+        // Register before resolving fields so nested references can reuse the type.
+        graphqlResult.types.blockTypes[interfaceName] = objectType
+        objectType.extensions = { ...objectType.extensions, blockSlug: block.slug }
       }
 
-      if (graphqlResult.types.blockTypes[blockSlug]) {
-        acc.push(graphqlResult.types.blockTypes[blockSlug])
+      blockTypesBySlug.set(block.slug, objectType)
+      if (!acc.includes(objectType)) {
+        acc.push(objectType)
       }
-
       return acc
     }, [])
 
@@ -232,7 +232,7 @@ export const fieldToSchemaMap: FieldToSchemaMap = {
       new GraphQLNonNull(
         new GraphQLUnionType({
           name: fullName,
-          resolveType: (data) => graphqlResult.types.blockTypes[data.blockType].name,
+          resolveType: (data) => blockTypesBySlug.get(data.blockType)?.name,
           types: blockTypes,
         }),
       ),
@@ -480,7 +480,7 @@ export const fieldToSchemaMap: FieldToSchemaMap = {
           locale: req.locale,
           overrideAccess: false,
           page,
-          pagination: count ? true : false,
+          pagination: Boolean(count),
           req,
           select,
           sort,
@@ -812,7 +812,7 @@ export const fieldToSchemaMap: FieldToSchemaMap = {
       },
       async resolve(parent, args, context: Context) {
         let depth = config.defaultDepth
-        if (typeof args.depth !== 'undefined') {
+        if (args.depth !== undefined) {
           depth = args.depth
         }
         if (!field?.editor) {

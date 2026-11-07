@@ -51,12 +51,8 @@ export const deleteFromStripe: CollectionAfterDeleteHookWithArgs = async (args) 
               `✅ Successfully deleted Stripe document with ID: '${doc.stripeID}'.`,
             )
           }
-        } else {
-          if (logs) {
-            payload.logger.info(
-              `- Stripe document with ID: '${doc.stripeID}' not found, skipping...`,
-            )
-          }
+        } else if (logs) {
+          payload.logger.info(`- Stripe document with ID: '${doc.stripeID}' not found, skipping...`)
         }
       } catch (error: unknown) {
         const msg = error instanceof Error ? error.message : error

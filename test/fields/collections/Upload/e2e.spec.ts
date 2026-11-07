@@ -303,7 +303,7 @@ describe('Upload', () => {
         testInfo,
       })
 
-      expect(scanResults.violations.length).toBe(0)
+      expect(scanResults.violations).toHaveLength(0)
     })
 
     test.fixme('Edit view should have no accessibility violations', async ({
@@ -322,7 +322,7 @@ describe('Upload', () => {
         testInfo,
       })
 
-      expect(scanResults.violations.length).toBe(0)
+      expect(scanResults.violations).toHaveLength(0)
     })
 
     test('Upload fields have focus indicators', async ({ page: _unusedPage }, testInfo) => {

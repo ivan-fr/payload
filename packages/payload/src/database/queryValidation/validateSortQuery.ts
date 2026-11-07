@@ -43,7 +43,7 @@ export const validateSortQuery = async ({
   const where: Where = {}
 
   for (const sortField of sortFields) {
-    const path = sortField.replace(/^-/, '').replace(/__/g, '.')
+    const path = sortField.replace(/^-/, '').replaceAll('__', '.')
     const paths = getLocalizedPaths({
       collectionSlug: collectionConfig?.slug,
       fields,

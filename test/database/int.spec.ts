@@ -3104,7 +3104,7 @@ test.suite('database', { config: './config.ts', resetBetweenTests: false }, () =
         },
       })
 
-      expect(result?.length).toBe(5)
+      expect(result).toHaveLength(5)
       expect(result?.[0]?.title).toBe('updated')
       expect(result?.[4]?.title).toBe('updated')
 
@@ -3175,7 +3175,7 @@ test.suite('database', { config: './config.ts', resetBetweenTests: false }, () =
         },
       })
 
-      expect(result?.length).toBe(5)
+      expect(result).toHaveLength(5)
       expect(result?.[0]?.title).toBe('updated')
       expect(result?.[4]?.title).toBe('updated')
 
@@ -3254,7 +3254,7 @@ test.suite('database', { config: './config.ts', resetBetweenTests: false }, () =
         },
       })
 
-      expect(result?.length).toBe(5)
+      expect(result).toHaveLength(5)
 
       for (let i = 0; i < 5; i++) {
         expect(result?.[i]?.number).toBe(i)
@@ -3324,7 +3324,7 @@ test.suite('database', { config: './config.ts', resetBetweenTests: false }, () =
         },
       })
 
-      expect(result?.docs.length).toBe(5)
+      expect(result?.docs).toHaveLength(5)
 
       for (let i = 0; i < 5; i++) {
         expect(result?.docs?.[i]?.number).toBe(i)
@@ -3393,7 +3393,7 @@ test.suite('database', { config: './config.ts', resetBetweenTests: false }, () =
         },
       })
 
-      expect(result?.length).toBe(5)
+      expect(result).toHaveLength(5)
 
       for (let i = 10; i > 5; i--) {
         expect(result?.[-i + 10]?.number).toBe(i)
@@ -3465,7 +3465,7 @@ test.suite('database', { config: './config.ts', resetBetweenTests: false }, () =
         },
       })
 
-      expect(result?.docs?.length).toBe(5)
+      expect(result?.docs).toHaveLength(5)
 
       for (let i = 10; i > 5; i--) {
         expect(result?.docs?.[-i + 10]?.number).toBe(i)
@@ -3527,7 +3527,7 @@ test.suite('database', { config: './config.ts', resetBetweenTests: false }, () =
         },
       })
 
-      expect(result?.length).toBe(5)
+      expect(result).toHaveLength(5)
       expect(result?.[0]?.title).toBe('updated')
       expect(result?.[4]?.title).toBe('updated')
 
@@ -3583,7 +3583,7 @@ test.suite('database', { config: './config.ts', resetBetweenTests: false }, () =
         },
       })
 
-      expect(result?.length).toBe(5)
+      expect(result).toHaveLength(5)
       expect(result?.[0]?.title).toBe('updated')
       expect(result?.[4]?.title).toBe('updated')
 
@@ -7022,7 +7022,7 @@ test.suite('database', { config: './config.ts', resetBetweenTests: false }, () =
       expect(resultsNoSort.totalDocs).toBe(15)
       expect(resultsNoSort.totalPages).toBe(2)
       expect(resultsNoSort.hasNextPage).toBe(true)
-      expect(resultsNoSort.docs.length).toBe(10)
+      expect(resultsNoSort.docs).toHaveLength(10)
 
       // Clean up
       for (const id of createdIds) {

@@ -3,7 +3,7 @@
  */
 
 import * as esbuild from 'esbuild'
-import path from 'path'
+import path from 'node:path'
 
 await esbuild.build({
   entryPoints: ['dist/withPayload/withPayload.js'],

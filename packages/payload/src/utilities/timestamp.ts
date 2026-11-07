@@ -1,6 +1,6 @@
 export const timestamp = (label: string) => {
   if (!process.env.PAYLOAD_TIME) {
-    process.env.PAYLOAD_TIME = String(new Date().getTime())
+    process.env.PAYLOAD_TIME = String(Date.now())
   }
   const now = new Date()
   console.log(`[${now.getTime() - Number(process.env.PAYLOAD_TIME)}ms] ${label}`)

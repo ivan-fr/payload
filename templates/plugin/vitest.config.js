@@ -1,6 +1,6 @@
-import path from 'path'
+import path from 'node:path'
 import { loadEnv } from 'payload/node'
-import { fileURLToPath } from 'url'
+import { fileURLToPath } from 'node:url'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { defineConfig } from 'vitest/config'
 

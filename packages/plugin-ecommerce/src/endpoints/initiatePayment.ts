@@ -56,6 +56,7 @@ export const initiatePaymentHandler: InitiatePayment =
     cartsSlug = 'carts',
     currenciesConfig,
     customersSlug = 'users',
+    inventory,
     paymentMethod,
     productsSlug = 'products',
     productsValidation,
@@ -209,7 +210,7 @@ export const initiatePaymentHandler: InitiatePayment =
           depth: 0,
           overrideAccess: true,
           select: {
-            inventory: true,
+            ...(inventory !== false ? { [inventory?.fieldName || 'inventory']: true } : {}),
             [priceField]: true,
           },
         })
@@ -227,11 +228,12 @@ export const initiatePaymentHandler: InitiatePayment =
 
         try {
           if (productsValidation) {
-            await productsValidation({ currenciesConfig, currency, product, quantity })
+            await productsValidation({ currenciesConfig, currency, inventory, product, quantity })
           } else {
             await defaultProductsValidation({
               currenciesConfig,
               currency,
+              inventory,
               product,
               quantity,
             })
@@ -262,7 +264,7 @@ export const initiatePaymentHandler: InitiatePayment =
           depth: 0,
           overrideAccess: true,
           select: {
-            inventory: true,
+            ...(inventory !== false ? { [inventory?.fieldName || 'inventory']: true } : {}),
             [priceField]: true,
           },
         })
@@ -283,6 +285,7 @@ export const initiatePaymentHandler: InitiatePayment =
             await productsValidation({
               currenciesConfig,
               currency,
+              inventory,
               product: item.product,
               quantity,
               variant,
@@ -291,6 +294,7 @@ export const initiatePaymentHandler: InitiatePayment =
             await defaultProductsValidation({
               currenciesConfig,
               currency,
+              inventory,
               product: item.product,
               quantity,
               variant,

@@ -1,8 +1,8 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import path from 'path'
+import path from 'node:path'
 import { buildConfig } from 'payload/config'
-import { fileURLToPath } from 'url'
+import { fileURLToPath } from 'node:url'
 
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'

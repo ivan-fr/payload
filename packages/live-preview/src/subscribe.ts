@@ -17,6 +17,10 @@ export const subscribe = <T extends Record<string, any>>(args: {
   resetCache()
 
   const onMessage = async (event: MessageEvent) => {
+    if (event.origin !== serverURL) {
+      return
+    }
+
     const mergedData = await handleMessage<T>({
       apiRoute,
       depth,

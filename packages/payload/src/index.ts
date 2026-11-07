@@ -4,9 +4,9 @@ import type { Request as graphQLRequest, OperationArgs } from 'graphql-http'
 import type { Logger } from 'pino'
 import type { NonNever } from 'ts-essentials'
 
-import { spawn } from 'child_process'
+import { spawn } from 'node:child_process'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import path from 'path'
 
 import type { DevReloadStrategy } from './admin/adapters/devReload.js'
 import type { AuthArgs } from './auth/operations/auth.js'

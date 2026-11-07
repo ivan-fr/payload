@@ -16,34 +16,8 @@ type Args = {
  * admin never validates JSON Schemas in the browser, and doesn't need to compile or download zod.
  */
 export const validateJSONSchema = async ({ jsonSchema, value }: Args): Promise<string | true> => {
-  const fetchSchema = ({ schema, uri }: { schema: JSONSchema4; uri: string }) => {
-    if (uri && schema) {
-      return schema
-    }
-    return fetch(uri)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok')
-        }
-        return response.json()
-      })
-      .then((_json) => {
-        const json = _json as {
-          id: string
-        }
-        const jsonSchemaSanitizations = {
-          id: undefined,
-          $id: json.id,
-          $schema: 'http://json-schema.org/draft-07/schema#',
-        }
-
-        return Object.assign(json, jsonSchemaSanitizations)
-      })
-  }
-
   try {
-    jsonSchema.schema = fetchSchema(jsonSchema)
-    const { schema } = jsonSchema
+    const schema = await fetchSchema({ jsonSchema })
     const { fromJSONSchema } = await import('zod')
     // `JSONSchema4` allows any string for `$schema`, while zod narrows it to the three drafts it
     // supports. zod ignores `$schema` at runtime, so the wider type is safe to pass through.
@@ -63,4 +37,42 @@ export const validateJSONSchema = async ({ jsonSchema, value }: Args): Promise<s
   }
 
   return true
+}
+
+const pendingSchemas = new WeakMap<Args['jsonSchema'], Promise<JSONSchema4>>()
+
+async function fetchSchema({ jsonSchema }: Pick<Args, 'jsonSchema'>): Promise<JSONSchema4> {
+  if (jsonSchema.schema) {
+    return jsonSchema.schema
+  }
+
+  let pending = pendingSchemas.get(jsonSchema)
+  if (!pending) {
+    pending = fetch(jsonSchema.uri).then(async (response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+      const schema = (await response.json()) as JSONSchema4
+      if (!schema || typeof schema !== 'object' || Array.isArray(schema)) {
+        throw new Error('JSON Schema must be an object')
+      }
+      return {
+        ...schema,
+        id: undefined,
+        $id: schema.$id ?? schema.id,
+        $schema: schema.$schema ?? 'http://json-schema.org/draft-07/schema#',
+      }
+    })
+    pendingSchemas.set(jsonSchema, pending)
+  }
+
+  try {
+    const schema = await pending
+    jsonSchema.schema = schema
+    return schema
+  } finally {
+    if (pendingSchemas.get(jsonSchema) === pending) {
+      pendingSchemas.delete(jsonSchema)
+    }
+  }
 }

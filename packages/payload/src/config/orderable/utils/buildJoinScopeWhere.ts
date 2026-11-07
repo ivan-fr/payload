@@ -10,7 +10,7 @@ export function buildJoinScopeWhere(args: {
 }): null | Where {
   const { joinOnFieldPath, scopeValue } = args
 
-  if (typeof scopeValue === 'undefined') {
+  if (scopeValue === undefined) {
     return null
   }
 
@@ -30,7 +30,7 @@ export function buildJoinScopeWhere(args: {
     const relation = (scopeValue as { relationTo?: unknown }).relationTo
     const value = (scopeValue as { value?: unknown }).value
 
-    if (typeof relation === 'undefined' || typeof value === 'undefined') {
+    if (relation === undefined || value === undefined) {
       return null
     }
 

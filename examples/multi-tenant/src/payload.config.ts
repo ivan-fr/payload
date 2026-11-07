@@ -1,9 +1,9 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import path from 'path'
+import path from 'node:path'
 import { buildConfig } from 'payload'
-import { fileURLToPath } from 'url'
+import { fileURLToPath } from 'node:url'
 
 import { Pages } from './collections/Pages'
 import { Tenants } from './collections/Tenants'

@@ -19,8 +19,8 @@ export function sanitizeUserDataForEmail(data: unknown, maxLength = 100): string
 
   // Decode HTML numeric entities like &#x3C; or &#60;
   const decodedEntities = data
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
-    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(Number.parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(Number.parseInt(dec, 10)))
 
   // Remove HTML tags
   const noTags = decodedEntities.replace(/<[^>]+>/g, '')
@@ -41,16 +41,16 @@ export function sanitizeUserDataForEmail(data: unknown, maxLength = 100): string
     .join('')
 
   // Remove '(?' and backticks `
-  let noInjectionSyntax = noControls.replace(/\(\?/g, '').replace(/`/g, '')
+  let noInjectionSyntax = noControls.replaceAll('(?', '').replaceAll('`', '')
 
   // {{...}} remove braces but keep inner content
   noInjectionSyntax = noInjectionSyntax.replace(/\{\{(.*?)\}\}/g, '$1')
 
   // Escape special HTML characters
   const escaped = noInjectionSyntax
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
 
   // Normalize whitespace to single space
   const normalizedWhitespace = escaped.replace(/\s+/g, ' ')

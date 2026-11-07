@@ -55,7 +55,7 @@ export const Pagination: React.FC<PaginationProps> = (props) => {
   }
 
   const handleInputBlur = () => {
-    const parsed = parseInt(inputValue, 10)
+    const parsed = Number.parseInt(inputValue, 10)
     if (!isNaN(parsed)) {
       // Clamp to valid range
       const clamped = Math.max(1, Math.min(parsed, totalPages))
@@ -78,13 +78,13 @@ export const Pagination: React.FC<PaginationProps> = (props) => {
       e.currentTarget.blur()
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
-      const parsed = parseInt(inputValue, 10)
+      const parsed = Number.parseInt(inputValue, 10)
       if (!isNaN(parsed) && parsed < totalPages) {
         setInputValue(String(parsed + 1))
       }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault()
-      const parsed = parseInt(inputValue, 10)
+      const parsed = Number.parseInt(inputValue, 10)
       if (!isNaN(parsed) && parsed > 1) {
         setInputValue(String(parsed - 1))
       }

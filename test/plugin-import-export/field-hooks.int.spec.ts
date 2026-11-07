@@ -202,7 +202,7 @@ test.suite('@payloadcms/plugin-import-export — field-level hooks', { config: c
         .then((res) => res.json())
 
       expect(previewResponse.docs).toBeDefined()
-      expect(previewResponse.docs.length).toBe(1)
+      expect(previewResponse.docs).toHaveLength(1)
       expect(previewResponse.docs[0]?.group_namedTab_deepField).toBe(
         'preview deep value deep_exported',
       )

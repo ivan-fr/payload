@@ -3,7 +3,7 @@ import slugify from '@sindresorhus/slugify'
 import arg from 'arg'
 import chalk from 'chalk'
 import figures from 'figures'
-import path from 'path'
+import path from 'node:path'
 
 import type {
   CliArgs,

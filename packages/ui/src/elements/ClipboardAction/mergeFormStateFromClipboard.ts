@@ -170,13 +170,13 @@ export function mergeFormStateFromClipboard({
     const segments = relativePath.split('.')
 
     if (segments.length >= 2) {
-      const rowIndex = parseInt(segments[segments.length - 2], 10)
+      const rowIndex = Number.parseInt(segments[segments.length - 2], 10)
       const parentFieldPath = segments.slice(0, segments.length - 2).join('.')
       const fullParentPath = parentFieldPath ? `${targetSegment}.${parentFieldPath}` : targetSegment
 
       if (formState[fullParentPath] && Array.isArray(formState[fullParentPath].rows)) {
         const parentRows = formState[fullParentPath].rows
-        if (!isNaN(rowIndex) && parentRows[rowIndex]) {
+        if (!Number.isNaN(rowIndex) && parentRows[rowIndex]) {
           parentRows[rowIndex].id = newID
         }
       }
@@ -184,8 +184,10 @@ export function mergeFormStateFromClipboard({
       // Top-level block ID - extract field path and row index from targetSegment
       const targetParts = targetSegment.split('.')
       const lastPart = targetParts[targetParts.length - 1]
-      const rowIndexFromTarget = !isNaN(parseInt(lastPart, 10)) ? parseInt(lastPart, 10) : 0
-      const fieldPath = !isNaN(parseInt(lastPart, 10))
+      const rowIndexFromTarget = !Number.isNaN(Number.parseInt(lastPart, 10))
+        ? Number.parseInt(lastPart, 10)
+        : 0
+      const fieldPath = !Number.isNaN(Number.parseInt(lastPart, 10))
         ? targetParts.slice(0, -1).join('.')
         : targetSegment
 

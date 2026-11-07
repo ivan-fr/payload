@@ -19,7 +19,7 @@ type Props = {
 
 export const NavGroup: React.FC<Props> = ({ children, isOpen: isOpenFromProps, label }) => {
   const [collapsed, setCollapsed] = useState(
-    typeof isOpenFromProps !== 'undefined' ? !isOpenFromProps : false,
+    isOpenFromProps !== undefined ? !isOpenFromProps : false,
   )
 
   const { setPreference } = usePreferences()

@@ -5,7 +5,7 @@ import { APIError } from '../errors/APIError.js'
  * leaving only the base filename.
  */
 export function sanitizeFilename(filename: string): string {
-  let sanitized = filename.replace(/\\/g, '/')
+  let sanitized = filename.replaceAll('\\', '/')
 
   const lastSlash = sanitized.lastIndexOf('/')
   if (lastSlash !== -1) {

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import fs from 'fs'
+import fs from 'node:fs'
 
 export function copyFile(source: string, destination: string) {
   fs.copyFile(source, destination, (err) => {

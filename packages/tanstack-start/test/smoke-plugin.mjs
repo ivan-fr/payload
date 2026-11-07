@@ -133,7 +133,7 @@ if (tsOptions.importProtection?.server?.files !== undefined) {
 if (!tsOptions.importProtection?.server?.excludeFiles?.includes('**/node_modules/**')) {
   errors.push('payloadTanstackStartOptions must exempt node_modules from the .client.* SSR denial')
 }
-if (typeof payloadReactOptions().include === 'undefined') {
+if (payloadReactOptions().include === undefined) {
   errors.push('payloadReactOptions missing include')
 }
 

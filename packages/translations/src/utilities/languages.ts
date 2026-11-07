@@ -145,7 +145,7 @@ function parseAcceptLanguage(acceptLanguageHeader: string): LanguagePreference[]
       ]
       return {
         language,
-        quality: quality ? parseFloat(quality) : 1,
+        quality: quality ? Number.parseFloat(quality) : 1,
       }
     })
     .sort((a, b) => b.quality - a.quality) // Sort by quality, highest to lowest

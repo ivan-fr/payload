@@ -236,7 +236,7 @@ export const buildColumnState = (args: BuildColumnStateArgs): Column[] => {
           : undefined
 
     // Convert accessor to dot notation specifically for SortColumn sorting behavior
-    const dotAccessor = accessor?.replace(/-/g, '.')
+    const dotAccessor = accessor?.replaceAll('-', '.')
 
     const isVirtualField = serverField && 'virtual' in serverField && serverField.virtual === true
 

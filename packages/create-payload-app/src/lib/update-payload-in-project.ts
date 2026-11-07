@@ -1,6 +1,6 @@
 import fse from 'fs-extra'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import path from 'path'
 
 import type { NextAppDetails, TanStackAppDetails } from '../types.js'
 

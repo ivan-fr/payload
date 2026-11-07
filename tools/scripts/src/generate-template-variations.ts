@@ -13,12 +13,12 @@ import type { DbType, StorageAdapterType } from 'create-payload-app/types'
 
 import { PROJECT_ROOT, TEMPLATES_DIR } from '@tools/constants'
 import chalk from 'chalk'
-import { execSync } from 'child_process'
 import { configurePayloadConfig } from 'create-payload-app/lib/configure-payload-config.js'
 import { copyRecursiveSync } from 'create-payload-app/utils/copy-recursive-sync.js'
 import minimist from 'minimist'
+import { execSync } from 'node:child_process'
 import * as fs from 'node:fs/promises'
-import path from 'path'
+import path from 'node:path'
 
 type TemplateVariation = {
   /** Base template to copy from */

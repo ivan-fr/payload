@@ -114,7 +114,7 @@ describe('Radio', () => {
       })
 
       // On this page there's a known custom label without a clear name, expect 1 violation
-      expect(scanResults.violations.length).toBe(1)
+      expect(scanResults.violations).toHaveLength(1)
     })
 
     test('Radio inputs have focus indicators', async ({}, testInfo) => {

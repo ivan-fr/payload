@@ -73,7 +73,7 @@ type SchemaBuildState = {
  * @param field
  */
 const formatDefaultValue = (field: FieldAffectingData) =>
-  typeof field.defaultValue !== 'undefined' && typeof field.defaultValue !== 'function'
+  field.defaultValue !== undefined && typeof field.defaultValue !== 'function'
     ? field.defaultValue
     : undefined
 
@@ -557,7 +557,7 @@ const point: FieldSchemaGenerator<PointField> = (
     type: {
       type: String,
       enum: ['Point'],
-      ...(typeof field.defaultValue !== 'undefined' && {
+      ...(field.defaultValue !== undefined && {
         default: 'Point',
       }),
     },

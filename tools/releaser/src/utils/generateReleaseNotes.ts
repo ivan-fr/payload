@@ -1,7 +1,7 @@
 import type { GitCommit } from 'changelogen'
 
-import { execSync } from 'child_process'
 import minimist from 'minimist'
+import { execSync } from 'node:child_process'
 import semver from 'semver'
 
 import { getLatestCommits } from './getLatestCommits.js'

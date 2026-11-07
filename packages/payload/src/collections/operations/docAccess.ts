@@ -32,7 +32,7 @@ export async function docAccessOperation(args: Arguments): Promise<SanitizedColl
 
   if (
     config.auth &&
-    typeof config.auth.maxLoginAttempts !== 'undefined' &&
+    config.auth.maxLoginAttempts !== undefined &&
     config.auth.maxLoginAttempts !== 0
   ) {
     collectionOperations.push('unlock')

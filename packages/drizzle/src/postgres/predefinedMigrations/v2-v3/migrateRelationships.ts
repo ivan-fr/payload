@@ -51,7 +51,7 @@ export const migrateRelationships = async ({
 `)
   }, '')
 
-  while (typeof paginationResult === 'undefined' || paginationResult.rows.length > 0) {
+  while (paginationResult === undefined || paginationResult.rows.length > 0) {
     const paginationStatement = `SELECT DISTINCT parent_id FROM "${schemaName}"."${tableName}${adapter.relationshipsSuffix}" WHERE
     ${where} ORDER BY parent_id LIMIT 500 OFFSET ${offset * 500};
   `

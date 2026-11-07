@@ -452,10 +452,8 @@ export function LinkEditor({ anchorElem }: { anchorElem: HTMLElement }): React.R
             let linkParent: ElementNode | null = null
             if ($isRangeSelection(selection)) {
               linkParent = getSelectedNode(selection).getParent()
-            } else {
-              if (selectedNodes.length) {
-                linkParent = selectedNodes[0]?.getParent() ?? null
-              }
+            } else if (selectedNodes.length) {
+              linkParent = selectedNodes[0]?.getParent() ?? null
             }
 
             if (linkParent && $isAutoLinkNode(linkParent)) {

@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 
 import type { FieldHook } from '../../../fields/config/types.js'
 
@@ -7,7 +7,7 @@ export const setAPIKeyIndex: FieldHook = ({ data, req, siblingData }) => {
   if (
     data &&
     'apiKey' in data &&
-    typeof data.apiKey !== 'undefined' &&
+    data.apiKey !== undefined &&
     !(typeof data.apiKey === 'string' && data.apiKey)
   ) {
     return null

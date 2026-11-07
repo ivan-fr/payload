@@ -1,6 +1,6 @@
 import { fileTypeFromFile } from 'file-type'
-import fs from 'fs/promises'
-import path from 'path'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 
 import type { PayloadRequest } from '../types/index.js'
 

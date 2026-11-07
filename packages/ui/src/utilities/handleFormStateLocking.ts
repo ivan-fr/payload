@@ -54,7 +54,7 @@ export const handleFormStateLocking = async ({
     const lockDuration =
       typeof lockDocumentsProp === 'object' ? lockDocumentsProp.duration : lockDurationDefault
     const lockDurationInMilliseconds = lockDuration * 1000
-    const now = new Date().getTime()
+    const now = Date.now()
 
     if (lockedDocumentQuery) {
       // Query where the lock is newer than the current time minus the lock duration

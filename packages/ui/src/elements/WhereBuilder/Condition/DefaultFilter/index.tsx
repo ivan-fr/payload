@@ -20,7 +20,7 @@ type Props = {
   booleanSelect: boolean
   disabled: boolean
   filterOptions?: ResolvedFilterOptions
-  internalField: ReducedField
+  internalField?: ReducedField
   onChange: React.Dispatch<React.SetStateAction<string>>
   operator: Operator
   options: Option[]
@@ -41,7 +41,7 @@ export const DefaultFilter: React.FC<Props> = ({
     return (
       <Select
         disabled={disabled}
-        field={internalField.field as SelectFieldClient}
+        field={internalField?.field as SelectFieldClient}
         isClearable={!booleanSelect}
         onChange={onChange}
         operator={operator}

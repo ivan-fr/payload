@@ -155,7 +155,7 @@ const SlugFieldComponent: React.FC<SlugFieldProps> = ({ field, path }) => {
             aria-label={getTranslation(label, i18n) || path}
             className={`form-input ${baseClass}__input`}
             disabled={isReadOnly}
-            id={`field-${fieldPath?.replace(/\./g, '__')}`}
+            id={`field-${fieldPath?.replaceAll('.', '__')}`}
             name={fieldPath}
             onChange={handleChange}
             placeholder={getTranslation(placeholder, i18n)}
@@ -171,7 +171,7 @@ const SlugFieldComponent: React.FC<SlugFieldProps> = ({ field, path }) => {
                   buttonStyle="ghost"
                   className={`${baseClass}__action-btn`}
                   icon={<RefreshIcon />}
-                  id={`field-${fieldPath?.replace(/\./g, '__')}-generate`}
+                  id={`field-${fieldPath?.replaceAll('.', '__')}-generate`}
                   margin={false}
                   onClick={handleGenerate}
                 />
@@ -181,7 +181,7 @@ const SlugFieldComponent: React.FC<SlugFieldProps> = ({ field, path }) => {
                 buttonStyle="ghost"
                 className={`${baseClass}__action-btn`}
                 icon={isLocked ? <LockIcon size={16} /> : <LockOpenIcon size={16} />}
-                id={`field-${fieldPath?.replace(/\./g, '__')}-lock`}
+                id={`field-${fieldPath?.replaceAll('.', '__')}-lock`}
                 margin={false}
                 onClick={toggleLock}
               />

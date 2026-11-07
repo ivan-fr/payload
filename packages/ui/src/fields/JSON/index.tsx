@@ -196,7 +196,7 @@ const JSONFieldComponent: React.FC<JSONFieldClientProps> = (props) => {
           recalculatedHeightAt={recalculatedHeightAt}
           value={stringValueRef.current}
           wrapperProps={{
-            id: `field-${path?.replace(/\./g, '__')}`,
+            id: `field-${path?.replaceAll('.', '__')}`,
           }}
         />
         {AfterInput}

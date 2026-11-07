@@ -214,7 +214,7 @@ export function buildPolicyType(args: BuildPolicyType): GraphQLObjectType {
     if (
       entity.auth &&
       typeof entity.auth === 'object' &&
-      typeof entity.auth.maxLoginAttempts !== 'undefined' &&
+      entity.auth.maxLoginAttempts !== undefined &&
       entity.auth.maxLoginAttempts !== 0
     ) {
       operations.push('unlock')

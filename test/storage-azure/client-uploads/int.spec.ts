@@ -431,7 +431,7 @@ test.suite('@payloadcms/storage-azure clientUploads', { config: './config.ts' },
 
     test('verifies a client-uploaded non-image with a bounded read', async ({ restClient }) => {
       const file = readFileSync(path.resolve(dirname, '../../uploads/audio.mp3'))
-      expect(file.length).toBe(23_334)
+      expect(file).toHaveLength(23_334)
 
       const form = await stageAzureClientUpload({
         collectionSlug: mediaHeaderOnlySlug,
@@ -496,7 +496,7 @@ test.suite('@payloadcms/storage-azure clientUploads', { config: './config.ts' },
       restClient,
     }) => {
       const file = readFileSync(path.resolve(dirname, '../../uploads/2mb.jpg'))
-      expect(file.length).toBe(2_215_474)
+      expect(file).toHaveLength(2_215_474)
 
       const form = await stageAzureClientUpload({
         collectionSlug: mediaHeaderOnlySlug,
@@ -555,7 +555,7 @@ test.suite('@payloadcms/storage-azure clientUploads', { config: './config.ts' },
       restClient,
     }) => {
       const file = readFileSync(path.resolve(dirname, '../../uploads/2mb.jpg'))
-      expect(file.length).toBe(2_215_474)
+      expect(file).toHaveLength(2_215_474)
 
       const form = await stageAzureClientUpload({
         collectionSlug: mediaHeaderOnlyWithSizesSlug,

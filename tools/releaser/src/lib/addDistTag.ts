@@ -1,7 +1,7 @@
 import { PROJECT_ROOT } from '@tools/constants'
 import execa from 'execa'
-import { createRequire } from 'module'
-import path from 'path'
+import { createRequire } from 'node:module'
+import path from 'node:path'
 
 const require = createRequire(import.meta.url)
 

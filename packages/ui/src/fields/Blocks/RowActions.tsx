@@ -14,6 +14,7 @@ import { BlocksDrawer } from './BlocksDrawer/index.js'
 
 export const RowActions: React.FC<{
   readonly addRow: (rowIndex: number, blockType: string) => Promise<void> | void
+  readonly availableBlocks?: (ClientBlock | string)[]
   readonly blocks: (ClientBlock | string)[]
   readonly blockType: string
   readonly copyRow: (rowIndex: number) => void
@@ -33,6 +34,7 @@ export const RowActions: React.FC<{
   const {
     addRow,
     blocks,
+    availableBlocks = blocks,
     blockType,
     copyRow,
     duplicateRow,
@@ -69,7 +71,7 @@ export const RowActions: React.FC<{
           closeModal(drawerSlug)
         }}
         addRowIndex={rowIndex}
-        blocks={blocks}
+        blocks={availableBlocks}
         drawerSlug={drawerSlug}
         labels={labels}
       />

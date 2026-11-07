@@ -1,10 +1,10 @@
 import type { ReleaseType } from 'semver'
 
 import { PROJECT_ROOT, ROOT_PACKAGE_JSON } from '@tools/constants'
-import { execSync, spawn } from 'child_process'
 import execa from 'execa'
 import fse from 'fs-extra'
-import path from 'path'
+import { execSync, spawn } from 'node:child_process'
+import path from 'node:path'
 import semver from 'semver'
 
 import type { PublishResult } from './runPublishSequence.js'

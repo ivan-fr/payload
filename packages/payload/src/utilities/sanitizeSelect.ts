@@ -145,11 +145,9 @@ export const sanitizeSelect = ({
 
       if (isLast) {
         currentRef[segment] = true
-      } else {
-        if (!(segment in currentRef)) {
-          currentRef[segment] = {}
-          currentRef = currentRef[segment]
-        }
+      } else if (!(segment in currentRef)) {
+        currentRef[segment] = {}
+        currentRef = currentRef[segment]
       }
     }
   }

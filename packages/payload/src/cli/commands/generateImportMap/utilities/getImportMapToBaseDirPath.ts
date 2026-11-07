@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 
 /**
  * Returns the path that navigates from the import map file to the base directory.
@@ -20,7 +20,7 @@ export function getImportMapToBaseDirPath({
   const importMapDir = path.dirname(importMapPath)
 
   // 1. Direct relative path from `importMapDir` -> `baseDir`
-  let relativePath = path.relative(importMapDir, baseDir).replace(/\\/g, '/')
+  let relativePath = path.relative(importMapDir, baseDir).replaceAll('\\', '/')
 
   // 2. If they're the same directory, path.relative will be "", so use "./"
   if (!relativePath) {

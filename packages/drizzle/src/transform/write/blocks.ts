@@ -60,8 +60,10 @@ export const transformBlocks = ({
   textsToDelete,
   withinArrayOrBlockLocale,
 }: Args) => {
-  data.forEach((blockRow, i) => {
-    if (typeof blockRow.blockType !== 'string') {
+  let blockIndex = 0
+
+  data.forEach((blockRow) => {
+    if (!blockRow || typeof blockRow.blockType !== 'string') {
       return
     }
 
@@ -74,6 +76,7 @@ export const transformBlocks = ({
     if (!matchedBlock) {
       return
     }
+    const i = blockIndex++
     const blockType = toSnakeCase(blockRow.blockType)
 
     const newRow: BlockRowToInsert = {

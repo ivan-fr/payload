@@ -45,7 +45,7 @@ export const getHandleMultiPartUpload =
 
     const multipartId = params.multipartId
     const multipartKey = params.multipartKey
-    const multipartNumber = parseInt(params.multipartNumber || '')
+    const multipartNumber = Number.parseInt(params.multipartNumber || '')
     const collectionPrefix = (typeof collectionConfig === 'object' && collectionConfig.prefix) || ''
 
     if (multipartId && multipartKey) {

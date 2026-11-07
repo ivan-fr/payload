@@ -29,7 +29,7 @@ function parseLiteral(typeName, ast, variables) {
       return ast.value
     case Kind.FLOAT:
     case Kind.INT:
-      return parseFloat(ast.value)
+      return Number.parseFloat(ast.value)
     case Kind.LIST:
       return ast.values.map((n) => parseLiteral(typeName, n, variables))
     case Kind.NULL:

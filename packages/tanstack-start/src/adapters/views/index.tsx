@@ -14,8 +14,17 @@ export type AdminLoad = (opts: {
   signal?: AbortSignal
 }) => Promise<any>
 
-const searchToRecord = (searchStr: string): Record<string, string | string[]> =>
-  Object.fromEntries(new URLSearchParams(searchStr))
+const searchToRecord = (searchStr: string): Record<string, string | string[]> => {
+  const params = new URLSearchParams(searchStr)
+
+  return Object.fromEntries(
+    Array.from(new Set(params.keys()), (key) => {
+      const values = params.getAll(key)
+
+      return [key, values.length === 1 ? values[0]! : values]
+    }),
+  )
+}
 
 const runLoader = async ({
   load,

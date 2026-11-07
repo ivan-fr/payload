@@ -2,8 +2,8 @@ import type { AcceptedLanguages, GenericTranslationsObject } from '@payloadcms/t
 
 import { translations } from '@payloadcms/plugin-form-builder/translations/languages/all'
 import { enTranslations } from '@payloadcms/plugin-form-builder/translations/languages/en'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { translateObject } from './utils/index.js'
 

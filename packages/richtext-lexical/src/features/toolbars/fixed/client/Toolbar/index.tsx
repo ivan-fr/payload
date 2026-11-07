@@ -275,10 +275,8 @@ const getParentEditorWithFixedToolbar = (
   if (editorConfigContext.parentEditor?.editorConfig) {
     if (editorConfigContext.parentEditor?.editorConfig.resolvedFeatureMap.has('toolbarFixed')) {
       return editorConfigContext.parentEditor
-    } else {
-      if (editorConfigContext.parentEditor) {
-        return getParentEditorWithFixedToolbar(editorConfigContext.parentEditor)
-      }
+    } else if (editorConfigContext.parentEditor) {
+      return getParentEditorWithFixedToolbar(editorConfigContext.parentEditor)
     }
   }
   return false

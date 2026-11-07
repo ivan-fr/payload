@@ -1,5 +1,5 @@
+import type { Readable } from 'node:stream'
 import type { CollectionConfig } from 'payload'
-import type { Readable } from 'stream'
 
 import { isXmlMimeType, uploadContentSecurityPolicy } from 'payload/internal'
 

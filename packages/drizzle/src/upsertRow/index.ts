@@ -93,7 +93,7 @@ export const upsertRow = async <T extends Record<string, unknown> | TypeWithID>(
 
       // If row.updatedAt is not set, delete it to avoid triggering hasDataToUpdate. `updatedAt` may be explicitly set to null to
       // disable triggering hasDataToUpdate.
-      if (typeof row.updatedAt === 'undefined' || row.updatedAt === null) {
+      if (row.updatedAt === undefined || row.updatedAt === null) {
         delete row.updatedAt
       }
 
@@ -322,7 +322,7 @@ export const upsertRow = async <T extends Record<string, unknown> | TypeWithID>(
         selectsToInsert[selectTableName] = []
 
         selectRows.forEach((row) => {
-          if (typeof row.parent === 'undefined') {
+          if (row.parent === undefined) {
             row.parent = insertedRow.id
           }
 

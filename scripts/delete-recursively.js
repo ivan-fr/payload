@@ -1,5 +1,5 @@
-import { promises as fs, existsSync } from 'fs'
-import { join } from 'path'
+import { promises as fs, existsSync } from 'node:fs'
+import { join } from 'node:path'
 import globby from 'globby'
 import process from 'node:process'
 import chalk from 'chalk'
@@ -80,7 +80,7 @@ async function cleanDirectories(patterns) {
     } else {
       const options = {
         ignore: ignoreNodeModules ? '**/node_modules/**' : '',
-        onlyDirectories: pattern.endsWith('/') ? true : false,
+        onlyDirectories: Boolean(pattern.endsWith('/')),
       }
       fulleDelete = options.onlyDirectories
 

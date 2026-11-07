@@ -26,7 +26,7 @@ export const sanitizeQuery = (toSanitize: ListQuery): ListQuery => {
     }
 
     if ((key === 'limit' || key === 'page') && typeof value === 'string') {
-      const parsed = parseInt(value, 10)
+      const parsed = Number.parseInt(value, 10)
       sanitized[key] = Number.isNaN(parsed) ? undefined : parsed
     }
 

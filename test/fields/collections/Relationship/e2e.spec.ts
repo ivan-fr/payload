@@ -467,11 +467,11 @@ describe('relationship', () => {
     })
 
     // The Seeded text document should now have a text field with value 'some updated text value',
-    expect(seededTextDocument.docs.length).toEqual(1)
+    expect(seededTextDocument.docs).toHaveLength(1)
 
     // but the relationship document should NOT exist, as the hotkey should have saved the drawer and not the parent page
     // NOTE: the value here represents the number of documents _before_ the test was run
-    expect(relationshipDocuments.docs.length).toEqual(2)
+    expect(relationshipDocuments.docs).toHaveLength(2)
   })
 
   describe('should create document within document drawer', () => {
@@ -1120,7 +1120,7 @@ describe('relationship', () => {
         testInfo,
       })
 
-      expect(scanResults.violations.length).toBe(0)
+      expect(scanResults.violations).toHaveLength(0)
     })
 
     test.fixme('Edit view should have no accessibility violations', async ({}, testInfo) => {
@@ -1137,7 +1137,7 @@ describe('relationship', () => {
         testInfo,
       })
 
-      expect(scanResults.violations.length).toBe(0)
+      expect(scanResults.violations).toHaveLength(0)
     })
 
     test.fixme('Relationship fields have focus indicators', async ({}, testInfo) => {

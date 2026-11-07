@@ -105,12 +105,10 @@ const populate = async ({
     if (typeof index === 'number' && typeof key === 'string') {
       if (field.type !== 'join' && Array.isArray(field.relationTo)) {
         dataToUpdate[field.name][key][index].value = relationshipValue
+      } else if (field.type === 'join' && Array.isArray(field.collection)) {
+        dataToUpdate[field.name][key][index].value = relationshipValue
       } else {
-        if (field.type === 'join' && Array.isArray(field.collection)) {
-          dataToUpdate[field.name][key][index].value = relationshipValue
-        } else {
-          dataToUpdate[field.name][key][index] = relationshipValue
-        }
+        dataToUpdate[field.name][key][index] = relationshipValue
       }
     } else if (typeof index === 'number' || typeof key === 'string') {
       if (field.type === 'join') {
@@ -126,12 +124,10 @@ const populate = async ({
       }
     } else if (field.type !== 'join' && Array.isArray(field.relationTo)) {
       dataToUpdate[field.name].value = relationshipValue
+    } else if (field.type === 'join' && Array.isArray(field.collection)) {
+      dataToUpdate[field.name].value = relationshipValue
     } else {
-      if (field.type === 'join' && Array.isArray(field.collection)) {
-        dataToUpdate[field.name].value = relationshipValue
-      } else {
-        dataToUpdate[field.name] = relationshipValue
-      }
+      dataToUpdate[field.name] = relationshipValue
     }
   }
 }

@@ -39,7 +39,7 @@ const CollapsibleFieldComponent: React.FC<CollapsibleFieldClientProps> = (props)
   const { getPreference, setPreference } = usePreferences()
   const { preferencesKey } = useDocumentInfo()
   const [collapsedOnMount, setCollapsedOnMount] = useState<boolean>()
-  const fieldPreferencesKey = `collapsible-${path?.replace(/\./g, '__')}`
+  const fieldPreferencesKey = `collapsible-${path?.replaceAll('.', '__')}`
   const [errorCount, setErrorCount] = useState(0)
   const fieldHasErrors = errorCount > 0
 

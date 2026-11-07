@@ -57,34 +57,32 @@ function checkAndSanitizePermissions(
                 ;(data.blocks[blockSlug].fields as unknown as SanitizedFieldsPermissions) = true
               }
             }
-          } else {
-            if (typeof data.blocks[blockSlug][key] === 'object') {
-              /**
-               * Check Permissions in nested blocks
-               */
-              if (isPermissionObject(data.blocks[blockSlug][key])) {
-                if (
-                  data.blocks[blockSlug][key]['permission'] === true &&
-                  !('where' in data.blocks[blockSlug][key])
-                ) {
-                  // If the permission is true and there is no where clause, set the key to true
-                  data.blocks[blockSlug][key] = true
-                  continue
-                } else if (
-                  data.blocks[blockSlug][key]['permission'] === true &&
-                  'where' in data.blocks[blockSlug][key]
-                ) {
-                  // otherwise do nothing so we can keep the where clause
-                  blocksPermissions = false
-                } else {
-                  blocksPermissions = false
-                  data.blocks[blockSlug][key] = false
-                  delete data.blocks[blockSlug][key]
-                  continue
-                }
+          } else if (typeof data.blocks[blockSlug][key] === 'object') {
+            /**
+             * Check Permissions in nested blocks
+             */
+            if (isPermissionObject(data.blocks[blockSlug][key])) {
+              if (
+                data.blocks[blockSlug][key]['permission'] === true &&
+                !('where' in data.blocks[blockSlug][key])
+              ) {
+                // If the permission is true and there is no where clause, set the key to true
+                data.blocks[blockSlug][key] = true
+                continue
+              } else if (
+                data.blocks[blockSlug][key]['permission'] === true &&
+                'where' in data.blocks[blockSlug][key]
+              ) {
+                // otherwise do nothing so we can keep the where clause
+                blocksPermissions = false
               } else {
-                throw new Error('Unexpected object in block permissions')
+                blocksPermissions = false
+                data.blocks[blockSlug][key] = false
+                delete data.blocks[blockSlug][key]
+                continue
               }
+            } else {
+              throw new Error('Unexpected object in block permissions')
             }
           }
         }

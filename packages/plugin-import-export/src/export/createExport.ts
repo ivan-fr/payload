@@ -2,8 +2,8 @@
 import type { PayloadRequest, Sort, User, Where } from 'payload'
 
 import { stringify } from 'csv-stringify/sync'
+import { Readable } from 'node:stream'
 import { APIError } from 'payload'
-import { Readable } from 'stream'
 
 import type { ExportDoc } from '../types.js'
 

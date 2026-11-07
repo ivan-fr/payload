@@ -1,7 +1,7 @@
-import type { LookupFunction } from 'net'
+import type { LookupFunction } from 'node:net'
 
-import { lookup } from 'dns'
 import ipaddr from 'ipaddr.js'
+import { lookup } from 'node:dns'
 import { Agent, fetch as undiciFetch } from 'undici'
 
 /**

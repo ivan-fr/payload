@@ -1,11 +1,11 @@
 import type { Payload } from 'payload'
 
-import { execFile } from 'child_process'
-import { readFile, writeFile } from 'fs/promises'
-import { createRequire } from 'module'
-import path from 'path'
+import { execFile } from 'node:child_process'
+import { readFile, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import path from 'node:path'
+import { promisify } from 'node:util'
 import { dynamicImport } from 'payload'
-import { promisify } from 'util'
 
 /**
  * The subset of Prettier's API used here. Prettier isn't a dependency, so its types aren't available.

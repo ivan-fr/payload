@@ -1,5 +1,5 @@
-import { createHash } from 'crypto'
 import escapeHTML from 'escape-html'
+import { createHash } from 'node:crypto'
 import { sanitizeUrl } from 'payload/shared'
 
 import type {

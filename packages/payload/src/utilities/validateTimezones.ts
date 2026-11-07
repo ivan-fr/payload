@@ -33,8 +33,8 @@ const isValidUtcOffset = (value: string): boolean => {
   }
 
   const sign = match[1] === '+' ? 1 : -1
-  const hours = parseInt(match[2]!, 10)
-  const minutes = parseInt(match[3]!, 10)
+  const hours = Number.parseInt(match[2]!, 10)
+  const minutes = Number.parseInt(match[3]!, 10)
 
   // Minutes must be 0-59
   if (minutes > 59) {

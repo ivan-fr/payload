@@ -76,7 +76,7 @@ window.__vite_plugin_react_preamble_installed__ = true
         return
       }
       if (code.includes('process.cwd') && !id.includes('node_modules/.vite')) {
-        return code.replace(/process\.cwd\(\)/g, '"/"')
+        return code.replaceAll('process.cwd()', '"/"')
       }
     },
   }

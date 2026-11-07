@@ -2,6 +2,42 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { getAfterChangeHook } from './afterChange.js'
 
+describe('renamed upload responses (#18384)', () => {
+  it.each(['create', 'update'])('should return refreshed file URLs after %s', async (operation) => {
+    const original = {
+      id: 1,
+      filename: 'photo.jpg',
+      url: 'https://files.test/photo.jpg',
+      mimeType: 'image/jpeg',
+    }
+    const persisted = {
+      ...original,
+      filename: 'photo-random.jpg',
+      url: 'https://files.test/photo-random.jpg',
+    }
+    const update = vi.fn(async () => persisted)
+    const hook = getAfterChangeHook({
+      adapter: {
+        handleUpload: vi.fn(async () => ({ ...original, filename: persisted.filename })),
+        handleDelete: vi.fn(),
+      } as never,
+      collection: { slug: 'media' } as never,
+      disablePayloadAccessControl: true,
+    })
+    const req = {
+      context: {},
+      file: { data: Buffer.from('file'), size: 4 },
+      payload: { update, logger: { error: vi.fn() } },
+    }
+
+    const result = await hook({ data: original, doc: original, operation, req } as never)
+
+    expect(result).toMatchObject(persisted)
+    expect(update).toHaveBeenCalledOnce()
+    expect(req.context).toEqual({})
+  })
+})
+
 describe('upload replacement cleanup', () => {
   it.each([
     ['invoices', 'media/invoices', true, false],

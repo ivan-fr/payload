@@ -23,8 +23,8 @@ export const PageRange: React.FC<{
 
   return (
     <div className={[className, 'font-semibold'].filter(Boolean).join(' ')}>
-      {(typeof totalDocs === 'undefined' || totalDocs === 0) && 'Search produced no results.'}
-      {typeof totalDocs !== 'undefined' &&
+      {(totalDocs === undefined || totalDocs === 0) && 'Search produced no results.'}
+      {totalDocs !== undefined &&
         totalDocs > 0 &&
         `${t('showing')} ${indexStart}${indexStart > 0 ? ` - ${indexEnd}` : ''} ${t('of')} ${totalDocs} ${
           totalDocs > 1 ? t('posts').toLowerCase() : t('post').toLowerCase()

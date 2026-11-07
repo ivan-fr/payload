@@ -83,7 +83,7 @@ export const buildOrderBy = ({
         joins,
         locale,
         parentIsLocalized,
-        pathSegments: sortProperty.replace(/__/g, '.').split('.'),
+        pathSegments: sortProperty.replaceAll('__', '.').split('.'),
         selectFields,
         tableName,
         value: sortProperty,

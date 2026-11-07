@@ -1,7 +1,7 @@
 import * as esbuild from 'esbuild'
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 import { sassPlugin } from 'esbuild-sass-plugin'
@@ -9,7 +9,7 @@ import { commonjs } from '@hyrious/esbuild-plugin-commonjs'
 
 const directoryArg = process.argv[2] || 'dist'
 
-const shouldSplit = process.argv.includes('--no-split') ? false : true
+const shouldSplit = !process.argv.includes('--no-split')
 
 const removeCSSImports = {
   name: 'remove-css-imports',

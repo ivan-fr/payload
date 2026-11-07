@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 import dotenvExpand from 'dotenv-expand'
-import { existsSync } from 'fs'
-import nodePath from 'path'
+import { existsSync } from 'node:fs'
+import nodePath from 'node:path'
 
 import { findUpSync } from '../../utilities/findUp.js'
 

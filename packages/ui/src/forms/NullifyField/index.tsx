@@ -95,7 +95,7 @@ export const NullifyLocaleField: React.FC<NullifyLocaleFieldProps> = ({
             name: '',
             label: t('general:fallbackToDefaultLocale'),
           }}
-          id={`field-${path.replace(/\./g, '__')}`}
+          id={`field-${path.replaceAll('.', '__')}`}
           onChange={onChange}
           path={path}
           schemaPath=""

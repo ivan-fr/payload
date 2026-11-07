@@ -1,5 +1,5 @@
 import { getTsconfig } from 'get-tsconfig'
-import path from 'path'
+import path from 'node:path'
 
 import { findUpSync } from '../utilities/findUp.js'
 

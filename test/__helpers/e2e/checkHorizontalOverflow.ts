@@ -185,6 +185,6 @@ export async function assertNoHorizontalOverflow(page: Page, testInfo?: TestInfo
   await expect(async () => {
     const result = await checkHorizontalOverflow(page, testInfo)
     expect(result.hasHorizontalOverflow).toBe(false)
-    expect(result.overflowingElements.length).toBe(0)
+    expect(result.overflowingElements).toHaveLength(0)
   }).toPass()
 }

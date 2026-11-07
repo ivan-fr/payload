@@ -47,10 +47,8 @@ export const runJSONJob = async ({
       if (job?.taskStatus?.[step.task]?.[step.id]?.complete) {
         continue
       }
-    } else {
-      if (job?.taskStatus?.['inline']?.[step.id]?.complete) {
-        continue
-      }
+    } else if (job?.taskStatus?.['inline']?.[step.id]?.complete) {
+      continue
     }
     if (step.condition && !step.condition({ job })) {
       continue

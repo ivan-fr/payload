@@ -179,7 +179,7 @@ export function fieldReducer(state: FormState, action: FieldAction): FormState {
 
           // Apply the ID to its corresponding parent field's rows, e.g. `array.0.nestedArray.rows[0].id`
           const segments = key.split('.')
-          const rowIndex = parseInt(segments[segments.length - 2], 10)
+          const rowIndex = Number.parseInt(segments[segments.length - 2], 10)
           const parentFieldPath = segments.slice(0, segments.length - 2).join('.')
           const parentFieldRows = newRowState?.[parentFieldPath]?.rows
 

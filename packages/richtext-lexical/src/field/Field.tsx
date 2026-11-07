@@ -18,7 +18,6 @@ import {
   useTranslation,
 } from '@payloadcms/ui'
 import { mergeFieldStyles } from '@payloadcms/ui/shared'
-import { dequal } from 'dequal/lite'
 import { type Validate } from 'payload'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -33,6 +32,7 @@ import type { LexicalRichTextFieldProps } from '../types/index.js'
 
 import { LexicalProvider } from '../lexical/LexicalProvider.js'
 import { useRunDeprioritized } from '../utilities/useRunDeprioritized.js'
+import { isEditorStateEqual } from './isEditorStateEqual.js'
 import { useRichTextView } from './RichTextViewProvider.js'
 import { ViewSelector } from './ViewSelector.js'
 
@@ -164,20 +164,9 @@ const RichTextComponent: React.FC<
 
   const handleInitialValueChange = useEffectEvent(
     (initialValue: SerializedEditorState | undefined) => {
-      // Object deep equality check here, as re-mounting the editor if
-      // the new value is the same as the old one is not necessary.
-      // In postgres, the order of keys in JSON objects is not guaranteed to be preserved,
-      // so we need to do a deep equality check here that does not care about key order => we use dequal.
-      // If we used JSON.stringify, the editor would re-mount every time you save the document, as the order of keys changes => change detected => re-mount.
-      if (
-        prevValueRef.current !== value &&
-        !dequal(
-          prevValueRef.current != null
-            ? JSON.parse(JSON.stringify(prevValueRef.current))
-            : prevValueRef.current,
-          value,
-        )
-      ) {
+      // Saving can reorder JSON keys or normalize absent block fields to null.
+      // Only remount for a meaningful external change, preserving focus on save.
+      if (!isEditorStateEqual({ next: value, previous: prevValueRef.current })) {
         prevInitialValueRef.current = initialValue
         prevValueRef.current = value
         setRerenderProviderKey(new Date())

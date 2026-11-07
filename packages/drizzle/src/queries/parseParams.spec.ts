@@ -2,7 +2,14 @@ import type { FlattenedField } from 'payload'
 
 import { DatabaseSync } from 'node:sqlite'
 import { like, notLike } from 'drizzle-orm'
-import { PgDialect, pgTable, serial, text as pgText, uuid } from 'drizzle-orm/pg-core'
+import {
+  PgDialect,
+  pgTable,
+  serial,
+  integer as pgInteger,
+  text as pgText,
+  uuid,
+} from 'drizzle-orm/pg-core'
 import { integer, SQLiteSyncDialect, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { describe, expect, it } from 'vitest'
 
@@ -200,6 +207,47 @@ describe('Postgres literal search SQL (#18325)', () => {
       expect(query.params).toEqual(['%50\\%\\_a\\\\b%'])
       expect(query.sql).toContain(`ESCAPE '\\'`)
       expect(query.sql).not.toContain('50%')
+    },
+  )
+})
+
+describe('draft parent ID and title searches (#15648)', () => {
+  it.each(['serial', 'uuid'] as const)(
+    'should compile a valid Postgres %s parent ID and title query',
+    (idType) => {
+      const table = pgTable('_posts_v', {
+        id: serial('id'),
+        parent: idType === 'serial' ? pgInteger('parent_id') : uuid('parent_id'),
+        version_title: pgText('version_title'),
+      })
+      const adapter = {
+        idType,
+        name: 'postgres',
+        operators: operatorMap,
+        payload: { config: {}, collections: { posts: { config: { slug: 'posts' } } } },
+        tables: { _posts_v: table },
+        tableNameMap: new Map(),
+      } as unknown as DrizzleAdapter
+      const parentID = idType === 'serial' ? 'Needle' : '00000000-0000-4000-8000-000000000001'
+      const constraint = parseParams({
+        adapter,
+        context: { sort: undefined },
+        fields: [
+          { name: 'parent', type: 'relationship', relationTo: 'posts' },
+          { name: 'version_title', type: 'text' },
+        ] as FlattenedField[],
+        joins: [],
+        parentIsLocalized: false,
+        selectFields: {},
+        tableName: '_posts_v',
+        where: { or: [{ parent: { equals: parentID } }, { version_title: { like: 'Needle' } }] },
+      })
+      const query = new PgDialect().sqlToQuery(constraint)
+      expect(query.params.some((value) => typeof value === 'number' && Number.isNaN(value))).toBe(
+        false,
+      )
+      expect(query.params).toContain('%Needle%')
+      expect(query.sql).toContain(' or ')
     },
   )
 })

@@ -6,8 +6,8 @@ import { anyone } from './access/anyone'
 import { checkRole } from './access/checkRole'
 import { loginAfterCreate } from './hooks/loginAfterCreate'
 import { protectRoles } from './hooks/protectRoles'
-import { access } from 'fs'
-import { create } from 'domain'
+import { access } from 'node:fs'
+import { create } from 'node:domain'
 
 export const Users: CollectionConfig = {
   slug: 'users',

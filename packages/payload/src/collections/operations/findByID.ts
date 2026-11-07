@@ -300,7 +300,7 @@ export const findByIDOperation = async <
             // Query where the lock is newer than the current time minus lock time
             {
               updatedAt: {
-                greater_than: new Date(new Date().getTime() - lockDurationInMilliseconds),
+                greater_than: new Date(Date.now() - lockDurationInMilliseconds),
               },
             },
           ],

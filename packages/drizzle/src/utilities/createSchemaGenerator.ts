@@ -1,8 +1,8 @@
 import type { GenerateSchema } from 'payload'
 
-import { existsSync } from 'fs'
-import { writeFile } from 'fs/promises'
-import path from 'path'
+import { existsSync } from 'node:fs'
+import { writeFile } from 'node:fs/promises'
+import path from 'node:path'
 
 import type { ColumnToCodeConverter, DrizzleAdapter } from '../types.js'
 

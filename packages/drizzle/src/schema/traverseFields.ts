@@ -401,7 +401,7 @@ export const traverseFields = ({
             withinLocalizedArrayOrBlock ||
             forceLocalized
 
-          if (typeof blocksTableNameMap[blockTableName] === 'undefined') {
+          if (blocksTableNameMap[blockTableName] === undefined) {
             blocksTableNameMap[blockTableName] = 1
           } else if (
             !adapter.rawTables[blockTableName] ||
@@ -418,7 +418,7 @@ export const traverseFields = ({
             blockTableName = `${blockTableName}_${blocksTableNameMap[blockTableName]}`
           }
           let relationName = `_blocks_${block.slug}`
-          if (typeof block[InternalBlockTableNameIndex] !== 'undefined') {
+          if (block[InternalBlockTableNameIndex] !== undefined) {
             relationName = `_blocks_${block.slug}_${block[InternalBlockTableNameIndex]}`
           }
 
