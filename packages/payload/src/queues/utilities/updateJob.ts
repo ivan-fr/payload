@@ -66,10 +66,8 @@ export async function updateJobs({
     data.processingToken = null
   }
 
-  if (data.updatedAt === undefined) {
-    // Ensure updatedAt date is always updated
-    data.updatedAt = getCurrentDate().toISOString()
-  }
+  // Ensure updatedAt date is always updated
+  data.updatedAt ??= getCurrentDate().toISOString()
 
   const args: UpdateJobsArgs = id
     ? {

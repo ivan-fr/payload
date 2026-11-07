@@ -24,8 +24,8 @@ export const isURLAllowed = (url: string, allowList: AllowList): boolean => {
           // no longer contains an escaped `\*` for the next replace to match.
           const regexPattern = value
             .replace(/[\\^$*+?.()|[\]{}]/g, '\\$&') // Escape regex metacharacters
-            .replaceAll('\\*\\*', '.*') // `**` → match any path
-            .replaceAll('\\*', '[^/]*') // `*` → match any part of a path segment
+            .replaceAll(String.raw`\*\*`, '.*') // `**` → match any path
+            .replaceAll(String.raw`\*`, '[^/]*') // `*` → match any part of a path segment
           const regex = new RegExp(`^${regexPattern}$`)
           return regex.test(parsedUrl.pathname)
         }

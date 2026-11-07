@@ -280,17 +280,9 @@ export const sanitizeField = ({
     // Required by default so the admin marks the slug as required. The value is always populated by
     // the field hooks (source or id fallback), and validations.slug permits empty so the fallback
     // isn't blocked before it runs.
-    if (field.required === undefined) {
-      field.required = true
-    }
-
-    if (field.unique === undefined) {
-      field.unique = true
-    }
-
-    if (field.index === undefined) {
-      field.index = true
-    }
+    field.required ??= true
+    field.unique ??= true
+    field.index ??= true
 
     field.admin = {
       position: 'sidebar',

@@ -563,6 +563,8 @@ export const BlockComponent: React.FC<BlockComponentProps> = (props) => {
         showDragHandle = true,
         showRowNumber = true,
       }: BlockCollapsibleWithErrorProps) {
+        const blockLabel = Label !== undefined ? Label : resolvedCustomLabel
+
         return (
           <BlockReordering editor={editor} nodeKey={nodeKey}>
             {({ isReordering, move, onBlur, onKeyDown, reorderInstructionsID, targetIndex }) => (
@@ -677,10 +679,8 @@ export const BlockComponent: React.FC<BlockComponentProps> = (props) => {
                   }
                   header={
                     <div className={`${baseClass}__block-header`}>
-                      {Label !== undefined ? (
-                        Label
-                      ) : resolvedCustomLabel !== undefined ? (
-                        resolvedCustomLabel
+                      {blockLabel !== undefined ? (
+                        blockLabel
                       ) : (
                         <div className={`${baseClass}__block-label`}>
                           {showRowNumber && (

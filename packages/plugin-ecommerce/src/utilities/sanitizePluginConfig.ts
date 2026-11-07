@@ -12,10 +12,8 @@ export const sanitizePluginConfig = ({ pluginConfig }: Props): SanitizedEcommerc
     ...pluginConfig,
   } as Partial<SanitizedEcommercePluginConfig>
 
-  if (config.customers === undefined) {
-    config.customers = {
-      slug: 'users',
-    }
+  config.customers ??= {
+    slug: 'users',
   }
 
   if (
@@ -65,13 +63,8 @@ export const sanitizePluginConfig = ({ pluginConfig }: Props): SanitizedEcommerc
     config.carts.allowGuestCarts = true
   }
 
-  if (config.orders === undefined) {
-    config.orders = true
-  }
-
-  if (config.transactions === undefined) {
-    config.transactions = true
-  }
+  config.orders ??= true
+  config.transactions ??= true
 
   if (config.payments === undefined) {
     config.payments = {

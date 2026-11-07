@@ -165,7 +165,7 @@ function getTableColumnsSize(table: TableNode) {
 }
 
 const $createTableCell = (textContent: string, allTransformers: Transformer[]): TableCellNode => {
-  textContent = textContent.replaceAll('\\n', '\n')
+  textContent = textContent.replaceAll(String.raw`\n`, '\n')
   const cell = $createTableCellNode(TableCellHeaderStates.NO_STATUS)
   // shouldMergeAdjacentLines is true to preserve how cell content was parsed
   // before the exported $convertFromMarkdownString default changed to false.

@@ -47,9 +47,7 @@ export const sanitizeJoinField = ({
   if (!field.admin) {
     field.admin = {}
   }
-  if (field.maxDepth === undefined) {
-    field.maxDepth = 1
-  }
+  field.maxDepth ??= 1
   const join: SanitizedJoin = {
     field,
     joinPath: `${joinPath ? joinPath + '.' : ''}${field.name}`,

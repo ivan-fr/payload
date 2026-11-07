@@ -86,3 +86,15 @@ The local pre-commit hook additionally lints changed integration/E2E fixtures, o
 Accessibility scope: Group By option availability, preserving the editor's focus and caret through a keyboard save, and dropdown CSS validity. WCAG 1.3.1, 2.1.1, 2.4.3, 2.4.6 and 4.1.2 were assessed for these changes; Chromium verifies the targeted grouping paths and save/typing behavior. Enhanced-contrast appearance, clipping/reflow, visible focus quality and screen-reader output still require visual/assistive-technology verification. These targeted results do not establish WCAG conformance.
 
 The deterministic secrets scan completed across the backlog sources. The public local-database fixture credentials were explicitly confirmed as CI test values by the repository owner; their configuration is retained.
+
+## Published-head Sonar follow-up
+
+SonarCloud analyzed `14224c6acae5532e34ca086d83bd8f11f87525b4`: its Quality Gate passed, with zero bugs/vulnerabilities and 20 new code-smell annotations. The new GitHub build and lint jobs also passed. This follow-up addresses those annotations in source rather than changing their status or the gate.
+
+- Replace the remaining backtracking Markdown link matcher with a linear scan and an index of paired parentheses. A bounded child process confirms the preceding regex times out after two seconds on 100,000 unmatched opening brackets. All 19 sanitizer tests pass, including malformed outer links, multiple links and nested destination parentheses. The distributed AI Reviewer bundle is rebuilt. The isolated official SonarJS complexity/slow-regex check reports no findings in the revised sanitizer.
+- Use nullish assignment for typed configuration defaults and job timestamps, preserving explicit `false` and zero values.
+- Use raw string literals for JSON-query escaping, URL glob patterns and Markdown table newlines; keep the same resulting characters.
+- Separate nested conditions in the block label, table dimensions and hierarchy selection. Custom null labels, empty selections and the five-cell table default retain their behavior.
+- Use `Number.isNaN` for already-parsed numeric row indices and the direct opposite operator for the version filter.
+
+Final local validation after these changes: **4,644 unit tests passed / 4 skipped**, 515 passing files; all **46 package builds** passed; complete root lint and formatting passed; the AI Reviewer bundle build and all **19 sanitizer tests** passed. The new cloud analysis must confirm the follow-up commit. The project-wide main-branch backlog remains distinct from these 20 PR annotations.

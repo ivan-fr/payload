@@ -55,10 +55,10 @@ export function TableGridPopup({
   const colsInputRef = useRef<HTMLInputElement>(null)
   const rowsInputRef = useRef<HTMLInputElement>(null)
 
-  const effectiveCols =
-    hoverCol > 0 ? hoverCol : inputCols ? Number.parseInt(inputCols, 10) || 0 : 5
-  const effectiveRows =
-    hoverRow > 0 ? hoverRow : inputRows ? Number.parseInt(inputRows, 10) || 0 : 5
+  const enteredCols = inputCols ? Number.parseInt(inputCols, 10) || 0 : 5
+  const enteredRows = inputRows ? Number.parseInt(inputRows, 10) || 0 : 5
+  const effectiveCols = hoverCol > 0 ? hoverCol : enteredCols
+  const effectiveRows = hoverRow > 0 ? hoverRow : enteredRows
 
   useEffect(() => {
     if (!isOpen) {

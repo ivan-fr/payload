@@ -105,10 +105,12 @@ export const HierarchyFieldClient: React.FC<HierarchyFieldClientProps> = (props)
     () => toRelationValues(initialValue),
     [initialValue, toRelationValues],
   )
-  const initialSelections = useMemo(
-    () => (value === null || value === undefined ? [] : Array.isArray(value) ? value : [value]),
-    [value],
-  )
+  const initialSelections = useMemo(() => {
+    if (value === null || value === undefined) {
+      return []
+    }
+    return Array.isArray(value) ? value : [value]
+  }, [value])
   const filterByCollection = useMemo(
     () => (documentCollectionSlug ? [documentCollectionSlug] : undefined),
     [documentCollectionSlug],

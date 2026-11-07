@@ -37,7 +37,7 @@ const sanitizeValue = (value: unknown, operator?: string): string => {
     throw new APIError(`${value} is not allowed as a JSON query value`, 400)
   }
 
-  const escaped = value.replaceAll('\\', '\\\\').replaceAll('"', '\\"')
+  const escaped = value.replaceAll('\\', String.raw`\\`).replaceAll('"', String.raw`\"`)
 
   const prefix = ['like', 'not_like'].includes(operator ?? '') ? '(?i)' : ''
 
