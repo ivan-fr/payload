@@ -1,8 +1,8 @@
 import type { Payload, RequiredDataFromCollectionSlug } from 'payload'
 
-import path from 'path'
+import path from 'node:path'
 import { getPayload } from 'payload'
-import { fileURLToPath } from 'url'
+import { fileURLToPath } from 'node:url'
 
 import config from '../../src/payload.config.js'
 

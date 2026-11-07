@@ -66,7 +66,7 @@ export async function updateJobs({
     data.processingToken = null
   }
 
-  if (typeof data.updatedAt === 'undefined') {
+  if (data.updatedAt === undefined) {
     // Ensure updatedAt date is always updated
     data.updatedAt = getCurrentDate().toISOString()
   }
@@ -92,11 +92,11 @@ export async function updateJobs({
   try {
     updatedJobs = await req.payload.db.updateJobs(args)
 
-    if (transactionID !== null && typeof transactionID !== 'undefined') {
+    if (transactionID !== null && transactionID !== undefined) {
       await req.payload.db.commitTransaction(transactionID)
     }
   } catch (error) {
-    if (transactionID !== null && typeof transactionID !== 'undefined') {
+    if (transactionID !== null && transactionID !== undefined) {
       try {
         await req.payload.db.rollbackTransaction(transactionID)
       } catch {

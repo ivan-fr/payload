@@ -85,7 +85,7 @@ export const EditUpload: React.FC<EditUploadProps> = ({
   }
 
   const fineTuneCrop = ({ dimension, value }: { dimension: 'height' | 'width'; value: string }) => {
-    const intValue = parseInt(value)
+    const intValue = Number.parseInt(value)
     if (Number.isNaN(intValue)) {
       return null
     }
@@ -104,7 +104,7 @@ export const EditUpload: React.FC<EditUploadProps> = ({
     coordinate: 'x' | 'y'
     value: string
   }) => {
-    const intValue = parseInt(value)
+    const intValue = Number.parseInt(value)
     if (intValue >= 0 && intValue <= 100) {
       setFocalPosition((prevPosition) => ({ ...prevPosition, [coordinate]: intValue }))
     }

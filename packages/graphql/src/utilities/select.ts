@@ -42,7 +42,7 @@ export function resolveSelect(
   select: SelectType,
   context?: Context,
 ): SelectType {
-  const isSelectEnabled = context ? hasSelectRootPath(context, info) : typeof select !== 'undefined'
+  const isSelectEnabled = context ? hasSelectRootPath(context, info) : select !== undefined
 
   if (!isSelectEnabled) {
     return undefined

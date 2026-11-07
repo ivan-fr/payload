@@ -1,5 +1,5 @@
-import crypto from 'crypto'
-import path from 'path'
+import crypto from 'node:crypto'
+import path from 'node:path'
 
 import type { PayloadComponent } from '../../../../config/types.js'
 import type { Imports, InternalImportMap } from '../generateImportMap.js'
@@ -11,8 +11,8 @@ import { parsePayloadComponent } from './parsePayloadComponent.js'
  */
 function getAdjustedComponentPath(importMapToBaseDirPath: string, componentPath: string): string {
   // Normalize input paths to use forward slashes
-  const normalizedBasePath = importMapToBaseDirPath.replace(/\\/g, '/')
-  const normalizedComponentPath = componentPath.replace(/\\/g, '/')
+  const normalizedBasePath = importMapToBaseDirPath.replaceAll('\\', '/')
+  const normalizedComponentPath = componentPath.replaceAll('\\', '/')
 
   // Base path starts with './' - preserve the './' prefix
   // => import map is in a subdirectory of the base directory, or in the same directory as the base directory

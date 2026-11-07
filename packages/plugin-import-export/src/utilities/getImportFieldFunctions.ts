@@ -58,7 +58,7 @@ const registerImportHandler = (
         return value
       }
       if (typeof value === 'string') {
-        const parsed = parseFloat(value)
+        const parsed = Number.parseFloat(value)
         return isNaN(parsed) ? undefined : parsed
       }
       return value

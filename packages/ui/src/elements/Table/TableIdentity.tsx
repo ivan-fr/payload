@@ -17,7 +17,7 @@ export const TableIdentityProvider: React.FC<{
   collectionSlug: string
   navigationLabel?: string
 }> = ({ children, collectionSlug, navigationLabel }) => {
-  const instanceID = useId().replace(/:/g, '')
+  const instanceID = useId().replaceAll(':', '')
 
   return (
     <TableIdentityContext

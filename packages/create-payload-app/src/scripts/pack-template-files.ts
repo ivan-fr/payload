@@ -1,7 +1,7 @@
-import fs from 'fs'
-import fsp from 'fs/promises'
+import fs from 'node:fs'
+import fsp from 'node:fs/promises'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import path from 'path'
 
 import { TANSTACK_TEMPLATE_FILES } from '../lib/tanstack/template-files.js'
 

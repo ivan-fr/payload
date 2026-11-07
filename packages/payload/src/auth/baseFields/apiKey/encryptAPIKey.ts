@@ -5,13 +5,13 @@ export const encryptAPIKey: FieldHook = ({ data, req, value }) => {
   if (
     data &&
     'apiKey' in data &&
-    typeof data.apiKey !== 'undefined' &&
+    data.apiKey !== undefined &&
     !(typeof data.apiKey === 'string' && data.apiKey)
   ) {
     return null
   }
 
-  if (typeof value === 'undefined') {
+  if (value === undefined) {
     return undefined
   }
 

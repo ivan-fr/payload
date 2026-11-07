@@ -1,6 +1,6 @@
 import type { CollectionConfig, Field, GroupField, SanitizedUploadConfig, TextField } from 'payload'
 
-import path from 'path'
+import path from 'node:path'
 
 import type { GeneratedAdapter, GenerateFileURL } from '../types.js'
 

@@ -41,13 +41,13 @@ export const sanitizeJoinField = ({
   validateOnly?: boolean
 }) => {
   // the `joins` arg is not passed for globals or when recursing on fields that do not allow a join field
-  if (typeof joins === 'undefined') {
+  if (joins === undefined) {
     throw new APIError('Join fields cannot be added to arrays, blocks or globals.')
   }
   if (!field.admin) {
     field.admin = {}
   }
-  if (typeof field.maxDepth === 'undefined') {
+  if (field.maxDepth === undefined) {
     field.maxDepth = 1
   }
   const join: SanitizedJoin = {
@@ -123,7 +123,7 @@ export const sanitizeJoinField = ({
 
   // Track orderable joins for post-sanitization processing
   if (field.orderable && orderableJoins) {
-    const prefix = joinPath ? joinPath.replace(/\./g, '_') + '_' : ''
+    const prefix = joinPath ? joinPath.replaceAll('.', '_') + '_' : ''
     const orderFieldName = `_${field.collection}_${prefix}${field.name}_order`
 
     // Set defaultSort on the join field

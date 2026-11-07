@@ -55,15 +55,11 @@ export async function login<TSlug extends AuthCollectionSlug>({
       if (!email && !username) {
         throw new Error('Email or username is required.')
       }
-    } else {
-      if (!username) {
-        throw new Error('Username is required.')
-      }
+    } else if (!username) {
+      throw new Error('Username is required.')
     }
-  } else {
-    if (!email) {
-      throw new Error('Email is required.')
-    }
+  } else if (!email) {
+    throw new Error('Email is required.')
   }
 
   let loginData

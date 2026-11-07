@@ -1,5 +1,5 @@
 import * as esbuild from 'esbuild'
-import fs from 'fs'
+import fs from 'node:fs'
 
 import { sassPlugin } from 'esbuild-sass-plugin'
 

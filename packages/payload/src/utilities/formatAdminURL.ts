@@ -58,7 +58,7 @@ export const formatAdminURL = (args: FormatURLArgs): string => {
   const segments = [routePath && routePath !== '/' && routePath, path && path].filter(Boolean)
   const pathname = segments.join('') || '/'
   const pathnameWithBase = stripTrailingSlash(basePath + pathname) || '/'
-  const includeBasePath = includeBasePathArg ?? (adminRoute ? false : true)
+  const includeBasePath = includeBasePathArg ?? !adminRoute
 
   if (relative || !serverURL) {
     if (includeBasePath && basePath) {

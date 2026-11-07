@@ -1,11 +1,11 @@
 import type { PayloadHandler } from 'payload'
 
 import { PayloadIcon } from '@payloadcms/ui/shared'
-import fs from 'fs/promises'
 import { ImageResponse } from 'next/og.js'
-import path from 'path'
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import React from 'react'
-import { fileURLToPath } from 'url'
 
 import { OGImage } from './image.js'
 

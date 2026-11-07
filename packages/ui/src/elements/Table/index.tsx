@@ -70,7 +70,7 @@ export const Table: React.FC<Props> = ({
               {activeColumns.map((col) => (
                 <th
                   data-column={col.accessor}
-                  id={`heading-${col.accessor.replace(/\./g, '__')}`}
+                  id={`heading-${col.accessor.replaceAll('.', '__')}`}
                   key={col.accessor}
                   role={isGrid ? 'columnheader' : undefined}
                   scope="col"
@@ -113,7 +113,7 @@ export const Table: React.FC<Props> = ({
                       return (
                         <td
                           className={[
-                            `cell-${accessor.replace(/\./g, '__')}`,
+                            `cell-${accessor.replaceAll('.', '__')}`,
                             col.isLinkedColumn && 'cell--linked',
                           ]
                             .filter(Boolean)

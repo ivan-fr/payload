@@ -2,7 +2,7 @@ import type { FileData, PayloadRequest, TypeWithID } from 'payload'
 
 import { type I18nClient } from '@payloadcms/translations'
 import { File } from '@payloadcms/ui/rsc'
-import { createHash } from 'crypto'
+import { createHash } from 'node:crypto'
 
 import './index.css'
 

@@ -41,7 +41,7 @@ export async function getAccessResults({
 
       if (
         collection.auth &&
-        typeof collection.auth.maxLoginAttempts !== 'undefined' &&
+        collection.auth.maxLoginAttempts !== undefined &&
         collection.auth.maxLoginAttempts !== 0
       ) {
         collectionOperations.push('unlock')

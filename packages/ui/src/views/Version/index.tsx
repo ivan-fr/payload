@@ -51,7 +51,7 @@ export async function VersionView(props: DocumentViewServerProps) {
 
   const versionFromIDFromParams = searchParams.versionFrom as string
 
-  const modifiedOnly: boolean = searchParams.modifiedOnly === 'false' ? false : true
+  const modifiedOnly: boolean = !(searchParams.modifiedOnly === 'false')
 
   const docPermissions: SanitizedCollectionPermission | SanitizedGlobalPermission = collectionSlug
     ? permissions.collections[collectionSlug]

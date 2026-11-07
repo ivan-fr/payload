@@ -425,7 +425,7 @@ const BlocksFieldComponent: React.FC<BlocksFieldClientProps> = (props) => {
       ]
         .filter(Boolean)
         .join(' ')}
-      id={`field-${path?.replace(/\./g, '__')}`}
+      id={`field-${path?.replaceAll('.', '__')}`}
       ref={fieldRef}
       style={styles}
     >

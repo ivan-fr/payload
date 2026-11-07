@@ -62,10 +62,8 @@ export function setFloatingElemPosition(args: {
     } else if (left < editorScrollerRect.left) {
       left = editorScrollerRect.left + horizontalOffset
     }
-  } else {
-    if (left + floatingElemRect.width > editorScrollerRect.right) {
-      left = editorScrollerRect.right - floatingElemRect.width - horizontalOffset
-    }
+  } else if (left + floatingElemRect.width > editorScrollerRect.right) {
+    left = editorScrollerRect.right - floatingElemRect.width - horizontalOffset
   }
 
   left -= anchorElementRect.left

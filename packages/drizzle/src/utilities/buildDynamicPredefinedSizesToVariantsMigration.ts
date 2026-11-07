@@ -1,7 +1,7 @@
 import type { DynamicMigrationTemplate } from 'payload'
 
-import { randomUUID } from 'crypto'
-import { readdirSync, readFileSync, writeFileSync } from 'fs'
+import { randomUUID } from 'node:crypto'
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 
 import type { DrizzleAdapter } from '../types.js'
 import type { SizesToVariantsTableRenames } from './getSizesToVariantsRenames.js'

@@ -1,9 +1,9 @@
 import type { CreateMigration, MigrationTemplateArgs } from 'payload'
 
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { getPredefinedMigration, writeMigrationIndex } from 'payload'
-import { fileURLToPath } from 'url'
 
 const migrationTemplate = ({ downSQL, imports, upSQL }: MigrationTemplateArgs): string => `import {
   MigrateDownArgs,

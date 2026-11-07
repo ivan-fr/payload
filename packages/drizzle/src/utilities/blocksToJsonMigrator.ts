@@ -7,8 +7,8 @@ import type {
 } from 'payload'
 import type tsTypes from 'typescript'
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
-import path from 'path'
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import path from 'node:path'
 import {
   APIError,
   buildVersionCollectionFields,
@@ -227,8 +227,8 @@ class BlocksToJsonMigratorImpl implements BlocksToJsonMigrator {
     const files = readdirSync(this.tempFolderPath)
       .filter((file) => file.startsWith('entities-batch-') && file.endsWith('.json'))
       .sort((a, b) => {
-        const aNum = parseInt(a.match(/\d+/)?.[0] || '0', 10)
-        const bNum = parseInt(b.match(/\d+/)?.[0] || '0', 10)
+        const aNum = Number.parseInt(a.match(/\d+/)?.[0] || '0', 10)
+        const bNum = Number.parseInt(b.match(/\d+/)?.[0] || '0', 10)
         return aNum - bNum
       })
 

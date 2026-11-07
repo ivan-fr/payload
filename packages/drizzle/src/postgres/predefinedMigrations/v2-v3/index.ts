@@ -2,7 +2,7 @@ import type { DrizzleSnapshotJSON } from 'drizzle-kit/api'
 import type { Payload, PayloadRequest } from 'payload'
 
 import { sql } from 'drizzle-orm'
-import fs from 'fs'
+import fs from 'node:fs'
 import { buildVersionCollectionFields, buildVersionGlobalFields } from 'payload'
 import toSnakeCase from 'to-snake-case'
 

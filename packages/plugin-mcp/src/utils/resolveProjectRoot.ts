@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 
 /**
  * Returns the project root: the parent of the outermost `node_modules` segment in

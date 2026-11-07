@@ -132,7 +132,7 @@ export const DefaultCell: React.FC<DefaultCellComponentProps> = (props) => {
   }
 
   const DefaultCellComponent: React.FC<DefaultCellComponentProps> =
-    typeof cellData !== 'undefined' && cellComponents[field.type]
+    cellData !== undefined && cellComponents[field.type]
 
   let CellComponent: React.ReactNode = null
 
@@ -163,9 +163,7 @@ export const DefaultCell: React.FC<DefaultCellComponentProps> = (props) => {
     } else {
       return (
         <WrapElement {...wrapElementProps}>
-          {(displayedValue === '' ||
-            typeof displayedValue === 'undefined' ||
-            displayedValue === null) &&
+          {(displayedValue === '' || displayedValue === undefined || displayedValue === null) &&
             i18n.t('general:noLabel', {
               label: getTranslation(('label' in field ? field.label : null) || 'data', i18n),
             })}

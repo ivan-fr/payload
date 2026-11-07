@@ -16,6 +16,8 @@ const fields: Field[] = [
   { name: 'tags', type: 'text', hasMany: true },
   { name: 'category', type: 'relationship', relationTo: 'categories', hasMany: false },
   { name: 'categories', type: 'relationship', relationTo: 'categories', hasMany: true },
+  { name: 'related', type: 'relationship', relationTo: ['categories', 'posts'], hasMany: true },
+  { name: 'images', type: 'upload', relationTo: 'media', hasMany: true },
   { name: 'disabled', type: 'text', admin: { disabled: { groupBy: true } } },
   { name: 'meta', type: 'group', fields: [{ name: 'status', type: 'text' }] },
   {
@@ -27,11 +29,14 @@ const fields: Field[] = [
   },
 ]
 
-describe('scalar list grouping (#19134)', () => {
-  it('should offer scalar group/tab descendants and exclude every multi-valued path', () => {
+describe('list grouping (#19134)', () => {
+  it('should offer scalar descendants and relationship groups while excluding array descendants', () => {
     expect([...getGroupByFieldPaths({ fields })]).toEqual([
       'title',
       'category',
+      'categories',
+      'related',
+      'images',
       'meta.status',
       'seo.title',
       'count',
@@ -43,7 +48,6 @@ describe('scalar list grouping (#19134)', () => {
     '-links.label',
     'layout.hero.heading',
     'tags',
-    'categories',
     'unknown',
     ['title'],
     null,
@@ -51,7 +55,7 @@ describe('scalar list grouping (#19134)', () => {
     expect(resolveGroupBy({ fields, groupBy })).toBe('')
   })
 
-  it.each(['title', '-meta.status', 'seo.title'])(
+  it.each(['title', '-meta.status', 'seo.title', 'categories', '-related', 'images'])(
     'should preserve supported grouping %s',
     (groupBy) => {
       expect(resolveGroupBy({ fields, groupBy })).toBe(groupBy)

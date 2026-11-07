@@ -1,6 +1,6 @@
 import { initI18n } from '@payloadcms/translations'
-import fs from 'fs/promises'
 import { compile } from 'json-schema-to-typescript'
+import fs from 'node:fs/promises'
 
 import type { SanitizedConfig } from '../../config/types.js'
 

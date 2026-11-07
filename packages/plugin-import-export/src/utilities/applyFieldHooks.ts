@@ -69,7 +69,7 @@ const traverseFields = ({
           value: result[field.name],
         })
 
-        if (typeof transformed !== 'undefined') {
+        if (transformed !== undefined) {
           result[field.name] = transformed
         }
       } catch (error) {

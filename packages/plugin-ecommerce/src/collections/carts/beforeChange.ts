@@ -1,6 +1,6 @@
 import type { CollectionBeforeChangeHook } from 'payload'
 
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 
 type Props = {
   productsSlug: string

@@ -247,7 +247,7 @@ export const findOperation = async <
         typeof lockDocumentsProp === 'object' ? lockDocumentsProp.duration : lockDurationDefault
       const lockDurationInMilliseconds = lockDuration * 1000
 
-      const now = new Date().getTime()
+      const now = Date.now()
 
       const lockedDocuments = await payload.find({
         collection: lockedDocumentsCollectionSlug,

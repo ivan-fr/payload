@@ -37,7 +37,7 @@ export const processRichTextField = (value: unknown): unknown => {
     for (const [key, val] of Object.entries(node as Record<string, unknown>)) {
       if (numericProperties.includes(key) && typeof val === 'string') {
         // Convert string numbers to actual numbers
-        const num = parseFloat(val)
+        const num = Number.parseFloat(val)
         processed[key] = isNaN(num) ? val : num
       } else if (key === 'children' && Array.isArray(val)) {
         // Recursively process children

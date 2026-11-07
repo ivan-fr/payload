@@ -40,7 +40,7 @@ export const virtualFieldPopulationPromise = async ({
 
   const currentValue = ref[currentSegment]
 
-  if (typeof currentValue === 'undefined') {
+  if (currentValue === undefined) {
     return
   }
 

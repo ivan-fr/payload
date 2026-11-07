@@ -398,7 +398,7 @@ test.describe('Import Export Plugin', () => {
           },
           overrideAccess: true,
         })
-        expect(docs.length).toBe(1)
+        expect(docs).toHaveLength(1)
         expect(docs[0].collectionSlug).toBe('custom-id-pages')
 
         await runJobsQueue({ serverURL })
@@ -915,7 +915,7 @@ test.describe('Import Export Plugin', () => {
         overrideAccess: true,
       })
 
-      expect(importedDocs.docs.length).toBe(2)
+      expect(importedDocs.docs).toHaveLength(2)
       importedDocs.docs.forEach((doc) => {
         expect(doc._status).toBe('published')
       })
@@ -960,7 +960,7 @@ test.describe('Import Export Plugin', () => {
         overrideAccess: true,
       })
 
-      expect(draftDocs.docs.length).toBe(1)
+      expect(draftDocs.docs).toHaveLength(1)
       expect(draftDocs.docs[0]?._status).toBe('draft')
 
       const publishedDocs = await payload.find({
@@ -972,7 +972,7 @@ test.describe('Import Export Plugin', () => {
         overrideAccess: true,
       })
 
-      expect(publishedDocs.docs.length).toBe(1)
+      expect(publishedDocs.docs).toHaveLength(1)
       expect(publishedDocs.docs[0]?._status).toBe('published')
     })
 
@@ -1599,7 +1599,7 @@ test.describe('Import Export Plugin', () => {
       const content = fs.readFileSync(downloadPath, 'utf8')
       const lines = content.split('\n').filter((line) => line.trim())
 
-      expect(lines.length).toBe(6)
+      expect(lines).toHaveLength(6)
     })
 
     test('should show warning in import preview when file exceeds maxLimit', async () => {
@@ -1756,7 +1756,7 @@ test.describe('Import Export Plugin', () => {
       const lines = content.split('\n').filter((line) => line.trim())
 
       // 7 data rows + 1 header row = 8 lines
-      expect(lines.length).toBe(8)
+      expect(lines).toHaveLength(8)
     })
 
     test('should show limit capped to 7 when user limit exceeds dynamic maxLimit', async () => {

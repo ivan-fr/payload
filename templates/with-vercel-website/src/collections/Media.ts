@@ -5,9 +5,9 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import path from 'path'
+import path from 'node:path'
 import { createFolderField } from 'payload'
-import { fileURLToPath } from 'url'
+import { fileURLToPath } from 'node:url'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'

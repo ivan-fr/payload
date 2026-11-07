@@ -361,7 +361,7 @@ export const BlockComponent: React.FC<BlockComponentProps> = (props) => {
         initialBlockData: blockData,
         operation: 'update',
         readOnly: !isEditable,
-        renderAllFields: submit ? true : false,
+        renderAllFields: Boolean(submit),
         schemaPath: schemaFieldsPath,
         signal: controller.signal,
       })
@@ -488,10 +488,8 @@ export const BlockComponent: React.FC<BlockComponentProps> = (props) => {
           if (!newCollapsed.includes(formData.id)) {
             newCollapsed.push(formData.id)
           }
-        } else {
-          if (newCollapsed.includes(formData.id)) {
-            newCollapsed.splice(newCollapsed.indexOf(formData.id), 1)
-          }
+        } else if (newCollapsed.includes(formData.id)) {
+          newCollapsed.splice(newCollapsed.indexOf(formData.id), 1)
         }
 
         setDocFieldPreferences(parentLexicalRichTextField.name, {
@@ -596,7 +594,7 @@ export const BlockComponent: React.FC<BlockComponentProps> = (props) => {
               >
                 <Collapsible
                   actions={
-                    typeof Actions !== 'undefined' ? (
+                    Actions !== undefined ? (
                       Actions
                     ) : isEditable ? (
                       <Popup
@@ -679,9 +677,9 @@ export const BlockComponent: React.FC<BlockComponentProps> = (props) => {
                   }
                   header={
                     <div className={`${baseClass}__block-header`}>
-                      {typeof Label !== 'undefined' ? (
+                      {Label !== undefined ? (
                         Label
-                      ) : typeof resolvedCustomLabel !== 'undefined' ? (
+                      ) : resolvedCustomLabel !== undefined ? (
                         resolvedCustomLabel
                       ) : (
                         <div className={`${baseClass}__block-label`}>
@@ -690,7 +688,7 @@ export const BlockComponent: React.FC<BlockComponentProps> = (props) => {
                               {String(rowIndex + 1).padStart(2, '0')}
                             </span>
                           )}
-                          {typeof CustomPill !== 'undefined' ? (
+                          {CustomPill !== undefined ? (
                             CustomPill
                           ) : (
                             <Pill

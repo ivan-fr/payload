@@ -11,14 +11,14 @@ export const convertToBaseValue = ({
   displayValue: string
 }): number => {
   if (!currency) {
-    return parseFloat(displayValue)
+    return Number.parseFloat(displayValue)
   }
 
   // Remove currency symbol and any non-numeric characters except decimal
   const cleanValue = displayValue.replace(currency.symbol, '').replace(/[^0-9.]/g, '')
 
   // Parse the clean value to a float
-  const floatValue = parseFloat(cleanValue || '0')
+  const floatValue = Number.parseFloat(cleanValue || '0')
 
   // Convert to the base value (e.g., cents for USD)
   return Math.round(floatValue * Math.pow(10, currency.decimals))

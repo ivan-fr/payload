@@ -50,10 +50,7 @@ export const defaultValuePromise = async <T>({
   }
 
   if (fieldAffectsData(field)) {
-    if (
-      typeof siblingData[field.name] === 'undefined' &&
-      typeof field.defaultValue !== 'undefined'
-    ) {
+    if (siblingData[field.name] === undefined && field.defaultValue !== undefined) {
       try {
         siblingData[field.name] = await getDefaultValue({
           defaultValue: field.defaultValue,

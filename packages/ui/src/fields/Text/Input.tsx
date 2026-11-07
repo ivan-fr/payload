@@ -87,14 +87,12 @@ export const TextInput: React.FC<TextInputProps> = (props) => {
               action: 'create-option',
               option: data,
             })
-          } else {
-            if (Array.isArray(selectProps.value)) {
-              const newValues = selectProps.value.filter((v) => v.id !== data.id)
-              selectProps.onChange(newValues, {
-                action: 'pop-value',
-                removedValue: data,
-              })
-            }
+          } else if (Array.isArray(selectProps.value)) {
+            const newValues = selectProps.value.filter((v) => v.id !== data.id)
+            selectProps.onChange(newValues, {
+              action: 'pop-value',
+              removedValue: data,
+            })
           }
 
           event.preventDefault()
@@ -145,7 +143,7 @@ export const TextInput: React.FC<TextInputProps> = (props) => {
             aria-describedby={errorID}
             aria-invalid={showError || undefined}
             aria-required={required || undefined}
-            className={`field-${path.replace(/\./g, '__')}`}
+            className={`field-${path.replaceAll('.', '__')}`}
             components={{ DropdownIndicator: null }}
             customProps={{
               editableProps,

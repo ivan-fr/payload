@@ -120,10 +120,7 @@ export const LexicalProvider: React.FC<LexicalProviderProps> = (props) => {
   // EditablePlugin applies readOnly changes without resetting content or focus.
   // View changes still recreate the composer with the appropriate nodes.
   return (
-    <LexicalComposer
-      initialConfig={initialConfig}
-      key={composerKey + initialConfig.editable + currentView}
-    >
+    <LexicalComposer initialConfig={initialConfig} key={composerKey + currentView}>
       <EditablePlugin readOnly={readOnly} />
       <EditorConfigProvider
         editorConfig={editorConfig}

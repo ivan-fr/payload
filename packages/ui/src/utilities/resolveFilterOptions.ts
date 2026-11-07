@@ -10,7 +10,7 @@ export const resolveFilterOptions = async (
 
   const query = {}
 
-  if (typeof filterOptions !== 'undefined') {
+  if (filterOptions !== undefined) {
     await Promise.all(
       relations.map(async (relation) => {
         query[relation] =

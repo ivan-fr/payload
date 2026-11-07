@@ -48,3 +48,41 @@ An isolated official `eslint-plugin-sonarjs` check at threshold 15 no longer fla
 Validation: **4,624 unit tests passed / 4 skipped**, **94 focused affected unit tests passed**, the existing **14 SQLite batch regressions passed** and **12 jsdom tests passed**; TypeScript for payload, ui, drizzle, form-builder and ecommerce; targeted lint and formatting. A new temporary-file JPEG test exercises standalone marker skipping and file-backed reads, with cleanup in `finally`.
 
 Accessibility scope: virtual-group option availability and query paths. WCAG 1.3.1 (relationships), 2.4.6 (labels) and 4.1.2 (name/role/value) were assessed in source; labels continue through the existing translation and popup controls. Unit rendering verifies option paths and active selection only. Native browser visibility, keyboard/focus and assistive-technology outcomes remain unverified locally and must not be inferred from mocked popup rendering. No CSS or focus handling changed. Earlier enhanced-contrast and screen-reader evidence limits still apply.
+
+## Project-wide Sonar follow-up and remaining CI regressions
+
+Input revision: `5aebe36e8af6cc8bed5c06d8d37ddc9659fc623c`. SonarCloud reported zero issues on PR 7 and **5,850 open issues on main across 2,116 files**. This follow-up starts addressing that larger inventory; it does not claim the entire backlog is resolved. Cloud analysis must confirm issue closures after publication.
+
+The source changes include these mechanical simplifications:
+
+| Change                                                                        | Occurrences |
+| ----------------------------------------------------------------------------- | ----------: |
+| Explicit `node:` imports of built-in modules                                  |         373 |
+| `Number.parseInt` / `Number.parseFloat`                                       |          85 |
+| Direct comparisons with `undefined`, retaining guards for unavailable globals |         138 |
+| `replaceAll` for fixed literal global patterns                                |         104 |
+| Dedicated length/null/undefined assertions                                    |          86 |
+| Flattened `else if` branches                                                  |          43 |
+| `Date.now()` for the current timestamp                                        |          12 |
+| Simplified boolean ternaries                                                  |          13 |
+
+Regex patterns requiring character classes, captures or non-global flags retain their behavior. Numeric checks that require coercion are not replaced with non-coercing checks. No issue statuses, quality thresholds or analysis exclusions are changed.
+
+Two security findings are addressed separately. Markdown link normalization no longer nests ambiguous quantifiers: a malformed 1,000-character link blocked the original regex for more than two seconds in a bounded child process, while the new 100,000-character regression completes. The tracked AI Reviewer bundle is rebuilt. Live Preview now rejects an untrusted message origin before invoking its handler or callback; trusted-origin callbacks remain covered. Three CSS findings are also corrected in the Lexical dropdown: valid negative token arithmetic, removal of an invalid redundant background-color value, and removal of the unnecessary important declaration.
+
+Four CI causes are corrected:
+
+- **SQL session persistence:** omitted arrays were transformed into empty rows and then deleted during session-only updates. Omitted arrays now remain untouched; explicit empty/null arrays still clear their rows. Four unit cases and the complete 21-test multi-tenant SQLite suite pass. The existing SQLite login-failure regression also passes against the packed production packages, preserving both array rows and the session count. These scenarios cover the 403-versus-400 failures on PostgreSQL variants and the lost-login-metadata failures on SQLite variants.
+- **Has-many grouping:** relationship and upload grouping remains supported, while array/block descendants and multi-valued scalar fields remain excluded. Twenty focused unit tests and both native Chromium MongoDB has-many relationship scenarios pass. SQLite's polymorphic scenario reaches the adapter's existing `Not supported` path; it is not reported as passing.
+- **Lexical focus:** renewing editor configuration during save could change the composer key through its initial editability and remount the editor. The key now follows document/view identity. A second cause was reproduced with MongoDB and optimized production packages: the saved JSON adds `null` to absent nested block fields, triggering a provider remount despite unchanged content. State comparison now treats those empty object properties consistently while detecting real text/block changes and preserving array positions. Ten focused comparison tests and the real-provider Chromium regression cover these cases. Full production save/typing and external-mutation verification is recorded below.
+- **UUID fixture values:** the numeric-ID regression submitted `Needle` as a UUID on UUID adapters. The fixture now uses a valid nonmatching ID for string IDs and retains nonnumeric text for numeric IDs. Its PostgreSQL dialect regression reproduces the original UUID error and now covers both ID types; the six SQLite UUID integration cases pass. Runtime UUID validation is retained.
+
+Validation of this follow-up: **4,634 unit tests passed / 4 skipped**, 514 passing unit files, followed by **10 additional editor-comparison tests**; all **46 package builds** passed; repository lint passed with existing warnings; targeted dropdown stylelint passed; two Chromium editor component tests passed; 15 AI Reviewer sanitization tests passed; 21 SQLite multi-tenant tests, six SQLite UUID batch-27 tests and the packed-package SQLite login-failure regression passed. The focused SonarJS complexity, slow-regex and postMessage checks report no findings in the corrected production files, including the final field comparison. The new remote CI/Cloud analysis must confirm the published head.
+
+Packed production verification uses `pnpm prepare-run-test-against-prod`, then `pnpm dev:prod <suite>` with a dedicated ephemeral MongoDB replica set. The Next.js optimized build passed. Both has-many grouping scenarios passed. All **three Lexical save/typing and external-mutation scenarios passed** with the existing CI timings and `--retries=0`; the original save/typing scenario failed before the null-normalization correction. No screenshot baseline was generated on the host. The reviewed 12-second demo and recording script remain local at the owner's request.
+
+The local pre-commit hook additionally lints changed integration/E2E fixtures, outside the root CI lint command's package/tool scope. That hook reports **132 existing errors** (including conditional expectations and duplicate test titles). Running the identical changed-file lint list with the input revision's test sources produces the same 132 errors and identical file/rule/message counts, with zero added or removed diagnostics. All working sources were restored after this comparison. The commit uses `HUSKY=0` for this demonstrated baseline hook failure; repository hook configuration and CI checks are unchanged. The complete root lint command passes.
+
+Accessibility scope: Group By option availability, preserving the editor's focus and caret through a keyboard save, and dropdown CSS validity. WCAG 1.3.1, 2.1.1, 2.4.3, 2.4.6 and 4.1.2 were assessed for these changes; Chromium verifies the targeted grouping paths and save/typing behavior. Enhanced-contrast appearance, clipping/reflow, visible focus quality and screen-reader output still require visual/assistive-technology verification. These targeted results do not establish WCAG conformance.
+
+The deterministic secrets scan completed across the backlog sources. The public local-database fixture credentials were explicitly confirmed as CI test values by the repository owner; their configuration is retained.

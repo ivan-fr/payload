@@ -73,7 +73,7 @@ export const unflatten = (target: any, opts?: Opts) => {
       const isobject = type === '[object Object]' || type === '[object Array]'
 
       // do not write over falsey, non-undefined values if overwrite is false
-      if (!overwrite && !isobject && typeof currentValue !== 'undefined') {
+      if (!overwrite && !isobject && currentValue !== undefined) {
         return
       }
 

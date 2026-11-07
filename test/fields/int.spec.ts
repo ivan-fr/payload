@@ -3426,7 +3426,7 @@ test.suite('Fields', { config: './config.ts', resetBetweenTests: false }, () => 
         overrideAccess: true,
       })
 
-      expect(updatedDoc.localized).toEqual(undefined)
+      expect(updatedDoc.localized).toBeUndefined()
     })
 
     test('should not error with camel case name point field', async ({ payload }) => {

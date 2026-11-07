@@ -163,7 +163,7 @@ describe('Point', () => {
         testInfo,
       })
 
-      expect(scanResults.violations.length).toBe(0)
+      expect(scanResults.violations).toHaveLength(0)
     })
 
     test('Point inputs have focus indicators', async ({}, testInfo) => {

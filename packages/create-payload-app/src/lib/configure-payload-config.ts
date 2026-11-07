@@ -1,6 +1,6 @@
 import fse from 'fs-extra'
 import globby from 'globby'
-import path from 'path'
+import path from 'node:path'
 
 import type { DbType, StorageAdapterType } from '../types.js'
 

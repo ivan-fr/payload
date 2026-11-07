@@ -17,9 +17,9 @@
  * notes CI drafts for the tag, in the log and the job summary.
  */
 import { PROJECT_ROOT } from '@tools/constants'
-import { execSync } from 'child_process'
 import minimist from 'minimist'
-import { pathToFileURL } from 'url'
+import { execSync } from 'node:child_process'
+import { pathToFileURL } from 'node:url'
 
 import type { Workspace } from './lib/getWorkspace.js'
 
@@ -95,9 +95,9 @@ export const runReleaseBump = async ({
 
   if (isOverride) {
     const reason = (overrideReason ?? '')
-      .replace(/%/g, '%25')
-      .replace(/\r/g, '%0D')
-      .replace(/\n/g, '%0A')
+      .replaceAll('%', '%25')
+      .replaceAll('\r', '%0D')
+      .replaceAll('\n', '%0A')
     log(
       `::notice title=Bump override::Releasing as '${bump}' (the commits call for '${recommended}'). Reason: ${reason}`,
     )

@@ -1,8 +1,8 @@
+import type stream from 'node:stream'
 import type { CollectionBeforeChangeHook, CollectionConfig, FileData, TypeWithID } from 'payload'
-import type stream from 'stream'
 
 import { Upload } from '@aws-sdk/lib-storage'
-import fs from 'fs'
+import fs from 'node:fs'
 
 import { createKey } from '../utilities/createKey.js'
 import { getIncomingFiles } from '../utilities/getIncomingFiles.js'

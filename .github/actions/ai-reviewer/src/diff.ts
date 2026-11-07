@@ -24,7 +24,7 @@ export function parseChangedLineNumbers(
     for (const line of lines) {
       const hunkMatch = line.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/)
       if (hunkMatch) {
-        newLineNumber = parseInt(hunkMatch[1], 10)
+        newLineNumber = Number.parseInt(hunkMatch[1], 10)
         continue
       }
       if (newLineNumber === 0) continue

@@ -148,7 +148,7 @@ const CodeFieldComponent: React.FC<CodeFieldClientProps> = (props) => {
           recalculatedHeightAt={recalculatedHeightAt}
           value={stringValueRef.current}
           wrapperProps={{
-            id: `field-${path?.replace(/\./g, '__')}`,
+            id: `field-${path?.replaceAll('.', '__')}`,
           }}
           {...(codeEditorProps || {})}
           onMount={(editor, monaco) => {

@@ -63,7 +63,7 @@ function parseArrayFieldPath(path: string): {
   return {
     arrayPath: segments.slice(0, lastNumericIndex).join('.'),
     fieldPath: segments.slice(lastNumericIndex + 1).join('.'),
-    rowIndex: parseInt(segments[lastNumericIndex], 10),
+    rowIndex: Number.parseInt(segments[lastNumericIndex], 10),
   }
 }
 

@@ -15,10 +15,8 @@ export function formatLexicalDocTitle(
   for (const node of editorState) {
     if ('text' in node && node.text) {
       textContent += node.text as string
-    } else {
-      if (!('children' in node)) {
-        textContent += `[${node.type}]`
-      }
+    } else if (!('children' in node)) {
+      textContent += `[${node.type}]`
     }
     if ('children' in node && node.children) {
       textContent += formatLexicalDocTitle(node.children, textContent)

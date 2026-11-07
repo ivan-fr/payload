@@ -25,8 +25,8 @@ export const isURLAllowed = (url: string, allowList: AllowList): boolean => {
           // — translating `**` before `*` is safe because the resulting `.*`
           // no longer contains an escaped `\*` for the next replace to match.
           const regexPattern = escapeRegExp(value)
-            .replace(/\\\*\\\*/g, '.*') // `**` → match any path
-            .replace(/\\\*/g, '[^/]*') // `*` → match any part of a path segment
+            .replaceAll('\\*\\*', '.*') // `**` → match any path
+            .replaceAll('\\*', '[^/]*') // `*` → match any part of a path segment
             .replace(/\/$/, '(/)?') // Allow optional trailing slash
           const regex = new RegExp(`^${regexPattern}$`)
           return regex.test(parsedUrl.pathname)

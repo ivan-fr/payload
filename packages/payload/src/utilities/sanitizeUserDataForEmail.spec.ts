@@ -105,7 +105,7 @@ describe('sanitizeUserDataForEmail', () => {
   it('should truncate to maxLength characters', () => {
     const input = 'a'.repeat(200)
     const result = sanitizeUserDataForEmail(input, 50)
-    expect(result.length).toBe(50)
+    expect(result).toHaveLength(50)
   })
 
   it('should remove characters outside allowed punctuation', () => {

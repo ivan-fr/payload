@@ -1,4 +1,4 @@
-import fs from 'fs/promises'
+import fs from 'node:fs/promises'
 import process from 'node:process'
 
 import type { PayloadComponent, SanitizedConfig } from '../../../config/types.js'

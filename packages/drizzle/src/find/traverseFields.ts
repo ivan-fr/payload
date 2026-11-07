@@ -114,7 +114,7 @@ export const traverseFields = ({
 
         if (select) {
           if (
-            (selectMode === 'include' && typeof arraySelect === 'undefined') ||
+            (selectMode === 'include' && arraySelect === undefined) ||
             (selectMode === 'exclude' && arraySelect === false)
           ) {
             break
@@ -248,7 +248,7 @@ export const traverseFields = ({
             if (typeof blocksSelect[block.slug] === 'object') {
               blockSelect = blocksSelect[block.slug]
             } else if (
-              (selectMode === 'include' && typeof blocksSelect[block.slug] === 'undefined') ||
+              (selectMode === 'include' && blocksSelect[block.slug] === undefined) ||
               (selectMode === 'exclude' && blocksSelect[block.slug] === false)
             ) {
               blockSelect = {}
@@ -369,7 +369,7 @@ export const traverseFields = ({
           selectAllOnCurrentLevel:
             selectAllOnCurrentLevel ||
             fieldSelect === true ||
-            (selectMode === 'exclude' && typeof fieldSelect === 'undefined'),
+            (selectMode === 'exclude' && fieldSelect === undefined),
           selectMode,
           tablePath: `${tablePath}${toSnakeCase(field.name)}_`,
           topLevelArgs,
@@ -637,7 +637,7 @@ export const traverseFields = ({
           if (
             selectAllOnCurrentLevel ||
             (selectMode === 'include' && Boolean(select[field.name])) ||
-            (selectMode === 'exclude' && typeof select[field.name] === 'undefined')
+            (selectMode === 'exclude' && select[field.name] === undefined)
           ) {
             shouldSelect = true
           }
@@ -718,7 +718,7 @@ export const traverseFields = ({
         if (
           selectAllOnCurrentLevel ||
           (selectMode === 'include' && Boolean(select[field.name])) ||
-          (selectMode === 'exclude' && typeof select[field.name] === 'undefined')
+          (selectMode === 'exclude' && select[field.name] === undefined)
         ) {
           const fieldPath = `${path}${field.name}`
 

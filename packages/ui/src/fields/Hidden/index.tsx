@@ -27,7 +27,7 @@ const HiddenFieldComponent: React.FC<HiddenFieldProps> = (props) => {
 
   return (
     <input
-      id={`field-${path?.replace(/\./g, '__')}`}
+      id={`field-${path?.replaceAll('.', '__')}`}
       name={path}
       onChange={setValue}
       type="hidden"

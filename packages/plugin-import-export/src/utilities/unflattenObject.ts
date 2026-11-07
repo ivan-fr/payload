@@ -96,7 +96,10 @@ export const unflattenObject = ({
       const bBase = b.substring(0, bMatch.index)
 
       if (aBase === bBase) {
-        return (parseInt(aMatch?.[1] ?? '0', 10) || 0) - (parseInt(bMatch?.[1] ?? '0', 10) || 0)
+        return (
+          (Number.parseInt(aMatch?.[1] ?? '0', 10) || 0) -
+          (Number.parseInt(bMatch?.[1] ?? '0', 10) || 0)
+        )
       }
     }
 
@@ -303,7 +306,7 @@ export const unflattenObject = ({
           currentObject[segment] = []
         }
 
-        const arrayIndex = parseInt(nextSegment)
+        const arrayIndex = Number.parseInt(nextSegment)
         const arr = currentObject[segment] as unknown[]
 
         // Ensure array has sufficient length
@@ -360,7 +363,7 @@ export const unflattenObject = ({
       } else if (Array.isArray(currentObject) && indexSegment.test(segment)) {
         // currentObject is an array we arrived at via block field traversal — treat the
         // segment as a numeric index rather than a plain property name.
-        const idx = parseInt(segment, 10)
+        const idx = Number.parseInt(segment, 10)
         const arr = currentObject as unknown[]
         while (arr.length <= idx) {
           arr.push(null)
@@ -427,7 +430,7 @@ const getParentObject = (
     }
 
     if (nextSegment && /^\d+$/.test(nextSegment)) {
-      const arrayIndex = parseInt(nextSegment)
+      const arrayIndex = Number.parseInt(nextSegment)
       const arr = current[segment] as unknown[]
 
       if (Array.isArray(arr) && arr[arrayIndex]) {

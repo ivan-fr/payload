@@ -1,7 +1,7 @@
 import type { ImportDeclaration, SourceFile } from 'ts-morph'
 
-import { existsSync } from 'fs'
-import path from 'path'
+import { existsSync } from 'node:fs'
+import path from 'node:path'
 
 import type {
   DetectionError,

@@ -1,6 +1,6 @@
-import { createReadStream } from 'fs'
+import { createReadStream } from 'node:fs'
+import { TextDecoder } from 'node:util'
 import sax, { type SAXOptions } from 'sax'
-import { TextDecoder } from 'util'
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
 

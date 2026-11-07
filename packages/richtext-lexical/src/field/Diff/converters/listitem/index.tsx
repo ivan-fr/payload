@@ -21,7 +21,7 @@ export const ListItemDiffHTMLConverterAsync: HTMLConvertersAsync<SerializedListI
 
       const JSX = (
         <li
-          aria-checked={node.checked ? true : false}
+          aria-checked={Boolean(node.checked)}
           className={`checkboxItem ${node.checked ? 'checkboxItem--checked' : 'checkboxItem--unchecked'}${
             hasSubLists ? ' checkboxItem--nested' : ''
           }`}

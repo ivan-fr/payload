@@ -1,5 +1,5 @@
-import path from 'path'
-import { fileURLToPath } from 'url'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { getDependencies } from './getDependencies.js'
 import { compareVersions } from './versionUtils.js'

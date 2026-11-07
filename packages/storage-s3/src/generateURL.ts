@@ -1,7 +1,7 @@
 import type * as AWS from '@aws-sdk/client-s3'
 
 import { buildStoragePathData } from '@payloadcms/plugin-cloud-storage/utilities'
-import path from 'path'
+import path from 'node:path'
 
 interface GenerateURLArgs {
   bucket: string

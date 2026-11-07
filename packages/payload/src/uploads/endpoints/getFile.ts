@@ -1,8 +1,8 @@
-import type { Stats } from 'fs'
+import type { Stats } from 'node:fs'
 
 import { fileTypeFromFile } from 'file-type'
-import fsPromises from 'fs/promises'
-import path from 'path'
+import fsPromises from 'node:fs/promises'
+import path from 'node:path'
 
 import type { Collection, TypeWithID } from '../../collections/config/types.js'
 import type { PayloadHandler } from '../../config/types.js'

@@ -101,7 +101,7 @@ export const promise = async <T>({
       if (field.type === 'number' && typeof siblingData[field.name] === 'string') {
         const value = siblingData[field.name] as string
 
-        siblingData[field.name] = parseFloat(value)
+        siblingData[field.name] = Number.parseFloat(value)
       }
 
       if (
@@ -143,7 +143,7 @@ export const promise = async <T>({
         if (typeof siblingData[field.name] === 'string') {
           const value = siblingData[field.name] as string
           const trimmed = value.trim()
-          siblingData[field.name] = trimmed.length === 0 ? null : parseFloat(trimmed)
+          siblingData[field.name] = trimmed.length === 0 ? null : Number.parseFloat(trimmed)
         }
 
         break
@@ -155,7 +155,7 @@ export const promise = async <T>({
             if (typeof coordinate === 'string') {
               const value = siblingData[field.name][i] as string
               const trimmed = value.trim()
-              return trimmed.length === 0 ? null : parseFloat(trimmed)
+              return trimmed.length === 0 ? null : Number.parseFloat(trimmed)
             }
             return coordinate
           })
@@ -201,7 +201,7 @@ export const promise = async <T>({
                 if (relationshipIDField?.type === 'number') {
                   siblingData[field.name][i] = {
                     ...relatedDoc,
-                    value: parseFloat(relatedDoc.value as string),
+                    value: Number.parseFloat(relatedDoc.value as string),
                   }
                 }
               }
@@ -220,7 +220,10 @@ export const promise = async <T>({
                   fieldAffectsData(collectionField) && collectionField.name === 'id',
               )
               if (relationshipIDField?.type === 'number') {
-                siblingData[field.name] = { ...value, value: parseFloat(value.value as string) }
+                siblingData[field.name] = {
+                  ...value,
+                  value: Number.parseFloat(value.value as string),
+                }
               }
             }
           }
@@ -241,7 +244,7 @@ export const promise = async <T>({
                     fieldAffectsData(collectionField) && collectionField.name === 'id',
                 )
                 if (relationshipIDField?.type === 'number') {
-                  siblingData[field.name][i] = parseFloat(relatedDoc as string)
+                  siblingData[field.name][i] = Number.parseFloat(relatedDoc as string)
                 }
               }
             })
@@ -259,7 +262,7 @@ export const promise = async <T>({
                   fieldAffectsData(collectionField) && collectionField.name === 'id',
               )
               if (relationshipIDField?.type === 'number') {
-                siblingData[field.name] = parseFloat(value as string)
+                siblingData[field.name] = Number.parseFloat(value as string)
               }
             }
           }
@@ -291,7 +294,7 @@ export const promise = async <T>({
       executed: false,
       value: undefined,
     }
-    if (typeof siblingData[field.name!] === 'undefined' && !req.context?.isRestoringVersion) {
+    if (siblingData[field.name!] === undefined && !req.context?.isRestoringVersion) {
       fallbackResult.value = await getFallbackValue({ field, req, siblingDoc })
       fallbackResult.executed = true
     }
@@ -318,9 +321,7 @@ export const promise = async <T>({
           siblingData,
           siblingFields: siblingFields!,
           value:
-            typeof siblingData[field.name] === 'undefined'
-              ? fallbackResult.value
-              : siblingData[field.name],
+            siblingData[field.name] === undefined ? fallbackResult.value : siblingData[field.name],
         })
 
         if (hookedValue !== undefined) {
@@ -364,7 +365,7 @@ export const promise = async <T>({
 
     onFieldAccess?.({ accessResult, path })
 
-    if (typeof siblingData[field.name!] === 'undefined' && !req.context?.isRestoringVersion) {
+    if (siblingData[field.name!] === undefined && !req.context?.isRestoringVersion) {
       const isDocumentValueAllowed =
         operation === 'update' || operation === 'validate' || accessResult
 

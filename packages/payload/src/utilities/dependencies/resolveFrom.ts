@@ -15,8 +15,8 @@
 */
 
 // source: https://github.com/sindresorhus/resolve-from
-import { createRequire } from 'module'
-import path from 'path'
+import { createRequire } from 'node:module'
+import path from 'node:path'
 
 import { isError } from './isError.js'
 import { realpathSync } from './realPath.js'
@@ -50,7 +50,7 @@ export const resolveFrom = (fromDirectory: string, moduleId: string, silent?: bo
 
   const require = createRequire(import.meta.url)
 
-  const Module = require('module')
+  const Module = require('node:module')
 
   const resolveFileName = () => {
     return Module._resolveFilename(moduleId, {

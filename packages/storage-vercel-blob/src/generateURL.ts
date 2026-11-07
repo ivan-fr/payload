@@ -1,5 +1,5 @@
 import { buildStoragePathData } from '@payloadcms/plugin-cloud-storage/utilities'
-import path from 'path'
+import path from 'node:path'
 
 interface GenerateURLArgs {
   baseUrl: string

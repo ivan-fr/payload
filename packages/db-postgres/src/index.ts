@@ -57,9 +57,9 @@ import {
   insert,
 } from '@payloadcms/drizzle/postgres'
 import { pgEnum, pgSchema, pgTable } from 'drizzle-orm/pg-core'
+import { fileURLToPath } from 'node:url'
 import { createDatabaseAdapter, defaultBeginTransaction, findMigrationDir } from 'payload'
 import pgDependency from 'pg'
-import { fileURLToPath } from 'url'
 
 import type { Args, PostgresAdapter } from './types.js'
 

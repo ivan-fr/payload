@@ -394,7 +394,7 @@ export const promise = async ({
               : existingValue
 
           // update locale value if it's not undefined
-          if (typeof fieldValue !== 'undefined') {
+          if (fieldValue !== undefined) {
             localeData[locale] = fieldValue
           }
         }
@@ -659,8 +659,8 @@ export const promise = async ({
         siblingData[field.name] = {
           type: 'Point',
           coordinates: [
-            parseFloat(siblingData[field.name][0]),
-            parseFloat(siblingData[field.name][1]),
+            Number.parseFloat(siblingData[field.name][0]),
+            Number.parseFloat(siblingData[field.name][1]),
           ],
         }
       }
@@ -836,7 +836,7 @@ function hasInvalidFieldValueShape({
   field: Field | TabAsField
   value: unknown
 }): boolean {
-  if (value === null || typeof value === 'undefined' || !fieldAffectsData(field)) {
+  if (value === null || value === undefined || !fieldAffectsData(field)) {
     return false
   }
 

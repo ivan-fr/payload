@@ -7,9 +7,9 @@ import type {
 } from '@payloadcms/translations'
 
 import { acceptedLanguages } from '@payloadcms/translations'
-import fs from 'fs'
+import fs from 'node:fs'
+import path from 'node:path'
 import { format } from 'oxfmt'
-import path from 'path'
 import { deepMergeSimple } from 'payload/shared'
 
 import { applyOxlintFixes } from './applyOxlintFixes.js'

@@ -37,7 +37,7 @@ export const validateUniqueConstraints = async ({
 
       const value = ref[field.name as keyof typeof ref]
 
-      if (value === null || typeof value === 'undefined') {
+      if (value === null || value === undefined) {
         return
       }
 
@@ -84,7 +84,7 @@ export const validateUniqueConstraints = async ({
         value: getObjectDotNotation(data, path),
       }))
 
-      if (values.some(({ value }) => value === null || typeof value === 'undefined')) {
+      if (values.some(({ value }) => value === null || value === undefined)) {
         return null
       }
 

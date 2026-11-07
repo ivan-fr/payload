@@ -93,7 +93,7 @@ describe('Locked Documents', () => {
         overrideAccess: true,
       })
 
-      expect(lockedDocs.docs.length).toBe(0)
+      expect(lockedDocs.docs).toHaveLength(0)
     })
   })
 
@@ -428,7 +428,7 @@ describe('Locked Documents', () => {
         overrideAccess: true,
       })
 
-      expect(lockedTestDocs.docs.length).toBe(2)
+      expect(lockedTestDocs.docs).toHaveLength(2)
 
       await page.goto(testsUrl.edit(testDoc.id))
 
@@ -443,7 +443,7 @@ describe('Locked Documents', () => {
         overrideAccess: true,
       })
 
-      expect(lockedDocs.docs.length).toBe(1)
+      expect(lockedDocs.docs).toHaveLength(1)
     })
 
     test('should lock document upon initial editing of unlocked document', async () => {
@@ -464,7 +464,7 @@ describe('Locked Documents', () => {
         overrideAccess: true,
       })
 
-      expect(lockedDocs.docs.length).toBe(1)
+      expect(lockedDocs.docs).toHaveLength(1)
     })
 
     test('should unlock document on save / publish', async () => {
@@ -485,7 +485,7 @@ describe('Locked Documents', () => {
         overrideAccess: true,
       })
 
-      expect(lockedDocs.docs.length).toBe(1)
+      expect(lockedDocs.docs).toHaveLength(1)
 
       await saveDocAndAssert(page)
 
@@ -501,7 +501,7 @@ describe('Locked Documents', () => {
         overrideAccess: true,
       })
 
-      expect(unlockedDocs.docs.length).toBe(0)
+      expect(unlockedDocs.docs).toHaveLength(0)
     })
 
     test('should keep document locked when navigating to other tabs i.e. api', async () => {
@@ -522,7 +522,7 @@ describe('Locked Documents', () => {
         overrideAccess: true,
       })
 
-      expect(lockedDocs.docs.length).toBe(1)
+      expect(lockedDocs.docs).toHaveLength(1)
 
       await page.getByRole('link', { name: 'API', exact: true }).click()
 
@@ -545,7 +545,7 @@ describe('Locked Documents', () => {
         overrideAccess: true,
       })
 
-      expect(unlockedDocs.docs.length).toBe(1)
+      expect(unlockedDocs.docs).toHaveLength(1)
 
       await payload.delete({
         collection: lockedDocumentCollection,
@@ -574,7 +574,7 @@ describe('Locked Documents', () => {
         overrideAccess: true,
       })
 
-      expect(lockedDocs.docs.length).toBe(1)
+      expect(lockedDocs.docs).toHaveLength(1)
 
       await page.locator('header.app-header a[href="/admin/collections/posts"]').click()
 
@@ -599,7 +599,7 @@ describe('Locked Documents', () => {
         overrideAccess: true,
       })
 
-      expect(unlockedDocs.docs.length).toBe(0)
+      expect(unlockedDocs.docs).toHaveLength(0)
     })
   })
 
@@ -919,7 +919,7 @@ describe('Locked Documents', () => {
 
       await wait(500)
 
-      expect(lockedDoc.docs.length).toBe(1)
+      expect(lockedDoc.docs).toHaveLength(1)
 
       const userEmail =
         // eslint-disable-next-line playwright/no-conditional-in-test
@@ -1034,7 +1034,7 @@ describe('Locked Documents', () => {
 
       await wait(500)
 
-      expect(lockedDoc.docs.length).toBe(1)
+      expect(lockedDoc.docs).toHaveLength(1)
 
       const userEmail =
         // eslint-disable-next-line playwright/no-conditional-in-test

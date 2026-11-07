@@ -694,7 +694,7 @@ export function UploadInput(props: UploadInputProps) {
   const showDropzone =
     !value ||
     (hasMany && Array.isArray(value) && (typeof maxRows !== 'number' || value.length < maxRows)) ||
-    (!hasMany && populatedDocs?.[0] && typeof populatedDocs[0].value === 'undefined')
+    (!hasMany && populatedDocs?.[0] && populatedDocs[0].value === undefined)
 
   return (
     <div
@@ -708,7 +708,7 @@ export function UploadInput(props: UploadInputProps) {
       ]
         .filter(Boolean)
         .join(' ')}
-      id={`field-${path?.replace(/\./g, '__')}`}
+      id={`field-${path?.replaceAll('.', '__')}`}
       role={a11yID ? 'group' : undefined}
       style={style}
     >

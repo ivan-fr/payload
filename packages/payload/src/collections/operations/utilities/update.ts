@@ -332,7 +332,7 @@ export const updateDocument = async <
   if (
     allLocalesPublicationStatus &&
     !hasAuthorizedPublicationStatus &&
-    typeof statusFieldValue === 'undefined' &&
+    statusFieldValue === undefined &&
     typeof docWithLocales._status === 'object' &&
     docWithLocales._status !== null
   ) {

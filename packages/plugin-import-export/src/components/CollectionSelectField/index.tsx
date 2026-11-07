@@ -37,7 +37,7 @@ export function CollectionSelectField({ textFieldProps }: CollectionSelectFieldP
   const { collection: collectionFromContext } = useImportExport()
   const { i18n } = useTranslation()
 
-  const fieldId = path ? `field-${path.replace(/\./g, '__')}` : undefined
+  const fieldId = path ? `field-${path.replaceAll('.', '__')}` : undefined
 
   const options = useMemo(() => {
     const validSlugs = (docConfig?.admin?.custom?.['plugin-import-export']?.collectionSlugs ||

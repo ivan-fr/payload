@@ -3,8 +3,8 @@
  * are always resolved to their latest compatible versions when users install them.
  */
 
-import { existsSync, readdirSync, rmSync } from 'fs'
-import { join } from 'path'
+import { existsSync, readdirSync, rmSync } from 'node:fs'
+import { join } from 'node:path'
 
 const baseDir = join(process.cwd(), 'templates')
 

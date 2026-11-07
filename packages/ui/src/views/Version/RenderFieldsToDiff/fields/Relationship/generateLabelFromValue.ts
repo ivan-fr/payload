@@ -51,7 +51,7 @@ export const generateLabelFromValue = async ({
     titleFieldIsLocalized = fieldShouldBeLocalized({ field: useAsTitleField, parentIsLocalized })
   }
 
-  if (typeof relatedDoc?.[useAsTitle] !== 'undefined') {
+  if (relatedDoc?.[useAsTitle] !== undefined) {
     valueToReturn = relatedDoc[useAsTitle]
   } else if (typeof relatedDoc === 'string' || typeof relatedDoc === 'number') {
     // When relatedDoc is just an ID (due to maxDepth: 0), fetch the document to get the title

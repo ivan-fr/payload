@@ -1,6 +1,6 @@
-import { createRequire } from 'module'
-import path from 'path'
-import fs from 'fs'
+import { createRequire } from 'node:module'
+import path from 'node:path'
+import fs from 'node:fs'
 import { playwright } from '@vitest/browser-playwright'
 import { defaultExclude, defineConfig } from 'vitest/config'
 

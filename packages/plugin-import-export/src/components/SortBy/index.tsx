@@ -125,7 +125,7 @@ export const SortBy: React.FC<SelectFieldClientProps> = (props) => {
       <ReactSelect
         disabled={props.readOnly}
         getOptionValue={(option) => String(option.value)}
-        inputId={`field-${props.path.replace(/\./g, '__')}`}
+        inputId={`field-${props.path.replaceAll('.', '__')}`}
         isClearable={true}
         isSortable={true}
         // @ts-expect-error react select option

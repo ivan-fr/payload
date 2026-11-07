@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import path from 'path'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
@@ -74,13 +74,11 @@ export async function translateText(text: string, targetLang: string) {
 
     if (response.status > 200) {
       console.log(data.error)
+    } else if (data?.choices?.[0]) {
+      console.log('  Old text:', text, 'New text:', data.choices[0].message.content.trim())
+      return data.choices[0].message.content.trim()
     } else {
-      if (data?.choices?.[0]) {
-        console.log('  Old text:', text, 'New text:', data.choices[0].message.content.trim())
-        return data.choices[0].message.content.trim()
-      } else {
-        console.log(`Could not translate: ${text} in lang: ${targetLang}`, data.error)
-      }
+      console.log(`Could not translate: ${text} in lang: ${targetLang}`, data.error)
     }
   } catch (e) {
     console.error('Error translating:', text, 'to', targetLang, 'response', response, '. Error:', e)

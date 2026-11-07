@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 
 import type { SanitizedCollectionConfig } from '../../../collections/config/types.js'
 import type { SanitizedConfig } from '../../../config/types.js'

@@ -483,7 +483,7 @@ export const number: NumberFieldValidation = (
       return t('validation:enterNumber')
     }
 
-    const numberValue = parseFloat(number as unknown as string)
+    const numberValue = Number.parseFloat(number as unknown as string)
 
     if (typeof max === 'number' && numberValue > max) {
       return t('validation:greaterThanMax', { label: t('general:value'), max, value: numberValue })
@@ -620,7 +620,7 @@ const validateFilterOptions: Validate<
     siblingData,
   },
 ) => {
-  if (typeof filterOptions !== 'undefined' && value) {
+  if (filterOptions !== undefined && value) {
     const options: {
       [collection: string]: (number | string)[]
     } = {}
@@ -789,7 +789,7 @@ export const upload: UploadFieldValidation = async (value, options) => {
     }
   }
 
-  if (typeof value !== 'undefined' && value !== null) {
+  if (value !== undefined && value !== null) {
     const values = Array.isArray(value) ? value : [value]
 
     const invalidRelationships = values.filter((val) => {
@@ -892,7 +892,7 @@ export const relationship: RelationshipFieldValidation = async (value, options) 
     }
   }
 
-  if (typeof value !== 'undefined' && value !== null) {
+  if (value !== undefined && value !== null) {
     const values = Array.isArray(value) ? value : [value]
 
     const invalidRelationships = values.filter((val) => {
@@ -1007,7 +1007,7 @@ export const select: SelectFieldValidation = async (
 
   if (
     required &&
-    (typeof value === 'undefined' ||
+    (value === undefined ||
       value === null ||
       (hasMany && Array.isArray(value) && (value as [])?.length === 0))
   ) {
@@ -1046,8 +1046,8 @@ export const point: PointFieldValidation = (value = ['', ''], { req: { t }, requ
     return true
   }
 
-  const lng = parseFloat(String(value[0]))
-  const lat = parseFloat(String(value[1]))
+  const lng = Number.parseFloat(String(value[0]))
+  const lat = Number.parseFloat(String(value[1]))
   if (
     required &&
     ((value[0] && value[1] && typeof lng !== 'number' && typeof lat !== 'number') ||

@@ -106,7 +106,7 @@ export const promise = async <T>({
             }
           }
 
-          if (typeof hookResult !== 'undefined') {
+          if (hookResult !== undefined) {
             localeData[locale] = hookResult
           }
         }
@@ -139,7 +139,7 @@ export const promise = async <T>({
           }
         }
 
-        if (typeof hookResult !== 'undefined') {
+        if (hookResult !== undefined) {
           siblingDoc[field.name!] = hookResult
         }
       }

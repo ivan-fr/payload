@@ -97,7 +97,7 @@ export function BulkUploadModal() {
     const previousModalState = previousModalStateRef.current[modalSlug]
     const currentModalState = modalState[modalSlug]
 
-    if (typeof currentModalState === 'undefined' && typeof previousModalState === 'undefined') {
+    if (currentModalState === undefined && previousModalState === undefined) {
       return
     }
 

@@ -5,23 +5,26 @@ import { test } from '../__helpers/int/vitest.js'
 import { notesSlug, pagesSlug } from './slugs.js'
 
 test.suite('draft ID search and request files (#15648, #15975)', { config: './config.ts' }, () => {
-  test('should search draft titles alongside numeric parent IDs without dropping text matches', async ({
+  test('should preserve draft title matches when an alternative parent ID does not match', async ({
     payload,
   }) => {
-    await payload.create({
+    const page = await payload.create({
       collection: pagesSlug,
       overrideAccess: true,
       draft: true,
       data: { title: 'Needle' },
     })
+    const unmatchedID =
+      typeof page.id === 'number' ? 'Needle' : '00000000-0000-4000-8000-000000000001'
     const result = await payload.find({
       collection: pagesSlug,
       overrideAccess: true,
       draft: true,
-      where: { or: [{ id: { equals: 'Needle' } }, { title: { like: 'Needle' } }] },
+      where: { or: [{ id: { equals: unmatchedID } }, { title: { like: 'Needle' } }] },
     })
     expect(result.totalDocs).toBe(1)
     expect(result.docs[0]?.title).toBe('Needle')
+    expect(result.docs[0]?.id).toBe(page.id)
   })
 
   for (const operation of ['create', 'update', 'bulk', 'failure'] as const) {

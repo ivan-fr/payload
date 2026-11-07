@@ -59,7 +59,7 @@ export const getIsLocked = async ({
       : lockDurationDefault
   const lockDurationInMilliseconds = lockDuration * 1000
 
-  const now = new Date().getTime()
+  const now = Date.now()
 
   if (globalConfig) {
     where.and = [

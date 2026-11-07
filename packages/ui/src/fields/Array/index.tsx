@@ -386,7 +386,7 @@ export const ArrayFieldComponent: React.FC<ArrayFieldClientProps> = (props) => {
       ]
         .filter(Boolean)
         .join(' ')}
-      id={`field-${path.replace(/\./g, '__')}`}
+      id={`field-${path.replaceAll('.', '__')}`}
       ref={fieldRef}
       style={styles}
     >

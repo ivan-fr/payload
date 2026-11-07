@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 
 import type { CollectionSlug, FindOptions, JsonObject } from '../../index.js'
 import type {
@@ -391,7 +391,7 @@ export const createOperation = async <
       allLocalesPublicationStatus &&
       !hasAuthorizedPublicationStatus &&
       statusFieldAccess &&
-      typeof statusFieldValue === 'undefined' &&
+      statusFieldValue === undefined &&
       typeof duplicatedFromDocWithLocales._status === 'object' &&
       duplicatedFromDocWithLocales._status !== null
     ) {

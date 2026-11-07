@@ -1,6 +1,6 @@
-import fs from 'fs'
 import { getTsconfig } from 'get-tsconfig'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 // Function to get all migration files (TS or JS) excluding 'index'
 const getMigrationFiles = (dir: string) => {

@@ -203,7 +203,7 @@ export const RelationshipInput: React.FC<RelationshipInputProps> = (props) => {
       }
       queueTask(async () => {
         const lastFullyLoadedRelationToUse =
-          typeof lastFullyLoadedRelationArg !== 'undefined' ? lastFullyLoadedRelationArg : -1
+          lastFullyLoadedRelationArg !== undefined ? lastFullyLoadedRelationArg : -1
 
         const relations = Array.isArray(relationTo) ? relationTo : [relationTo]
         const relationsToFetch =
@@ -801,7 +801,7 @@ export const RelationshipInput: React.FC<RelationshipInputProps> = (props) => {
         .filter(Boolean)
         .join(' ')}
       data-size={size}
-      id={`field-${path.replace(/\./g, '__')}`}
+      id={`field-${path.replaceAll('.', '__')}`}
       style={style}
     >
       <RenderCustomComponent

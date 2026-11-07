@@ -480,7 +480,7 @@ export const fieldToSchemaMap: FieldToSchemaMap = {
           locale: req.locale,
           overrideAccess: false,
           page,
-          pagination: count ? true : false,
+          pagination: Boolean(count),
           req,
           select,
           sort,
@@ -812,7 +812,7 @@ export const fieldToSchemaMap: FieldToSchemaMap = {
       },
       async resolve(parent, args, context: Context) {
         let depth = config.defaultDepth
-        if (typeof args.depth !== 'undefined') {
+        if (args.depth !== undefined) {
           depth = args.depth
         }
         if (!field?.editor) {

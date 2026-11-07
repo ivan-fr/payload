@@ -55,8 +55,10 @@ export function TableGridPopup({
   const colsInputRef = useRef<HTMLInputElement>(null)
   const rowsInputRef = useRef<HTMLInputElement>(null)
 
-  const effectiveCols = hoverCol > 0 ? hoverCol : inputCols ? parseInt(inputCols, 10) || 0 : 5
-  const effectiveRows = hoverRow > 0 ? hoverRow : inputRows ? parseInt(inputRows, 10) || 0 : 5
+  const effectiveCols =
+    hoverCol > 0 ? hoverCol : inputCols ? Number.parseInt(inputCols, 10) || 0 : 5
+  const effectiveRows =
+    hoverRow > 0 ? hoverRow : inputRows ? Number.parseInt(inputRows, 10) || 0 : 5
 
   useEffect(() => {
     if (!isOpen) {
@@ -80,8 +82,8 @@ export function TableGridPopup({
       }
       if (e.key === 'Enter' && focusedInput) {
         e.preventDefault()
-        const cols = parseInt(inputCols, 10)
-        const rows = parseInt(inputRows, 10)
+        const cols = Number.parseInt(inputCols, 10)
+        const rows = Number.parseInt(inputRows, 10)
         if (cols > 0 && rows > 0) {
           onInsert(cols, rows)
         }

@@ -136,12 +136,10 @@ export const handleCreatedOrUpdated: HandleCreatedOrUpdated = async (args) => {
                 }
               }
             }
-          } else {
-            if (logs) {
-              payload.logger.error(
-                `No email was provided from Stripe, cannot create new '${collectionSlug}' document.`,
-              )
-            }
+          } else if (logs) {
+            payload.logger.error(
+              `No email was provided from Stripe, cannot create new '${collectionSlug}' document.`,
+            )
           }
         } catch (error: unknown) {
           const msg = error instanceof Error ? error.message : error

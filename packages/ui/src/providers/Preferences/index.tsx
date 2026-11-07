@@ -67,7 +67,7 @@ export const PreferencesProvider: React.FC<{ children?: React.ReactNode }> = ({ 
     async <T = unknown,>(key: string): Promise<T> => {
       const prefs = preferencesRef.current
 
-      if (typeof prefs[key] !== 'undefined') {
+      if (prefs[key] !== undefined) {
         return prefs[key]
       }
 
@@ -110,7 +110,7 @@ export const PreferencesProvider: React.FC<{ children?: React.ReactNode }> = ({ 
   )
 
   const syncPreference = useCallback(<T = Preferences,>(key: string, value: T): void => {
-    if (pendingWrites.current[key] || typeof pendingUpdate.current[key] !== 'undefined') {
+    if (pendingWrites.current[key] || pendingUpdate.current[key] !== undefined) {
       return
     }
 

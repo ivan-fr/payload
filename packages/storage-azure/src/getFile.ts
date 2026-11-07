@@ -1,6 +1,6 @@
 import type { BlobDownloadResponseParsed, ContainerClient } from '@azure/storage-blob'
+import type { Readable } from 'node:stream'
 import type { CollectionConfig, FileHandlerOperation, PayloadRequest, TypeWithID } from 'payload'
-import type { Readable } from 'stream'
 
 import { RestError } from '@azure/storage-blob'
 import {

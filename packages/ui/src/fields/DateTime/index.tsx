@@ -193,7 +193,7 @@ const DateTimeFieldComponent: React.FC<DateFieldClientProps> = (props) => {
           />
         }
       />
-      <div className={`${fieldBaseClass}__wrap`} id={`field-${path.replace(/\./g, '__')}`}>
+      <div className={`${fieldBaseClass}__wrap`} id={`field-${path.replaceAll('.', '__')}`}>
         <RenderCustomComponent
           CustomComponent={Error}
           Fallback={<FieldError path={path} showError={showError} />}

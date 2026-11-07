@@ -212,38 +212,42 @@ describe('Postgres literal search SQL (#18325)', () => {
 })
 
 describe('draft parent ID and title searches (#15648)', () => {
-  it('should compile a valid Postgres OR query for nonnumeric search text', () => {
-    const table = pgTable('_posts_v', {
-      id: serial('id'),
-      parent: pgInteger('parent_id'),
-      version_title: pgText('version_title'),
-    })
-    const adapter = {
-      idType: 'serial',
-      name: 'postgres',
-      operators: operatorMap,
-      payload: { config: {}, collections: { posts: { config: { slug: 'posts' } } } },
-      tables: { _posts_v: table },
-      tableNameMap: new Map(),
-    } as unknown as DrizzleAdapter
-    const constraint = parseParams({
-      adapter,
-      context: { sort: undefined },
-      fields: [
-        { name: 'parent', type: 'relationship', relationTo: 'posts' },
-        { name: 'version_title', type: 'text' },
-      ] as FlattenedField[],
-      joins: [],
-      parentIsLocalized: false,
-      selectFields: {},
-      tableName: '_posts_v',
-      where: { or: [{ parent: { equals: 'Needle' } }, { version_title: { like: 'Needle' } }] },
-    })
-    const query = new PgDialect().sqlToQuery(constraint)
-    expect(query.params.some((value) => typeof value === 'number' && Number.isNaN(value))).toBe(
-      false,
-    )
-    expect(query.params).toContain('%Needle%')
-    expect(query.sql).toContain(' or ')
-  })
+  it.each(['serial', 'uuid'] as const)(
+    'should compile a valid Postgres %s parent ID and title query',
+    (idType) => {
+      const table = pgTable('_posts_v', {
+        id: serial('id'),
+        parent: idType === 'serial' ? pgInteger('parent_id') : uuid('parent_id'),
+        version_title: pgText('version_title'),
+      })
+      const adapter = {
+        idType,
+        name: 'postgres',
+        operators: operatorMap,
+        payload: { config: {}, collections: { posts: { config: { slug: 'posts' } } } },
+        tables: { _posts_v: table },
+        tableNameMap: new Map(),
+      } as unknown as DrizzleAdapter
+      const parentID = idType === 'serial' ? 'Needle' : '00000000-0000-4000-8000-000000000001'
+      const constraint = parseParams({
+        adapter,
+        context: { sort: undefined },
+        fields: [
+          { name: 'parent', type: 'relationship', relationTo: 'posts' },
+          { name: 'version_title', type: 'text' },
+        ] as FlattenedField[],
+        joins: [],
+        parentIsLocalized: false,
+        selectFields: {},
+        tableName: '_posts_v',
+        where: { or: [{ parent: { equals: parentID } }, { version_title: { like: 'Needle' } }] },
+      })
+      const query = new PgDialect().sqlToQuery(constraint)
+      expect(query.params.some((value) => typeof value === 'number' && Number.isNaN(value))).toBe(
+        false,
+      )
+      expect(query.params).toContain('%Needle%')
+      expect(query.sql).toContain(' or ')
+    },
+  )
 })

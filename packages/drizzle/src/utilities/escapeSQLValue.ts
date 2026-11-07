@@ -20,7 +20,7 @@ export const escapeSQLValue = (value: unknown): boolean | null | number | string
     throw new APIError(`${value} is not allowed as a JSON query value`, 400)
   }
 
-  const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+  const escaped = value.replaceAll('\\', '\\\\').replaceAll('"', '\\"')
 
   return escaped
 }

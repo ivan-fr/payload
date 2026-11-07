@@ -174,7 +174,7 @@ export const findOneOperation = async <T extends Record<string, unknown>>(
             },
             {
               updatedAt: {
-                greater_than: new Date(new Date().getTime() - lockDurationInMilliseconds),
+                greater_than: new Date(Date.now() - lockDurationInMilliseconds),
               },
             },
           ],

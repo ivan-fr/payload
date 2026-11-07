@@ -17,7 +17,7 @@ async function run(): Promise<void> {
   const aiApiKey = core.getInput('ai-api-key', { required: true })
   const aiModel = core.getInput('ai-model') || 'claude-sonnet-4-6'
   const promptPath = core.getInput('ai-prompt-path') || '.github/ai-reviewer-prompt.md'
-  const maxDiffChars = parseInt(core.getInput('max-diff-chars') || '100000', 10)
+  const maxDiffChars = Number.parseInt(core.getInput('max-diff-chars') || '100000', 10)
 
   const octokit = github.getOctokit(token)
   const { payload } = github.context

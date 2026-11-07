@@ -7,7 +7,7 @@ type ResolveThemeOnClientProps = {
 /** Serializes a value for safe interpolation into an inline script. */
 const serialize = (value: string): string =>
   JSON.stringify(value)
-    .replace(/</g, '\\u003c')
+    .replaceAll('<', '\\u003c')
     .replace(/\u2028/g, '\\u2028')
     .replace(/\u2029/g, '\\u2029')
 

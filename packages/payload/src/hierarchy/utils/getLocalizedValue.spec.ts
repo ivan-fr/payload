@@ -7,7 +7,7 @@ describe('getLocalizedValue', () => {
     it('should return non-object values as-is', () => {
       expect(getLocalizedValue({ locale: 'en', value: 'Hello' })).toBe('Hello')
       expect(getLocalizedValue({ locale: 'en', value: 123 })).toBe(123)
-      expect(getLocalizedValue({ locale: 'en', value: null })).toBe(null)
+      expect(getLocalizedValue({ locale: 'en', value: null })).toBeNull()
     })
 
     it('should return array values as-is', () => {

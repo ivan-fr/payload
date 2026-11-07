@@ -1,6 +1,6 @@
-import { createReadStream } from 'fs'
-import fs from 'fs/promises'
 import { imageDimensionsFromData, imageDimensionsFromStream } from 'image-dimensions'
+import { createReadStream } from 'node:fs'
+import fs from 'node:fs/promises'
 
 import type { ProbedImageSize } from './types.js'
 
@@ -209,7 +209,7 @@ function parseSVG(data: Buffer): Dimensions {
     if (/%\s*$/.test(match[1]!)) {
       return null
     }
-    const value = parseFloat(match[1]!)
+    const value = Number.parseFloat(match[1]!)
     return Number.isFinite(value) ? value : null
   }
 

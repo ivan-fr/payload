@@ -75,7 +75,7 @@ export const Select: React.FC<SelectFieldDiffClientProps> = ({
   const options = 'options' in field && field.options
 
   const renderedValueFrom =
-    typeof valueFrom !== 'undefined'
+    valueFrom !== undefined
       ? getTranslatedOptions(
           getOptionsToRender(
             typeof valueFrom === 'string' ? valueFrom : JSON.stringify(valueFrom),
@@ -87,7 +87,7 @@ export const Select: React.FC<SelectFieldDiffClientProps> = ({
       : ''
 
   const renderedValueTo =
-    typeof valueTo !== 'undefined'
+    valueTo !== undefined
       ? getTranslatedOptions(
           getOptionsToRender(
             typeof valueTo === 'string' ? valueTo : JSON.stringify(valueTo),

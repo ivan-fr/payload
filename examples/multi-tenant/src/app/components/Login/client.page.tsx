@@ -46,12 +46,10 @@ export const Login = ({ tenantSlug, tenantDomain }: Props) => {
       if (redirectTo) {
         router.push(redirectTo)
         return
+      } else if (tenantDomain) {
+        router.push('/tenant-domains')
       } else {
-        if (tenantDomain) {
-          router.push('/tenant-domains')
-        } else {
-          router.push(`/tenant-slugs/${tenantSlug}`)
-        }
+        router.push(`/tenant-slugs/${tenantSlug}`)
       }
     } else if (actionRes.status === 400 && json?.errors?.[0]?.message) {
       window.alert(json.errors[0].message)

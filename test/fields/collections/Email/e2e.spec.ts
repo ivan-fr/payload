@@ -133,7 +133,7 @@ describe('Email', () => {
         testInfo,
       })
 
-      expect(scanResults.violations.length).toBe(0)
+      expect(scanResults.violations).toHaveLength(0)
     })
 
     test('Email inputs have focus indicators', async ({}, testInfo) => {

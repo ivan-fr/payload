@@ -120,13 +120,11 @@ export function flattenTopLevelFields<TField extends ClientField | Field>(
             pathPrefix: isNamedGroup ? nameWithPrefix : pathPrefix,
           }),
         )
+      } else if (fieldAffectsData(field)) {
+        // Hoisting diabled - keep as top level field
+        acc.push(field as FlattenedField<TField>)
       } else {
-        if (fieldAffectsData(field)) {
-          // Hoisting diabled - keep as top level field
-          acc.push(field as FlattenedField<TField>)
-        } else {
-          acc.push(...flattenTopLevelFields(field.fields as TField[], options))
-        }
+        acc.push(...flattenTopLevelFields(field.fields as TField[], options))
       }
     } else if (field.type === 'tabs' && 'tabs' in field) {
       return [

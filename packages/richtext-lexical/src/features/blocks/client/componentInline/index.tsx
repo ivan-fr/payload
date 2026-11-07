@@ -336,7 +336,7 @@ export const InlineBlockComponent: React.FC<InlineBlockComponentProps<InlineBloc
         initialBlockData: blockData,
         operation: 'update',
         readOnly: !isEditable,
-        renderAllFields: submit ? true : false,
+        renderAllFields: Boolean(submit),
         schemaPath: schemaFieldsPath,
         signal: controller.signal,
       })

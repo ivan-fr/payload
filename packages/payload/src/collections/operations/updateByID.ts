@@ -122,9 +122,7 @@ export const updateByIDOperation = async <
       publishAllLocales:
         !args.draft &&
         (args.publishAllLocales ??
-          (hasLocalizeStatusEnabled(initialCollectionConfig) && args.req.locale !== 'all'
-            ? false
-            : true)),
+          !(hasLocalizeStatusEnabled(initialCollectionConfig) && args.req.locale !== 'all')),
       unpublishAllLocales: Boolean(args.unpublishAllLocales),
     })
 

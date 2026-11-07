@@ -1,6 +1,6 @@
-import crypto from 'crypto'
-import fs, { WriteStream } from 'fs'
-import path from 'path'
+import crypto from 'node:crypto'
+import fs, { WriteStream } from 'node:fs'
+import path from 'node:path'
 
 import type { FetchAPIFileUploadOptions } from '../../config/types.js'
 

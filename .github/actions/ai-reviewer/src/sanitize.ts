@@ -7,7 +7,7 @@ const MAX_REVIEW_COMMENTS = 20
 function normalizeMarkdownLinks(text: string): string {
   // The URL pattern alternates between non-paren chars and balanced inner groups,
   // so javascript:void(0) is captured whole instead of stopping at the inner ).
-  return text.replace(/\[([^\]]*)\]\(((?:[^()]+|\([^)]*\))*)\)/g, (_, displayText, url) => {
+  return text.replace(/\[([^\]]*)\]\(((?:[^()]|\([^)]*\))*)\)/g, (_, displayText, url) => {
     if (/^https?:\/\//i.test(url)) {
       return `[${url}](${url})`
     }
@@ -19,7 +19,7 @@ function normalizeMarkdownLinks(text: string): string {
 }
 
 export function sanitizeMarkdown(text: string, maxLength = MAX_SUMMARY_CHARS): string {
-  return normalizeMarkdownLinks(text).replace(/@/g, '@​').slice(0, maxLength)
+  return normalizeMarkdownLinks(text).replaceAll('@', '@​').slice(0, maxLength)
 }
 
 export function capComments(comments: ReviewComment[], max = MAX_REVIEW_COMMENTS): ReviewComment[] {

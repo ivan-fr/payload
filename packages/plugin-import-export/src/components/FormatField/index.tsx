@@ -70,7 +70,7 @@ export const FormatField: React.FC<SelectFieldClientProps> = (props) => {
       <ReactSelect
         className={'format-field'}
         disabled={isReadOnly}
-        inputId={`field-${props.path.replace(/\./g, '__')}`}
+        inputId={`field-${props.path.replaceAll('.', '__')}`}
         isClearable={false}
         isSearchable={false}
         onChange={handleChange}

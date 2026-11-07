@@ -67,7 +67,7 @@ export const getSchemaColumns = ({
   if (disabledFields.length > 0) {
     const disabledSet = new Set<string>()
     for (const path of disabledFields) {
-      disabledSet.add(path.replace(/\./g, '_'))
+      disabledSet.add(path.replaceAll('.', '_'))
     }
     schemaColumns = schemaColumns.filter((col) => {
       for (const disabled of disabledSet) {
@@ -122,7 +122,7 @@ export const mergeColumns = (schemaColumns: string[], dataColumns: string[]): st
         if (match) {
           const [, basePath, index, suffix] = match
           if (basePath && index) {
-            const prevIndex = parseInt(index, 10) - 1
+            const prevIndex = Number.parseInt(index, 10) - 1
             const prevCol = `${basePath}_${prevIndex}${suffix ?? ''}`
             const prevIdx = result.indexOf(prevCol)
             if (prevIdx !== -1) {
@@ -173,7 +173,7 @@ export function filterToSelectedFields(columns: string[], selectedFields: string
 
   // Convert selected fields to underscore notation patterns
   const patterns = selectedFields.map((field) => {
-    const underscored = field.replace(/\./g, '_')
+    const underscored = field.replaceAll('.', '_')
     return {
       exact: underscored,
       original: field,

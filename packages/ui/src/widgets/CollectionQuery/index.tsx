@@ -192,7 +192,7 @@ function getDocSortMeta({
     ? getValueByPath({ object: doc, path: sortField })
     : doc.updatedAt || doc.createdAt
 
-  if (value === null || typeof value === 'undefined' || value === '') {
+  if (value === null || value === undefined || value === '') {
     return null
   }
 

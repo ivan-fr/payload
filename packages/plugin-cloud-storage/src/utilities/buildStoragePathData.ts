@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 import { sanitizeFilename } from 'payload/shared'
 
 import { sanitizePrefix } from './sanitizePrefix.js'

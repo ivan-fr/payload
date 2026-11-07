@@ -1,9 +1,9 @@
 import * as p from '@clack/prompts'
-import fs from 'fs'
 import fse from 'fs-extra'
 import globby from 'globby'
+import fs from 'node:fs'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import path from 'path'
 
 import type { CliArgs, DbType, NextAppDetails, NextConfigType, PackageManager } from '../types.js'
 
@@ -257,7 +257,7 @@ export async function getNextAppDetails(projectDir: string): Promise<NextAppDeta
     }
 
     const { major, minor } = versionMatch.groups as { major: string; minor?: string }
-    const majorVersion = parseInt(major)
+    const majorVersion = Number.parseInt(major)
     if (majorVersion < minimumNextVersion.major) {
       return {
         hasTopLevelLayout: false,
@@ -274,7 +274,7 @@ export async function getNextAppDetails(projectDir: string): Promise<NextAppDeta
     const isBelowMinimumMinor =
       majorVersion === minimumNextVersion.major &&
       minor !== undefined &&
-      parseInt(minor) < minimumNextVersion.minor
+      Number.parseInt(minor) < minimumNextVersion.minor
     if (isBelowMinimumMinor) {
       p.log.warn(
         `Next.js v${nextVersion} is not supported. Upgrade to Next.js >= ${minimumNextVersion.major}.${minimumNextVersion.minor} to use Payload.`,

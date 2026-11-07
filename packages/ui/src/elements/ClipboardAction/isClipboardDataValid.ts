@@ -12,7 +12,7 @@ import type { ClipboardPasteActionValidateArgs } from './types.js'
  * @returns True if the clipboard data is valid and can be pasted, false otherwise
  */
 export function isClipboardDataValid({ data, path, ...args }: ClipboardPasteActionValidateArgs) {
-  if (typeof data === 'undefined' || !path || !args.type) {
+  if (data === undefined || !path || !args.type) {
     return false
   }
 

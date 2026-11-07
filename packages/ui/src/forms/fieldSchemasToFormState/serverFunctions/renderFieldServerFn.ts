@@ -88,7 +88,7 @@ export const _internal_renderFieldHandler: ServerFunction<
   const hasPropOverrides = name !== undefined || label !== undefined || hidden !== undefined
 
   let data = {}
-  if (typeof initialValue !== 'undefined') {
+  if (initialValue !== undefined) {
     if ('name' in field) {
       data[field.name] = initialValue
     } else {

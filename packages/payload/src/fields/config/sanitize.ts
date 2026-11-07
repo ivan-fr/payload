@@ -227,11 +227,7 @@ export const sanitizeField = ({
   }
 
   // Checkbox default
-  if (
-    field.type === 'checkbox' &&
-    typeof field.defaultValue === 'undefined' &&
-    field.required === true
-  ) {
+  if (field.type === 'checkbox' && field.defaultValue === undefined && field.required === true) {
     field.defaultValue = false
   }
 
@@ -284,15 +280,15 @@ export const sanitizeField = ({
     // Required by default so the admin marks the slug as required. The value is always populated by
     // the field hooks (source or id fallback), and validations.slug permits empty so the fallback
     // isn't blocked before it runs.
-    if (typeof field.required === 'undefined') {
+    if (field.required === undefined) {
       field.required = true
     }
 
-    if (typeof field.unique === 'undefined') {
+    if (field.unique === undefined) {
       field.unique = true
     }
 
-    if (typeof field.index === 'undefined') {
+    if (field.index === undefined) {
       field.index = true
     }
 
@@ -352,13 +348,13 @@ export const sanitizeField = ({
       existingFieldNames.add(field.name)
     }
 
-    if (typeof field.localized !== 'undefined') {
+    if (field.localized !== undefined) {
       if (!config.localization) {
         delete field.localized
       }
     }
 
-    if (typeof field.validate === 'undefined') {
+    if (field.validate === undefined) {
       if ('virtual' in field && field.virtual) {
         field.validate = (): true => true
       } else {
@@ -486,7 +482,7 @@ export const sanitizeField = ({
 
       const isNamedTab = tabHasName(tab)
 
-      if (isNamedTab && typeof tab.label === 'undefined') {
+      if (isNamedTab && tab.label === undefined) {
         tab.label = toWords(tab.name)
       }
 

@@ -230,19 +230,17 @@ const buildVersionField = ({
   if (typeof parentFieldsPermissions === 'boolean') {
     hasReadPermission = parentFieldsPermissions
     fieldPermissions = parentFieldsPermissions
-  } else {
-    if ('name' in field) {
-      fieldPermissions = parentFieldsPermissions?.[field.name]
-      if (typeof fieldPermissions === 'boolean') {
-        hasReadPermission = fieldPermissions
-      } else if (typeof fieldPermissions?.read === 'boolean') {
-        hasReadPermission = fieldPermissions.read
-      }
-    } else {
-      // If the field is unnamed and parentFieldsPermissions is an object, its sub-fields will decide their read permissions state.
-      // As far as this field is concerned, we are allowed to read it, as we need to reach its sub-fields to determine their read permissions.
-      hasReadPermission = true
+  } else if ('name' in field) {
+    fieldPermissions = parentFieldsPermissions?.[field.name]
+    if (typeof fieldPermissions === 'boolean') {
+      hasReadPermission = fieldPermissions
+    } else if (typeof fieldPermissions?.read === 'boolean') {
+      hasReadPermission = fieldPermissions.read
     }
+  } else {
+    // If the field is unnamed and parentFieldsPermissions is an object, its sub-fields will decide their read permissions state.
+    // As far as this field is concerned, we are allowed to read it, as we need to reach its sub-fields to determine their read permissions.
+    hasReadPermission = true
   }
 
   if (!hasReadPermission) {
@@ -307,17 +305,15 @@ const buildVersionField = ({
       // The tabs field does not have its own permissions as it's unnamed => use parentFieldsPermissions
       if (typeof parentFieldsPermissions === 'boolean') {
         tabFieldsPermissions = parentFieldsPermissions
-      } else {
-        if ('name' in tab) {
-          const tabPermissions = parentFieldsPermissions?.[tab.name]
-          if (typeof tabPermissions === 'boolean') {
-            tabFieldsPermissions = tabPermissions
-          } else {
-            tabFieldsPermissions = tabPermissions?.fields
-          }
+      } else if ('name' in tab) {
+        const tabPermissions = parentFieldsPermissions?.[tab.name]
+        if (typeof tabPermissions === 'boolean') {
+          tabFieldsPermissions = tabPermissions
         } else {
-          tabFieldsPermissions = parentFieldsPermissions
+          tabFieldsPermissions = tabPermissions?.fields
         }
+      } else {
+        tabFieldsPermissions = parentFieldsPermissions
       }
 
       const tabVersion = {
@@ -354,7 +350,7 @@ const buildVersionField = ({
   else if ('fields' in field) {
     let subFieldsPermissions: SanitizedFieldsPermissions = undefined
 
-    if ('name' in field && typeof fieldPermissions !== 'undefined') {
+    if ('name' in field && fieldPermissions !== undefined) {
       // Named fields like arrays
       subFieldsPermissions =
         typeof fieldPermissions === 'boolean' ? fieldPermissions : fieldPermissions.fields
@@ -520,8 +516,7 @@ const buildVersionField = ({
       CustomComponent: undefined,
     },
     field: clientField,
-    fieldPermissions:
-      typeof fieldPermissions === 'undefined' ? parentFieldsPermissions : fieldPermissions,
+    fieldPermissions: fieldPermissions === undefined ? parentFieldsPermissions : fieldPermissions,
     parentIsLocalized,
 
     nestingLevel: nestingLevel ? nestingLevel : undefined,

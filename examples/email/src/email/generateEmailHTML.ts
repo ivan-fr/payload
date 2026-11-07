@@ -1,7 +1,7 @@
 import ejs from 'ejs'
-import fs from 'fs'
+import fs from 'node:fs'
 import juice from 'juice'
-import path from 'path'
+import path from 'node:path'
 
 export const generateEmailHTML = async (data: any): Promise<string> => {
   const templatePath = path.join(process.cwd(), 'src/email/template.ejs')

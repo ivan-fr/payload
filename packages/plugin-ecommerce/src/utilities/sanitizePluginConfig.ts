@@ -12,14 +12,14 @@ export const sanitizePluginConfig = ({ pluginConfig }: Props): SanitizedEcommerc
     ...pluginConfig,
   } as Partial<SanitizedEcommercePluginConfig>
 
-  if (typeof config.customers === 'undefined') {
+  if (config.customers === undefined) {
     config.customers = {
       slug: 'users',
     }
   }
 
   if (
-    typeof config.addresses === 'undefined' ||
+    config.addresses === undefined ||
     (typeof config.addresses === 'boolean' && config.addresses === true)
   ) {
     config.addresses = {
@@ -53,7 +53,7 @@ export const sanitizePluginConfig = ({ pluginConfig }: Props): SanitizedEcommerc
     }
   }
 
-  if (typeof config.carts === 'undefined') {
+  if (config.carts === undefined) {
     config.carts = {
       allowGuestCarts: true,
     }
@@ -61,22 +61,19 @@ export const sanitizePluginConfig = ({ pluginConfig }: Props): SanitizedEcommerc
     config.carts = {
       allowGuestCarts: true,
     }
-  } else if (
-    typeof config.carts === 'object' &&
-    typeof config.carts.allowGuestCarts === 'undefined'
-  ) {
+  } else if (typeof config.carts === 'object' && config.carts.allowGuestCarts === undefined) {
     config.carts.allowGuestCarts = true
   }
 
-  if (typeof config.orders === 'undefined') {
+  if (config.orders === undefined) {
     config.orders = true
   }
 
-  if (typeof config.transactions === 'undefined') {
+  if (config.transactions === undefined) {
     config.transactions = true
   }
 
-  if (typeof config.payments === 'undefined') {
+  if (config.payments === undefined) {
     config.payments = {
       paymentMethods: [],
     }
@@ -85,7 +82,7 @@ export const sanitizePluginConfig = ({ pluginConfig }: Props): SanitizedEcommerc
   }
 
   if (config.products) {
-    if (typeof config.products === 'object' && typeof config.products.variants === 'undefined') {
+    if (typeof config.products === 'object' && config.products.variants === undefined) {
       config.products.variants = true
     }
   }

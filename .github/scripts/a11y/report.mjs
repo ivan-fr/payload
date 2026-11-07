@@ -146,7 +146,7 @@ function cell({ tests }) {
 
 function escape({ value }) {
   return escapeHtml({ value })
-    .replace(/\|/g, '&#124;')
+    .replaceAll('|', '&#124;')
     .replace(/\r?\n/g, '<br>')
     .replace(/([\\`*_[\]~])/g, '\\$1')
 }
@@ -156,9 +156,9 @@ function escapeHtml({ value }) {
     stripVTControlCharacters(String(value))
       // oxlint-disable-next-line no-control-regex -- Remove control characters from untrusted test output.
       .replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
   )
 }
 

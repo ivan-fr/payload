@@ -1,7 +1,7 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { slateEditor } from '@payloadcms/richtext-slate'
 import { fileURLToPath } from 'node:url'
-import path from 'path'
+import path from 'node:path'
 import { buildConfig } from 'payload'
 
 import { Users } from './collections/Users'

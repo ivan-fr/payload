@@ -111,14 +111,12 @@ export const getFlattenedFieldKeys = (
             // hasMany monomorphic
             keys.push(`${fullKey}_0`)
           }
+        } else if (Array.isArray(field.relationTo)) {
+          // hasOne polymorphic
+          keys.push(`${fullKey}_relationTo`, `${fullKey}_id`)
         } else {
-          if (Array.isArray(field.relationTo)) {
-            // hasOne polymorphic
-            keys.push(`${fullKey}_relationTo`, `${fullKey}_id`)
-          } else {
-            // hasOne monomorphic
-            addKey(fullKey, isLocalized)
-          }
+          // hasOne monomorphic
+          addKey(fullKey, isLocalized)
         }
         break
       case 'tabs':

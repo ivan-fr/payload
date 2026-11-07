@@ -78,19 +78,17 @@ export function serializeLexical({ nodes }: Props): JSX.Element {
         const serializedChildrenFn = (node: SerializedElementNode): JSX.Element | null => {
           if (node.children == null) {
             return null
-          } else {
-            if (node?.type === 'list' && (node as SerializedListNode)?.listType === 'check') {
-              for (const item of node.children) {
-                if ('checked' in item) {
-                  if (!item?.checked) {
-                    item.checked = false
-                  }
+          } else if (node?.type === 'list' && (node as SerializedListNode)?.listType === 'check') {
+            for (const item of node.children) {
+              if ('checked' in item) {
+                if (!item?.checked) {
+                  item.checked = false
                 }
               }
-              return serializeLexical({ nodes: node.children })
-            } else {
-              return serializeLexical({ nodes: node.children })
             }
+            return serializeLexical({ nodes: node.children })
+          } else {
+            return serializeLexical({ nodes: node.children })
           }
         }
 

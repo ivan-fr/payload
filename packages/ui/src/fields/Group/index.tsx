@@ -74,7 +74,7 @@ export const GroupFieldComponent: React.FC<GroupFieldClientProps> = (props) => {
       ]
         .filter(Boolean)
         .join(' ')}
-      id={`field-${path?.replace(/\./g, '__')}`}
+      id={`field-${path?.replaceAll('.', '__')}`}
       style={styles}
     >
       <GroupProvider>

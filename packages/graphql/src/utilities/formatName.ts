@@ -23,14 +23,14 @@ export const formatName = (string: string): string => {
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')
 
-    .replace(/\./g, '_')
+    .replaceAll('.', '_')
     .replace(/-|\//g, '_')
-    .replace(/\+/g, '_')
-    .replace(/,/g, '_')
-    .replace(/\(/g, '_')
-    .replace(/\)/g, '_')
-    .replace(/'/g, '_')
-    .replace(/ /g, '')
+    .replaceAll('+', '_')
+    .replaceAll(',', '_')
+    .replaceAll('(', '_')
+    .replaceAll(')', '_')
+    .replaceAll("'", '_')
+    .replaceAll(' ', '')
     .replace(/\[|\]/g, '_')
 
   return formatted || '_'

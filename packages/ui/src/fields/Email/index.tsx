@@ -99,7 +99,7 @@ const EmailFieldComponent: React.FC<EmailFieldClientProps> = (props) => {
           autoComplete={autoComplete}
           className="form-input"
           disabled={readOnly || disabled}
-          id={`field-${path.replace(/\./g, '__')}`}
+          id={`field-${path.replaceAll('.', '__')}`}
           name={path}
           onChange={setValue}
           placeholder={getTranslation(placeholder, i18n)}

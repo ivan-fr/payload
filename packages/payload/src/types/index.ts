@@ -1,7 +1,7 @@
 import type { I18n, TFunction } from '@payloadcms/translations'
 import type DataLoader from 'dataloader'
+import type { URL } from 'node:url'
 import type { OptionalKeys, RequiredKeys } from 'ts-essentials'
-import type { URL } from 'url'
 
 import type { ServerAdapter } from '../admin/adapters/server.js'
 import type {

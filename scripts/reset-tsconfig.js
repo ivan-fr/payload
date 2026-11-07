@@ -5,8 +5,8 @@
  * Used as a lint-staged hook to prevent committing modified paths.
  */
 
-import { fileURLToPath } from 'url'
-import path from 'path'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 
 import { replacePayloadConfigPath } from './replacePayloadConfigPath.js'
 

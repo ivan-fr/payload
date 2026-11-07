@@ -17,7 +17,7 @@ export const getDefaultValue = async ({
   user,
   value,
 }: Args): Promise<JsonValue> => {
-  if (typeof value !== 'undefined') {
+  if (value !== undefined) {
     return value
   }
 

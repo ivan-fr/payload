@@ -33,13 +33,13 @@ export function propsToJSXString({ props }: { props: Record<string, any> }): str
 
 // Helper function to escape quotes in string values
 function escapeQuotes(str: string): string {
-  return str.replace(/"/g, '&quot;')
+  return str.replaceAll('"', '&quot;')
 }
 
 // Custom replacer function for JSON.stringify to handle single quotes
 function replacer(key: string, value: any): any {
   if (typeof value === 'string') {
-    return value.replace(/'/g, "\\'")
+    return value.replaceAll("'", "\\'")
   }
   return value
 }

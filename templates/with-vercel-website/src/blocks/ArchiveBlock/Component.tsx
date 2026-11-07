@@ -43,14 +43,12 @@ export const ArchiveBlock: React.FC<
     })
 
     posts = fetchedPosts.docs
-  } else {
-    if (selectedDocs?.length) {
-      const filteredSelectedPosts = selectedDocs.map((post) => {
-        if (typeof post.value === 'object') return post.value
-      }) as Post[]
+  } else if (selectedDocs?.length) {
+    const filteredSelectedPosts = selectedDocs.map((post) => {
+      if (typeof post.value === 'object') return post.value
+    }) as Post[]
 
-      posts = filteredSelectedPosts
-    }
+    posts = filteredSelectedPosts
   }
 
   return (

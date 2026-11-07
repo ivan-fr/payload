@@ -122,7 +122,7 @@ export function parseParams({
                     fields,
                     locale,
                     parentIsLocalized,
-                    path: relationOrPath.replace(/__/g, '.'),
+                    path: relationOrPath.replaceAll('__', '.'),
                   })
 
                   if (
@@ -151,7 +151,7 @@ export function parseParams({
                   if (operator === 'contains' && !relationshipPath) {
                     const joinField = getFieldByPath({
                       fields,
-                      path: relationOrPath.replace(/__/g, '.'),
+                      path: relationOrPath.replaceAll('__', '.'),
                     })?.field
 
                     if (joinField?.type === 'join') {
@@ -195,7 +195,7 @@ export function parseParams({
                   joins,
                   locale,
                   parentIsLocalized,
-                  pathSegments: relationOrPath.replace(/__/g, '.').split('.'),
+                  pathSegments: relationOrPath.replaceAll('__', '.').split('.'),
                   selectFields,
                   selectLocale,
                   tableName,
@@ -714,7 +714,7 @@ function buildHasManyRelationshipCondition({
   tableName: string
   where: Where
 }): SQL {
-  const relationshipFieldPath = relationOrPath.replace(/__/g, '.')
+  const relationshipFieldPath = relationOrPath.replaceAll('__', '.')
 
   if (!where || typeof where !== 'object' || Array.isArray(where)) {
     throw new QueryError([{ path: `${relationshipFieldPath}.${operator}` }])

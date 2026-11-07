@@ -1,7 +1,7 @@
 import { fileTypeFromBuffer } from 'file-type'
-import fs from 'fs/promises'
 import { randomUUID } from 'node:crypto'
 import { openAsBlob } from 'node:fs'
+import fs from 'node:fs/promises'
 
 import type { Collection, TypeWithID } from '../collections/config/types.js'
 import type { SanitizedConfig } from '../config/types.js'

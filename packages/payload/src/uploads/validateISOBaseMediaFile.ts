@@ -1,4 +1,4 @@
-import fs from 'fs/promises'
+import fs from 'node:fs/promises'
 
 const MAX_BOX_COUNT = 10_000
 const QUICKTIME_FIRST_BOX_TYPES = new Set(['free', 'mdat', 'moov', 'wide'])

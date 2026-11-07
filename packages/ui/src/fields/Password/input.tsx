@@ -99,7 +99,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = (props) => {
             className="form-input"
             data-rtl={rtl}
             disabled={readOnly}
-            id={`field-${path.replace(/\./g, '__')}`}
+            id={`field-${path.replaceAll('.', '__')}`}
             name={path}
             onChange={onChange}
             onKeyDown={onKeyDown}

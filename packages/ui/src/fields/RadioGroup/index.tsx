@@ -91,7 +91,7 @@ const RadioGroupFieldComponent: React.FC<RadioFieldClientProps> = (props) => {
       </div>
       <div className={`${fieldBaseClass}__wrap`}>
         {BeforeInput}
-        <ul className={`${baseClass}--group`} id={`field-${path.replace(/\./g, '__')}`}>
+        <ul className={`${baseClass}--group`} id={`field-${path.replaceAll('.', '__')}`}>
           {options.map((option) => {
             let optionValue = ''
 

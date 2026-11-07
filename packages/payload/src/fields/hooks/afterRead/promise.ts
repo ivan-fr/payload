@@ -131,7 +131,7 @@ export const promise = async ({
   if (
     fieldAffectsDataResult &&
     field.hidden &&
-    typeof siblingDoc[field.name!] !== 'undefined' &&
+    siblingDoc[field.name!] !== undefined &&
     !showHiddenFields &&
     !isTopLevelIDField
   ) {
@@ -176,7 +176,7 @@ export const promise = async ({
 
     if (fallbackLocale && fallbackLocale !== locale) {
       let fallbackValue
-      const isNullOrUndefined = typeof value === 'undefined' || value === null
+      const isNullOrUndefined = value === undefined || value === null
 
       if (Array.isArray(fallbackLocale)) {
         for (const locale of fallbackLocale) {
@@ -219,7 +219,7 @@ export const promise = async ({
     case 'group': {
       // Fill groups with empty objects so fields with hooks within groups can populate
       // themselves virtually as necessary
-      if (fieldAffectsDataResult && typeof siblingDoc[field.name] === 'undefined') {
+      if (fieldAffectsDataResult && siblingDoc[field.name] === undefined) {
         siblingDoc[field.name] = {}
       }
 
@@ -252,7 +252,7 @@ export const promise = async ({
       field.tabs.forEach((tab) => {
         if (
           tabHasName(tab) &&
-          (typeof siblingDoc[tab.name] === 'undefined' || siblingDoc[tab.name] === null)
+          (siblingDoc[tab.name] === undefined || siblingDoc[tab.name] === null)
         ) {
           siblingDoc[tab.name] = {}
         }
@@ -386,8 +386,8 @@ export const promise = async ({
     if (
       !removedFieldValue &&
       allowDefaultValue &&
-      typeof siblingDoc[field.name!] === 'undefined' &&
-      typeof field.defaultValue !== 'undefined'
+      siblingDoc[field.name!] === undefined &&
+      field.defaultValue !== undefined
     ) {
       siblingDoc[field.name!] = await getDefaultValue({
         defaultValue: field.defaultValue,

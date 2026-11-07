@@ -380,7 +380,7 @@ export const updateOperation = async <
     if (
       allLocalesPublicationStatus &&
       !hasAuthorizedPublicationStatus &&
-      typeof statusFieldValue === 'undefined' &&
+      statusFieldValue === undefined &&
       typeof globalJSON._status === 'object' &&
       globalJSON._status !== null
     ) {

@@ -208,9 +208,7 @@ export function DefaultEditView({
 
   const preventLeaveWithoutSaving =
     !isReadOnlyForIncomingUser &&
-    (typeof disableLeaveWithoutSaving !== 'undefined'
-      ? !disableLeaveWithoutSaving
-      : !autosaveEnabled)
+    (disableLeaveWithoutSaving !== undefined ? !disableLeaveWithoutSaving : !autosaveEnabled)
 
   const schemaPathSegments = useMemo(() => [entitySlug], [entitySlug])
 

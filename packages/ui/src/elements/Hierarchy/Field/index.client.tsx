@@ -94,7 +94,7 @@ export const HierarchyFieldClient: React.FC<HierarchyFieldClientProps> = (props)
           ? ids.map((id) => ({ relationTo: hierarchySlug, value: id }))
           : null
       }
-      return ids === null || typeof ids === 'undefined'
+      return ids === null || ids === undefined
         ? null
         : { relationTo: hierarchySlug, value: ids as number | string }
     },
@@ -106,8 +106,7 @@ export const HierarchyFieldClient: React.FC<HierarchyFieldClientProps> = (props)
     [initialValue, toRelationValues],
   )
   const initialSelections = useMemo(
-    () =>
-      value === null || typeof value === 'undefined' ? [] : Array.isArray(value) ? value : [value],
+    () => (value === null || value === undefined ? [] : Array.isArray(value) ? value : [value]),
     [value],
   )
   const filterByCollection = useMemo(

@@ -28,11 +28,11 @@ export function escapeDiffHTML(value: boolean | null | number | string | undefin
   const str = typeof value === 'string' ? value : String(value)
 
   return str
-    .replace(/&/g, ESCAPE_MAP['&'])
-    .replace(/</g, ESCAPE_MAP['<'])
-    .replace(/>/g, ESCAPE_MAP['>'])
-    .replace(/"/g, ESCAPE_MAP['"'])
-    .replace(/'/g, ESCAPE_MAP["'"])
+    .replaceAll('&', ESCAPE_MAP['&'])
+    .replaceAll('<', ESCAPE_MAP['<'])
+    .replaceAll('>', ESCAPE_MAP['>'])
+    .replaceAll('"', ESCAPE_MAP['"'])
+    .replaceAll("'", ESCAPE_MAP["'"])
 }
 
 /**

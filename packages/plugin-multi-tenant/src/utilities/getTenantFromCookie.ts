@@ -16,7 +16,7 @@ export function getTenantFromCookie(
   const selectedTenant = cookies.get('payload-tenant') || null
   return selectedTenant
     ? idType === 'number' && isNumber(selectedTenant)
-      ? parseFloat(selectedTenant)
+      ? Number.parseFloat(selectedTenant)
       : selectedTenant
     : null
 }

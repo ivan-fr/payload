@@ -1,5 +1,5 @@
 import { put } from '@vercel/blob'
-import path from 'path'
+import path from 'node:path'
 
 interface UploadFileArgs {
   access: 'public'

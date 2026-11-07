@@ -17,7 +17,7 @@ const supportedTypes = new Set<Field['type']>([
 
 type GroupingField = ClientField | Field
 
-/** A group key must resolve to one scalar value per document, never an array/block descendant. */
+/** Group keys support relationships, but never descendants of arrays or blocks. */
 export const getGroupByFieldPaths = ({
   fields,
   parentPath = '',
@@ -65,7 +65,15 @@ const getFieldPaths = ({
       }),
     ]
   }
-  if (!supportedTypes.has(field.type) || ('hasMany' in field && field.hasMany)) {
+  if (!supportedTypes.has(field.type)) {
+    return []
+  }
+  if (
+    field.type !== 'relationship' &&
+    field.type !== 'upload' &&
+    'hasMany' in field &&
+    field.hasMany
+  ) {
     return []
   }
   return path === 'id' ? [] : [path]
