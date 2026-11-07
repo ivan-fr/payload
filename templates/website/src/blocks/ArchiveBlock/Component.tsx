@@ -30,7 +30,7 @@ export const ArchiveBlock: React.FC<
       collection: 'posts',
       depth: 1,
       limit,
-      overrideAccess: true,
+      overrideAccess: false,
       ...(flattenedCategories && flattenedCategories.length > 0
         ? {
             where: {

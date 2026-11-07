@@ -302,6 +302,7 @@ export const traverseFields = <T extends Record<string, unknown>>({
           }
 
           result[field.name] = blocksByPath.reduce((acc, row, i) => {
+            const storedOrder = row._order
             delete row._order
             if (row._uuid) {
               row.id = row._uuid
@@ -350,7 +351,7 @@ export const traverseFields = <T extends Record<string, unknown>>({
                     fields: block.flattenedFields,
                     numbers,
                     parentIsLocalized: parentIsLocalized || field.localized,
-                    path: `${blockFieldPath}.${i}`,
+                    path: `${blockFieldPath}.${typeof storedOrder === 'number' && storedOrder > 0 ? storedOrder - 1 : i}`,
                     relationships,
                     table: row,
                     tablePath: '',

@@ -283,3 +283,7 @@ The [review follow-up](pr-6-review.md) records the Sonar findings on `b409089`, 
 `fix/payload-six-issues-20261107` starts from the merged PR #6. Its first six fixes cover tenant redirects, TanStack search parameters, exists filters, header actions, remote JSON schemas and PostgreSQL migration transactions. The next six address orphaned nested blocks, PostgreSQL JSON queries, image orientation/resize limits, renamed upload URLs and invalid list grouping. See [batch-25.md](batch-25.md) for the twelve report numbers, reproduction evidence, validation limits and accessibility assessment. No PR has been opened for this branch.
 
 The current inventory contains **134 scoped fixes + 431 unassessed** in the original snapshot, plus **16 later scoped fixes**: **150 scoped fork fixes**.
+
+## November 7 branch: eighteen scoped fixes
+
+[Batch 26](batch-26.md) adds six more reports: nested Lexical beforeValidate hooks, session-only writes for localized accounts, API-key form-state preservation, numeric preset cell rendering, sparse SQL block recovery, and public archive access. The branch now has **18 scoped issue fixes**, with no PR opened. The inventory contains **140 scoped fixes + 425 unassessed** in the original snapshot, plus **16 later scoped fixes**: **156 scoped fork fixes**.
