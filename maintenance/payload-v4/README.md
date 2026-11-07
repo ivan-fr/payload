@@ -295,3 +295,7 @@ The current inventory contains **134 scoped fixes + 431 unassessed** in the orig
 ## November 7 branch: thirty scoped fixes
 
 [Batch 28](batch-28.md) adds six reports: authenticated collection title validation, Form Builder upload overrides, reserved SQL array names, GraphQL block interfaces, conditional layout type generation and disabled storefront prices. The branch now contains **30 scoped issue fixes**, with no PR opened. The inventory contains **152 scoped fixes + 413 unassessed** in the original snapshot, plus **16 later scoped fixes**: **168 scoped fork fixes**.
+
+## PR #7 review follow-up
+
+[The review follow-up](pr-7-review.md) records the CI failures on `af08312`: upload request proxies lost file rollback ownership, cloud metadata tests assumed request object identity, and grouping excluded relationship-backed virtual scalar paths. The corrective changes retain file isolation while sharing cleanup ownership and restore eligible virtual options. This review adds no upstream issue to the count.

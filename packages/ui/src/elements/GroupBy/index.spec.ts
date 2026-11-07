@@ -49,3 +49,24 @@ it('should exclude array descendants from the real group-by control and ignore a
   expect(markup).toContain('title')
   expect(markup).toContain('false')
 })
+
+it('should retain a relationship-backed virtual scalar with its query path', () => {
+  const markup = renderToStaticMarkup(
+    React.createElement(GroupByButton, {
+      collectionSlug: 'posts',
+      onChange: vi.fn(),
+      value: 'unrestricted.name',
+      fields: [
+        {
+          name: 'virtualName',
+          type: 'text',
+          label: 'Virtual name',
+          virtual: 'unrestricted.name',
+          admin: {},
+        },
+      ] as ClientField[],
+    }),
+  )
+  expect(markup).toContain('unrestricted.name')
+  expect(markup).toContain('true')
+})

@@ -27,9 +27,9 @@ import type {
 } from '../../config/types.js'
 
 import { APIError } from '../../../errors/index.js'
+import { createFileRequest } from '../../../uploads/createFileRequest.js'
 import { getFileByPath } from '../../../uploads/getFileByPath.js'
 import { createPayloadRequest } from '../../../utilities/createPayloadRequest.js'
-import { isolateObjectProperty } from '../../../utilities/isolateObjectProperty.js'
 import { updateOperation } from '../update.js'
 import { updateByIDOperation } from '../updateByID.js'
 
@@ -246,13 +246,12 @@ async function updateLocal<
     )
   }
 
-  const req = isolateObjectProperty(
-    await createPayloadRequest({
+  const req = createFileRequest({
+    req: await createPayloadRequest({
       ...(options as Omit<CreatePayloadRequestArgs, 'payload'>),
       payload,
     }),
-    'file',
-  )
+  })
   req.file = file ?? (await getFileByPath(filePath!))
 
   const args = {

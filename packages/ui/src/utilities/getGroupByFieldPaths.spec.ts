@@ -58,3 +58,13 @@ describe('scalar list grouping (#19134)', () => {
     },
   )
 })
+
+it('should accept relationship-backed scalar query paths and reject computed virtual grouping', () => {
+  const fields: Field[] = [
+    { name: 'label', type: 'text', virtual: 'related.title' },
+    { name: 'computed', type: 'text', virtual: true },
+  ]
+  expect([...getGroupByFieldPaths({ fields })]).toEqual(['related.title'])
+  expect(resolveGroupBy({ fields, groupBy: 'related.title' })).toBe('related.title')
+  expect(resolveGroupBy({ fields, groupBy: 'computed' })).toBe('')
+})

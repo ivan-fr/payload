@@ -31,7 +31,7 @@ export const getGroupByFieldPaths = ({
   }
 
   for (const field of fields) {
-    if (isFieldDisabled(field, 'groupBy')) {
+    if (isFieldDisabled(field, 'groupBy') || ('virtual' in field && field.virtual === true)) {
       continue
     }
     if (field.type === 'tabs') {
@@ -58,7 +58,9 @@ export const getGroupByFieldPaths = ({
       supportedTypes.has(field.type) &&
       !('hasMany' in field && field.hasMany)
     ) {
-      const path = `${parentPath}${field.name}`
+      const queryPath =
+        'virtual' in field && typeof field.virtual === 'string' ? field.virtual : field.name
+      const path = `${parentPath}${queryPath}`
       if (path !== 'id') {
         paths.add(path)
       }
