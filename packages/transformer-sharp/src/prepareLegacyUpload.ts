@@ -50,11 +50,15 @@ export function createPrepareLegacyUpload({
         : undefined
 
     let originalDimensions: ProbedImageSize | undefined
+    let orientedDimensions: ProbedImageSize | undefined
 
     if (fileSupportsResize) {
       const originalMeta = await tryProbe(file, sharpDependency)
       if (originalMeta) {
         originalDimensions = { height: originalMeta.height, width: originalMeta.width }
+        orientedDimensions = [5, 6, 7, 8].includes(originalMeta.orientation!)
+          ? { height: originalDimensions.width, width: originalDimensions.height }
+          : originalDimensions
       }
     }
 
@@ -106,7 +110,7 @@ export function createPrepareLegacyUpload({
         const fieldPath = `variants.${imageResizeConfig.name}` as const
 
         const resizeAction = getImageResizeAction({
-          dimensions: originalDimensions,
+          dimensions: orientedDimensions!,
           hasFocalPoint: Boolean(focalPoint),
           imageResizeConfig,
         })
@@ -167,8 +171,8 @@ async function describeResult({
   return {
     fieldPath,
     file: resultFile,
-    height: meta.height,
+    height: [5, 6, 7, 8].includes(meta.orientation!) ? meta.width : meta.height,
     mimeType: resultFile.type,
-    width: meta.width,
+    width: [5, 6, 7, 8].includes(meta.orientation!) ? meta.height : meta.width,
   }
 }

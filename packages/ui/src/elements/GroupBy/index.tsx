@@ -1,12 +1,12 @@
 'use client'
-import type { ClientField, Field, SanitizedCollectionConfig } from 'payload'
+import type { ClientField, SanitizedCollectionConfig } from 'payload'
 
-import { isFieldDisabled } from 'payload/shared'
 import React, { useMemo } from 'react'
 
 import { ChevronIcon } from '../../icons/Chevron/index.js'
 import { useAuth } from '../../providers/Auth/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
+import { getGroupByFieldPaths } from '../../utilities/getGroupByFieldPaths.js'
 import { reduceFieldsToOptions } from '../../utilities/reduceFieldsToOptions.js'
 import { Button } from '../Button/index.js'
 import { Popup } from '../Popup/index.js'
@@ -22,22 +22,6 @@ export type GroupByButtonProps = {
 }
 
 const baseClass = 'group-by-control'
-
-/**
- * Supported field types for group by functionality.
- */
-const supportedFieldTypes: Field['type'][] = [
-  'text',
-  'textarea',
-  'number',
-  'select',
-  'relationship',
-  'date',
-  'checkbox',
-  'radio',
-  'email',
-  'upload',
-]
 
 export const GroupByButton: React.FC<GroupByButtonProps> = ({
   collectionSlug,
@@ -62,18 +46,12 @@ export const GroupByButton: React.FC<GroupByButtonProps> = ({
     [fields, fieldPermissions, i18n],
   )
 
-  const filteredFields = useMemo(
-    () =>
-      reducedFields.filter(
-        (field) =>
-          !isFieldDisabled(field.field, 'groupBy') &&
-          field.fieldPath !== 'id' &&
-          supportedFieldTypes.includes(field.field.type),
-      ),
-    [reducedFields],
-  )
+  const filteredFields = useMemo(() => {
+    const supportedPaths = getGroupByFieldPaths({ fields })
+    return reducedFields.filter((field) => supportedPaths.has(field.fieldPath))
+  }, [fields, reducedFields])
 
-  const groupByField = reducedFields.find((field) => field.fieldPath === groupByFieldName)
+  const groupByField = filteredFields.find((field) => field.fieldPath === groupByFieldName)
   const isActive = Boolean(groupByFieldName && groupByField)
 
   if (filteredFields.length === 0) {

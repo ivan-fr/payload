@@ -1,3 +1,4 @@
+import { getTableName } from 'drizzle-orm'
 import { APIError } from 'payload'
 
 import type { CreateJSONQueryArgs } from '../../types.js'
@@ -8,7 +9,11 @@ import { parseJSONPathSegment } from '../../utilities/parseJSONPathSegment.js'
 const operatorMap: Record<string, string> = {
   contains: '~',
   equals: '==',
+  greater_than: '>',
+  greater_than_equal: '>=',
   in: 'in',
+  less_than: '<',
+  less_than_equal: '<=',
   like: 'like_regex',
   not_equals: '!=',
   not_in: 'in',
@@ -40,7 +45,16 @@ const sanitizeValue = (value: unknown, operator?: string): string => {
 }
 
 export const createJSONQuery = ({ column, operator, pathSegments, value }: CreateJSONQueryArgs) => {
-  const columnName = typeof column === 'object' ? column.name : column
+  if (operator !== 'exists' && !Object.hasOwn(operatorMap, operator)) {
+    throw new APIError(`Unsupported JSON query operator: ${operator}`, 400)
+  }
+
+  const quoteIdentifier = ({ identifier }: { identifier: string }) =>
+    `"${identifier.replace(/"/g, '""')}"`
+  const columnName =
+    typeof column === 'object'
+      ? `${quoteIdentifier({ identifier: getTableName(column.table) })}.${quoteIdentifier({ identifier: column.name })}`
+      : column
   const jsonPaths = pathSegments
     .slice(1)
     .map((key) => {

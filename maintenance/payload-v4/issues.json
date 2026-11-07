@@ -4240,8 +4240,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18383",
       "labels": ["status: needs-triage", "area: core", "Bug", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
     },
     {
       "number": 18384,
@@ -4249,8 +4251,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18384",
       "labels": ["plugin: cloud-storage", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
     },
     {
       "number": 18385,
@@ -4991,8 +4995,10 @@
       "url": "https://github.com/payloadcms/payload/issues/19063",
       "labels": ["db: postgres", "created-by: Contributor", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
     },
     {
       "number": 19067,
@@ -5040,8 +5046,10 @@
       "url": "https://github.com/payloadcms/payload/issues/19134",
       "labels": ["area: ui", "created-by: Contributor", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
     },
     {
       "number": 19139,
@@ -5111,8 +5119,10 @@
       "url": "https://github.com/payloadcms/payload/issues/19165",
       "labels": ["area: core", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
     },
     {
       "number": 19167,
@@ -5494,7 +5504,98 @@
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
       "last_checked_date": "2026-11-06"
+    },
+    {
+      "number": 19420,
+      "title": "plugin-multi-tenant: `isGlobal` collections redirect tenant-scoped users to `/admin` since 3.93.0 (GlobalViewRedirect prop-name mismatch)",
+      "url": "https://github.com/payloadcms/payload/issues/19420",
+      "labels": ["plugin: multi-tenant", "Bug"],
+      "created_at": "2026-11-06T17:49:36Z",
+      "added_date": "2026-11-07",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
+    },
+    {
+      "number": 19410,
+      "title": "[v4] TanStack Start: custom admin views get repeated query keys as flat `key[0]`, `key[1]` strings (Next gives an array)",
+      "url": "https://github.com/payloadcms/payload/issues/19410",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T16:40:53Z",
+      "added_date": "2026-11-07",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
+    },
+    {
+      "number": 19407,
+      "title": "[v4] List view crashes (\"Cannot read properties of undefined (reading 'field')\") when the URL `where` uses `exists` on a path that isn't a filter option",
+      "url": "https://github.com/payloadcms/payload/issues/19407",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T16:27:56Z",
+      "added_date": "2026-11-07",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
+    },
+    {
+      "number": 19402,
+      "title": "[v4] `useActions().setViewActions` called on mount is wiped by `ActionsProvider`'s reset effect",
+      "url": "https://github.com/payloadcms/payload/issues/19402",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T15:52:41Z",
+      "added_date": "2026-11-07",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
+    },
+    {
+      "number": 19399,
+      "title": "JSON field: remote `jsonSchema` (`uri` only) is never validated, any value is saved",
+      "url": "https://github.com/payloadcms/payload/issues/19399",
+      "labels": ["status: needs-triage", "created-by: Contributor", "area: core", "Bug", "v3"],
+      "created_at": "2026-11-06T15:41:37Z",
+      "added_date": "2026-11-07",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
+    },
+    {
+      "number": 19404,
+      "title": "[v4] db-postgres: the generated `localize-status` migration crashes with \"query.getSQL is not a function\"",
+      "url": "https://github.com/payloadcms/payload/issues/19404",
+      "labels": ["status: needs-triage", "db: postgres", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T16:08:36Z",
+      "added_date": "2026-11-07",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
+    },
+    {
+      "number": 19322,
+      "title": "db-postgres / db-sqlite: nested block rows are not deleted when their parent block is removed, and reappear inside other blocks",
+      "url": "https://github.com/payloadcms/payload/issues/19322",
+      "labels": ["db: postgres", "Bug", "db: sqlite (all drizzle adapters)"],
+      "created_at": "2026-11-04T10:16:02Z",
+      "added_date": "2026-11-07",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
     }
   ],
-  "branch_fix_count": 138
+  "branch_fix_count": 150
 }

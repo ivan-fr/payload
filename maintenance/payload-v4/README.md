@@ -277,3 +277,9 @@ The historical 565-report snapshot now contains **129 scoped fixes + 436 unasses
 ## PR #6 analysis follow-up
 
 The [review follow-up](pr-6-review.md) records the Sonar findings on `b409089`, the widget registration cleanup and the explicit duplication-only treatment of declarative locale resources. Those files remain in normal analysis; a new AST-based test enforces the resource-only boundary. The duplication threshold remains 3%. This review adds no upstream issue to the count.
+
+## November 7 branch: twelve more scoped fixes
+
+`fix/payload-six-issues-20261107` starts from the merged PR #6. Its first six fixes cover tenant redirects, TanStack search parameters, exists filters, header actions, remote JSON schemas and PostgreSQL migration transactions. The next six address orphaned nested blocks, PostgreSQL JSON queries, image orientation/resize limits, renamed upload URLs and invalid list grouping. See [batch-25.md](batch-25.md) for the twelve report numbers, reproduction evidence, validation limits and accessibility assessment. No PR has been opened for this branch.
+
+The current inventory contains **134 scoped fixes + 431 unassessed** in the original snapshot, plus **16 later scoped fixes**: **150 scoped fork fixes**.
