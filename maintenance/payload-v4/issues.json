@@ -5631,7 +5631,85 @@
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
       "last_checked_date": "2026-11-07"
+    },
+    {
+      "number": 19413,
+      "title": "[v4] Group field: the divider of a second group inside a collapsible is drawn through the group's label",
+      "url": "https://github.com/payloadcms/payload/issues/19413",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T16:49:49Z",
+      "added_date": "2026-11-08",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
+    },
+    {
+      "number": 19412,
+      "title": "[v4] Upload edit view: a wide custom `filePreview` widens the file panel and collapses the fields column",
+      "url": "https://github.com/payloadcms/payload/issues/19412",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T16:46:56Z",
+      "added_date": "2026-11-08",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
+    },
+    {
+      "number": 19406,
+      "title": "[v4] Inactive document tabs use the ghost button color on Next.js (no Lexical): the `.doc-tab` color depends on stylesheet order",
+      "url": "https://github.com/payloadcms/payload/issues/19406",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T16:24:31Z",
+      "added_date": "2026-11-08",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
+    },
+    {
+      "number": 19403,
+      "title": "[v4] Side drawer grows with its content instead of scrolling inside, so `position: sticky` in a Drawer never sticks",
+      "url": "https://github.com/payloadcms/payload/issues/19403",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T15:58:43Z",
+      "added_date": "2026-11-08",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
+    },
+    {
+      "number": 19397,
+      "title": "[v4] Button: icon-only `dashed` loses its dashed border",
+      "url": "https://github.com/payloadcms/payload/issues/19397",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T15:27:05Z",
+      "added_date": "2026-11-08",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
+    },
+    {
+      "number": 19395,
+      "title": "[v4] Document controls: empty `__icon-buttons` wrapper doubles the gap before Save",
+      "url": "https://github.com/payloadcms/payload/issues/19395",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T14:52:31Z",
+      "added_date": "2026-11-08",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
     }
   ],
-  "branch_fix_count": 168
+  "branch_fix_count": 174
 }

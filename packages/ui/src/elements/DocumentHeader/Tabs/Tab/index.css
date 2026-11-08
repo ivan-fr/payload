@@ -7,6 +7,10 @@
     color: var(--color-text-secondary);
   }
 
+  .doc-tab.btn--style-ghost {
+    color: var(--color-text-secondary);
+  }
+
   .doc-tab:hover {
     color: var(--color-text);
   }

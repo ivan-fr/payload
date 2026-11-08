@@ -299,3 +299,9 @@ The current inventory contains **134 scoped fixes + 431 unassessed** in the orig
 ## PR #7 review follow-up
 
 [The review follow-up](pr-7-review.md) records the CI failures on `af08312`: upload request proxies lost file rollback ownership, cloud metadata tests assumed request object identity, and grouping excluded relationship-backed virtual scalar paths. The corrective changes retain file isolation while sharing cleanup ownership and restore eligible virtual options. This review adds no upstream issue to the count.
+
+## Batch 29: six shared admin layout regressions
+
+On `fix/payload-six-issues-20261108`, based on merged `main` at `3a9b73836f5839143cad367a4b273c0e33e2e22b`: six more official reports checked open on 2026-11-08. Fixes cover empty document-control spacing (#19395), icon-only dashed button borders (#19397), drawer viewport scrolling (#19403), order-independent inactive tab colors (#19406), wide custom file previews (#19412), and adjacent collapsible-group separators (#19413).
+
+[Batch 29 scope, reproduction and accessibility evidence](batch-29.md): all 12 initial native-browser CSS contracts failed before correction; the final 24 pass in light/dark, ordinary/enhanced-contrast modes. These isolate production CSS cascade and geometry from the full Admin app; live Admin integration and assistive-technology verification remain separate. Inventory: 152 historical + 22 later scoped fixes = **174 scoped fork fixes**. No new PR is opened by this batch.
