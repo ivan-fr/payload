@@ -305,3 +305,9 @@ The current inventory contains **134 scoped fixes + 431 unassessed** in the orig
 On `fix/payload-six-issues-20261108`, based on merged `main` at `3a9b73836f5839143cad367a4b273c0e33e2e22b`: six more official reports checked open on 2026-11-08. Fixes cover empty document-control spacing (#19395), icon-only dashed button borders (#19397), drawer viewport scrolling (#19403), order-independent inactive tab colors (#19406), wide custom file previews (#19412), and adjacent collapsible-group separators (#19413).
 
 [Batch 29 scope, reproduction and accessibility evidence](batch-29.md): all 12 initial native-browser CSS contracts failed before correction; the final 24 pass in light/dark, ordinary/enhanced-contrast modes. These isolate production CSS cascade and geometry from the full Admin app; live Admin integration and assistive-technology verification remain separate. Inventory: 152 historical + 22 later scoped fixes = **174 scoped fork fixes**. No new PR is opened by this batch.
+
+## Batch 30: six additional access, query and checkout reports
+
+The same branch adds #18331 (unreadable field hooks), #18332 (per-target polymorphic join access), #16659 (repeated list-column URL encoding), #15686 (numeric relationship titles), #19017 (large Stripe carts) and #19055 (cart digests and transaction shipping addresses). See [batch-30.md](batch-30.md) for regressions, compatibility, schema-migration implications and evidence limits.
+
+This brings the branch to **12 scoped reports** and the fork inventory to **180 scoped fixes**: 158 historical and 22 later reports. SQLite integration, complete unit checks, affected package types and targeted quality checks are recorded in the report. No new PR is opened by this batch.

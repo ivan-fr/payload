@@ -44,7 +44,18 @@ export const getSearchWithListQuery = ({
   return `?${qs.stringify({
     ...unchangedQuery,
     ...listQuery,
-    columns: JSON.stringify(query.columns),
-    queryByGroup: JSON.stringify(query.queryByGroup),
+    columns: serializeQueryValue({ value: query.columns }),
+    queryByGroup: serializeQueryValue({ value: query.queryByGroup }),
   })}`
+}
+
+const serializeQueryValue = ({ value }: { value: unknown }): string | undefined => {
+  try {
+    for (let depth = 0; typeof value === 'string' && depth < 32; depth++) {
+      value = JSON.parse(value)
+    }
+    return typeof value === 'string' ? undefined : JSON.stringify(value)
+  } catch {
+    return undefined
+  }
 }

@@ -1525,8 +1525,10 @@
       "url": "https://github.com/payloadcms/payload/issues/15686",
       "labels": ["plugin: richtext-lexical", "created-by: Contributor", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
     },
     {
       "number": 15712,
@@ -2478,8 +2480,10 @@
       "url": "https://github.com/payloadcms/payload/issues/16659",
       "labels": ["stale", "area: core", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
     },
     {
       "number": 16674,
@@ -4136,8 +4140,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18331",
       "labels": ["created-by: Contributor", "area: core", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
     },
     {
       "number": 18332,
@@ -4145,8 +4151,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18332",
       "labels": ["db: postgres", "created-by: Contributor", "area: core", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
     },
     {
       "number": 18334,
@@ -4929,8 +4937,10 @@
       "url": "https://github.com/payloadcms/payload/issues/19017",
       "labels": ["Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
     },
     {
       "number": 19018,
@@ -5002,8 +5012,10 @@
       "url": "https://github.com/payloadcms/payload/issues/19055",
       "labels": ["Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
     },
     {
       "number": 19056,
@@ -5711,5 +5723,5 @@
       "last_checked_date": "2026-11-08"
     }
   ],
-  "branch_fix_count": 174
+  "branch_fix_count": 180
 }

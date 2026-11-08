@@ -4,6 +4,7 @@ import type { PaymentAdapter } from '../../../types/index.js'
 import type { InitiatePaymentReturnType, StripeAdapterArgs } from './index.js'
 
 import { getCustomer } from '../../../utilities/getCustomer.js'
+import { getCartItemsHash } from './validateSettlement.js'
 
 type Props = {
   apiVersion?: Stripe.StripeConfig['apiVersion']
@@ -90,8 +91,6 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
         }
       })
 
-      const shippingAddressAsString = JSON.stringify(shippingAddressFromData)
-
       const paymentIntent = await stripe.paymentIntents.create({
         amount,
         automatic_payment_methods: {
@@ -101,8 +100,7 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
         customer: customer.id,
         metadata: {
           cartID: cart.id,
-          cartItemsSnapshot: JSON.stringify(flattenedCart),
-          shippingAddress: shippingAddressAsString,
+          cartItemsHash: getCartItemsHash({ items: flattenedCart }),
         },
       })
 
@@ -117,6 +115,7 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
           currency: paymentIntent.currency.toUpperCase(),
           items: flattenedCart,
           paymentMethod: 'stripe',
+          shippingAddress: shippingAddressFromData,
           status: 'pending',
           stripe: {
             customerID: customer.id,

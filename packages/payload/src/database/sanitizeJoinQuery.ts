@@ -1,5 +1,5 @@
 import type { SanitizedCollectionConfig, SanitizedJoin } from '../collections/config/types.js'
-import type { JoinQuery, PayloadRequest } from '../types/index.js'
+import type { JoinQuery, PayloadRequest, Where } from '../types/index.js'
 
 import { executeAccess } from '../auth/executeAccess.js'
 import { QueryError } from '../errors/QueryError.js'
@@ -24,6 +24,7 @@ const sanitizeJoinFieldQuery = async ({
   overrideAccess,
   promises,
   req,
+  whereToValidate,
 }: {
   collectionSlug: string
   errors: { path: string }[]
@@ -32,6 +33,7 @@ const sanitizeJoinFieldQuery = async ({
   overrideAccess: boolean
   promises: Promise<void>[]
   req: PayloadRequest
+  whereToValidate?: Where
 }) => {
   const { joinPath } = join
 
@@ -50,11 +52,6 @@ const sanitizeJoinFieldQuery = async ({
       )
     : true
 
-  if (accessResult === false) {
-    ;(joinsQuery as any)[joinPath] = false
-    return
-  }
-
   if (!(joinsQuery as any)[joinPath]) {
     ;(joinsQuery as any)[joinPath] = {}
   }
@@ -63,6 +60,17 @@ const sanitizeJoinFieldQuery = async ({
 
   if (!joinQuery.where) {
     joinQuery.where = {}
+  }
+
+  if (accessResult === false) {
+    if (Array.isArray(join.field.collection)) {
+      joinQuery.where = combineQueries(joinQuery.where, {
+        relationTo: { not_equals: collectionSlug },
+      })
+    } else {
+      ;(joinsQuery as any)[joinPath] = false
+    }
+    return
   }
 
   if (join.field.where) {
@@ -77,7 +85,7 @@ const sanitizeJoinFieldQuery = async ({
       polymorphicJoin: Array.isArray(join.field.collection),
       req,
       // incoming where input, but we shouldn't validate generated from the access control.
-      where: joinQuery.where,
+      where: whereToValidate ?? joinQuery.where,
     }),
     validateSortQuery({
       collectionConfig: joinCollectionConfig,
@@ -93,7 +101,10 @@ const sanitizeJoinFieldQuery = async ({
       payload: req.payload,
       where: accessResult,
     })
-    joinQuery.where = combineQueries(joinQuery.where, accessResult)
+    const accessWhere = Array.isArray(join.field.collection)
+      ? { or: [{ relationTo: { not_equals: collectionSlug } }, accessResult] }
+      : accessResult
+    joinQuery.where = combineQueries(joinQuery.where, accessWhere)
   }
 }
 
@@ -134,6 +145,9 @@ export const sanitizeJoinQuery = async ({
   }
 
   for (const join of collectionConfig.polymorphicJoins) {
+    const whereToValidate = deepCopyObjectSimple(
+      combineQueries((joinsQuery as any)[join.joinPath]?.where || {}, join.field.where || {}),
+    )
     for (const collectionSlug of join.field.collection) {
       await sanitizeJoinFieldQuery({
         collectionSlug,
@@ -143,6 +157,7 @@ export const sanitizeJoinQuery = async ({
         overrideAccess,
         promises,
         req,
+        whereToValidate,
       })
     }
   }
