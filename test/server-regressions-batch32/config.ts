@@ -7,17 +7,25 @@ import { buildConfigWithDefaults } from '../buildConfigWithDefaults.js'
 import { Pages } from './collections/index.js'
 import { pagesSlug } from './slugs.js'
 
+const sqliteIDTypes = {
+  sqlite: 'number',
+  'sqlite-uuid': 'uuid',
+  'sqlite-uuidv7': 'uuidv7',
+} as const
+const sqliteIDType = sqliteIDTypes[process.env.PAYLOAD_DATABASE as keyof typeof sqliteIDTypes]
+
 export default buildConfigWithDefaults({
   suite: 'server-regressions-batch32',
   disableMCP: true,
   config: {
-    ...(process.env.PAYLOAD_DATABASE === 'sqlite'
+    ...(sqliteIDType
       ? {
           db: sqliteAdapter({
             client: {
               url: process.env.SQLITE_URL || process.env.DATABASE_URL || 'file:./payload.db',
             },
             autoIncrement: true,
+            idType: sqliteIDType,
             transactionOptions: { behavior: 'immediate' },
           }),
         }

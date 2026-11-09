@@ -866,7 +866,7 @@ describe('Versions', () => {
         // Important: assert that depth is 0 in this request
         formatAdminURL({
           apiRoute: '/api',
-          path: `/autosave-posts/${docID}?autosave=true&depth=0&draft=true&fallback-locale=null&locale=en`,
+          path: `/autosave-posts/${docID}?autosave=true&depth=0&draft=true&fallback-locale=false&locale=en`,
           serverURL,
         }),
         async () => {
@@ -900,7 +900,7 @@ describe('Versions', () => {
 
       const autosaveRequestURL = formatAdminURL({
         apiRoute: '/api',
-        path: `/${autosaveWithVirtualSlug}/${docID}?autosave=true&depth=0&draft=true&fallback-locale=null&locale=en`,
+        path: `/${autosaveWithVirtualSlug}/${docID}?autosave=true&depth=0&draft=true&fallback-locale=false&locale=en`,
         serverURL,
       })
 
@@ -949,7 +949,7 @@ describe('Versions', () => {
 
       const autosaveRequestURL = formatAdminURL({
         apiRoute: '/api',
-        path: `/${autosaveWithVirtualSlug}/${docID}?autosave=true&depth=0&draft=true&fallback-locale=null&locale=en`,
+        path: `/${autosaveWithVirtualSlug}/${docID}?autosave=true&depth=0&draft=true&fallback-locale=false&locale=en`,
         serverURL,
       })
 
@@ -994,7 +994,7 @@ describe('Versions', () => {
 
       const autosaveRequestURL = formatAdminURL({
         apiRoute: '/api',
-        path: `/${autosaveWithVirtualSlug}/${docID}?autosave=true&depth=0&draft=true&fallback-locale=null&locale=en`,
+        path: `/${autosaveWithVirtualSlug}/${docID}?autosave=true&depth=0&draft=true&fallback-locale=false&locale=en`,
         serverURL,
       })
 

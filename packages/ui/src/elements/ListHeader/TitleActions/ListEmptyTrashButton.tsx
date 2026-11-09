@@ -129,7 +129,10 @@ export function ListEmptyTrashButton({
 
       if (json?.errors?.length > 0) {
         toast.error(json.message, {
-          description: getUniqueErrorMessages({ errors: json.errors }).join('\n'),
+          description: getUniqueErrorMessages({
+            errors: json.errors,
+            fallback: t('error:unknown'),
+          }).join('\n'),
         })
       }
 

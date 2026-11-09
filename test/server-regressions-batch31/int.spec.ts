@@ -18,23 +18,35 @@ test.suite('scheduled publication cleanup (#19448)', { config: './config.ts' }, 
         ),
       )
       const other = await payload.create({ collection: otherSlug, data: {}, overrideAccess: true })
-      const queue = (id: number | string, collection = postsSlug) =>
+      const queue = ({
+        id,
+        collection = postsSlug,
+        asString = true,
+      }: {
+        id: number | string
+        collection?: string
+        asString?: boolean
+      }) =>
         payload.jobs.queue({
           task: 'schedulePublish',
           overrideAccess: true,
-          input: { doc: { relationTo: collection, value: String(id) }, type: 'publish' },
+          input: {
+            doc: { relationTo: collection, value: asString ? String(id) : id },
+            type: 'publish',
+          },
           waitUntil: new Date(Date.now() + 60_000),
         })
-      const deletedJob = await queue(posts[0]!.id)
-      const keptJob = await queue(posts[1]!.id)
-      const otherJob = await queue(other.id, otherSlug)
-      const processingJob = await queue(posts[0]!.id)
+      const deletedJob = await queue({ id: posts[0]!.id })
+      const rawDeletedJob = await queue({ id: posts[0]!.id, asString: false })
+      const keptJob = await queue({ id: posts[1]!.id })
+      const otherJob = await queue({ id: other.id, collection: otherSlug })
+      const processingJob = await queue({ id: posts[0]!.id })
       await payload.db.updateOne({
         collection: 'payload-jobs',
         id: processingJob.id,
         data: { processingUntil: new Date(Date.now() + 60_000).toISOString() },
       })
-      const completedJob = await queue(posts[0]!.id)
+      const completedJob = await queue({ id: posts[0]!.id })
       await payload.db.updateOne({
         collection: 'payload-jobs',
         id: completedJob.id,
@@ -47,7 +59,7 @@ test.suite('scheduled publication cleanup (#19448)', { config: './config.ts' }, 
           data: { title: 'also deleted' },
           overrideAccess: true,
         })
-        secondDeletedJobID = (await queue(secondDeletedPost.id)).id
+        secondDeletedJobID = (await queue({ id: secondDeletedPost.id })).id
         await payload.delete({
           collection: postsSlug,
           where: { id: { in: [posts[0]!.id, secondDeletedPost.id] } },
@@ -62,6 +74,7 @@ test.suite('scheduled publication cleanup (#19448)', { config: './config.ts' }, 
         overrideAccess: true,
       })
       expect(jobs.docs.map(({ id }) => id)).not.toContain(deletedJob.id)
+      expect(jobs.docs.map(({ id }) => id)).not.toContain(rawDeletedJob.id)
       expect(jobs.docs.map(({ id }) => id)).not.toContain(secondDeletedJobID)
       expect(jobs.docs.map(({ id }) => id).sort()).toEqual(
         [keptJob.id, otherJob.id, completedJob.id, processingJob.id].sort(),

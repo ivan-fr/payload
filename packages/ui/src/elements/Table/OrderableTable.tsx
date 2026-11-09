@@ -153,10 +153,7 @@ export const OrderableTable: React.FC<Props> = ({
       if (!response.ok) {
         throw new Error(
           await getResponseErrorMessage({
-            fallback:
-              response.status === 403
-                ? 'You do not have permission to reorder these rows'
-                : 'Failed to reorder. This can happen if you reorder several rows too quickly. Please try again.',
+            fallback: getReorderFallbackMessage({ status: response.status }),
             response,
           }),
         )
@@ -249,3 +246,8 @@ export const OrderableTable: React.FC<Props> = ({
     </div>
   )
 }
+
+const getReorderFallbackMessage = ({ status }: { status: number }): string =>
+  status === 403
+    ? 'You do not have permission to reorder these rows'
+    : 'Failed to reorder. This can happen if you reorder several rows too quickly. Please try again.'

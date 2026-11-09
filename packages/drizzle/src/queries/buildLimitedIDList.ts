@@ -30,5 +30,7 @@ export const buildLimitedIDList = ({
   if (!items.length) {
     return operator === 'in' ? sql`false` : sql`true`
   }
-  return sql`${column} ${sql.raw(operator === 'in' ? 'IN' : 'NOT IN')} (${sql.join(items, sql`, `)})`
+  const sqlOperator = sql.raw(operator === 'in' ? 'IN' : 'NOT IN')
+  const idList = sql.join(items, sql`, `)
+  return sql`${column} ${sqlOperator} (${idList})`
 }

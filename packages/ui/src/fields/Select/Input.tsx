@@ -111,13 +111,12 @@ export const SelectInput: React.FC<SelectInputProps> = (props) => {
   const onSelectChange = React.useCallback<NonNullable<ReactSelectAdapterProps['onChange']>>(
     (...args) => {
       const [selected] = args
-      const incomingValue = hasMany
-        ? Array.isArray(selected)
-          ? selected.map((option) => option.value)
-          : []
-        : selected && !Array.isArray(selected)
-          ? selected.value
-          : undefined
+      let incomingValue: unknown
+      if (hasMany) {
+        incomingValue = Array.isArray(selected) ? selected.map((option) => option.value) : []
+      } else if (selected && !Array.isArray(selected)) {
+        incomingValue = selected.value
+      }
       const currentValue = hasMany ? (value ?? []) : (value ?? undefined)
       if (!dequal(incomingValue, currentValue)) {
         onChange?.(...args)

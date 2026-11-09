@@ -47,9 +47,14 @@ afterEach(() => {
   vi.unstubAllGlobals()
   vi.clearAllMocks()
 })
-it.each([false, true])(
-  'should refresh from the live list URL when drawer search params are empty (all: %s) (#17667)',
-  async (selectAll) => {
+it.each([
+  { selectAll: false, isPartial: false },
+  { selectAll: true, isPartial: false },
+  { selectAll: false, isPartial: true },
+  { selectAll: true, isPartial: true },
+])(
+  'should preserve the live URL after bulk edits (all: $selectAll, partial: $isPartial) (#17667)',
+  async ({ selectAll, isPartial }) => {
     vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
     vi.stubGlobal('process', { env: {} })
     const original = window.location.href
@@ -81,7 +86,7 @@ it.each([false, true])(
           />,
         ),
       )
-      await act(() => mocks.form.onSuccess())
+      await act(() => (isPartial ? mocks.form.onPartialSuccess() : mocks.form.onSuccess()))
       const next = new URLSearchParams(mocks.replace.mock.calls[0]![0])
       expect(next.get('columns')).toBe(search.get('columns'))
       expect(next.get('limit')).toBe('10')

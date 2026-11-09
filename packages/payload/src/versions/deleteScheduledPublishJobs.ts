@@ -21,6 +21,11 @@ export const deleteScheduledPublishJobs = async ({
   payload,
   req,
 }: Args): Promise<void> => {
+  const documentIDs = ids ?? (id === undefined ? [] : [id])
+  if (documentIDs.length === 0) {
+    return
+  }
+
   try {
     await payload.db.deleteMany({
       collection: jobsCollectionSlug,
@@ -38,19 +43,14 @@ export const deleteScheduledPublishJobs = async ({
               exists: false,
             },
           },
-          ids
-            ? {
-                or: ids.map((id) => ({
-                  'input.doc.value': {
-                    equals: String(id),
-                  },
-                })),
-              }
-            : {
-                'input.doc.value': {
-                  equals: String(id),
-                },
-              },
+          {
+            // Queue callers may persist a numeric ID or its string representation in JSON.
+            or: documentIDs.flatMap((docID) =>
+              [...new Set([docID, String(docID)])].map((value) => ({
+                'input.doc.value': { equals: value },
+              })),
+            ),
+          },
           {
             'input.doc.relationTo': {
               equals: slug,

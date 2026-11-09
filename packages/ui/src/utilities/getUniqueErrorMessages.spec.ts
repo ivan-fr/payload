@@ -19,6 +19,14 @@ it('should preserve unique public reasons in response order', () => {
     }),
   ).toEqual(['First', 'Second'])
 })
+it('should describe private failures with the translated fallback without exposing details', () => {
+  expect(
+    getUniqueErrorMessages({
+      errors: [{ message: 'Private database details', isPublic: false }],
+      fallback: 'Something went wrong.',
+    }),
+  ).toEqual(['Something went wrong.'])
+})
 it.each([undefined, null, {}, 'error'])(
   'should ignore malformed error containers (%s)',
   (errors) => {
