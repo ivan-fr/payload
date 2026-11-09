@@ -315,3 +315,7 @@ This brings the branch to **12 scoped reports** and the fork inventory to **180 
 ## Batch 31 — scheduling and Admin state
 
 [Batch 31](./batch-31.md) adds six scoped fixes on `fix/payload-six-issues-20261108`: #19448, #17779, #17684, #17833, #17639 and #19396. Validation includes 4,680 passing unit tests, 7 component contracts, 28 layout CSS browser contracts and 2 real SQLite integration cases, plus package TypeScript, lint, formatting and local SonarJS checks. Full Admin/AT verification and SonarCloud remain outside this batch's evidence. The fork now has 186 scoped fixes (162 historical plus 24 later reports); this branch contains 18 reports. No PR was created.
+
+## Batch 32 — query limits, cascade failures and Admin feedback
+
+[Batch 32](./batch-32.md) adds #18162, #18837, #16308, #17493, #17457 and #16952 on `fix/payload-six-issues-20261108`. Validation: 4,706 passing unit tests, 15 component cases, 3 transactional SQLite integration cases, package TypeScript, lint/formatting and local helper SonarJS checks. Collapsible preference persistence remains enabled by default; `admin.persistCollapsedState: false` enables the requested reset-on-mount behavior. The fork now has 192 scoped fixes (168 historical plus 24 later reports), including 24 reports on this branch. Full Admin/AT verification, live D1 and SonarCloud are not claimed. No PR was created.

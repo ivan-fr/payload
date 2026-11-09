@@ -25,7 +25,11 @@ const baseClass = 'collapsible-field'
 const CollapsibleFieldComponent: React.FC<CollapsibleFieldClientProps> = (props) => {
   const {
     field,
-    field: { admin: { className, description, initCollapsed = false } = {}, fields, label } = {},
+    field: {
+      admin: { className, description, initCollapsed = false, persistCollapsedState = true } = {},
+      fields,
+      label,
+    } = {},
     forceRender = false,
     indexPath,
     parentPath,
@@ -50,6 +54,9 @@ const CollapsibleFieldComponent: React.FC<CollapsibleFieldClientProps> = (props)
 
   const onToggle = useCallback(
     async (newCollapsedState: boolean): Promise<void> => {
+      if (!persistCollapsedState) {
+        return
+      }
       const existingPreferences: DocumentPreferences = await getPreference(preferencesKey)
 
       if (preferencesKey) {
@@ -77,12 +84,19 @@ const CollapsibleFieldComponent: React.FC<CollapsibleFieldClientProps> = (props)
         })
       }
     },
-    [preferencesKey, fieldPreferencesKey, getPreference, setPreference, path],
+    [
+      preferencesKey,
+      fieldPreferencesKey,
+      getPreference,
+      setPreference,
+      path,
+      persistCollapsedState,
+    ],
   )
 
   useEffect(() => {
     const fetchInitialState = async () => {
-      if (preferencesKey) {
+      if (persistCollapsedState && preferencesKey) {
         const preferences = await getPreference(preferencesKey)
         const specificPreference = path
           ? preferences?.fields?.[path]?.collapsed
@@ -99,7 +113,14 @@ const CollapsibleFieldComponent: React.FC<CollapsibleFieldClientProps> = (props)
     }
 
     void fetchInitialState()
-  }, [getPreference, preferencesKey, fieldPreferencesKey, initCollapsed, path])
+  }, [
+    getPreference,
+    preferencesKey,
+    fieldPreferencesKey,
+    initCollapsed,
+    path,
+    persistCollapsedState,
+  ])
 
   const styles = useMemo(() => mergeFieldStyles(field), [field])
 

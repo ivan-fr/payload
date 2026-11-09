@@ -891,6 +891,8 @@ export type CollapsibleField = {
           >
         } & FieldAdmin['components']
         initCollapsed?: boolean
+        /** Set to false to use initCollapsed on each mount without saving the collapsed state. @default true */
+        persistCollapsedState?: boolean
       } & FieldAdmin
       label?: Required<FieldBase['label']>
     }
@@ -905,6 +907,8 @@ export type CollapsibleField = {
           >
         } & FieldAdmin['components']
         initCollapsed?: boolean
+        /** Set to false to use initCollapsed on each mount without saving the collapsed state. @default true */
+        persistCollapsedState?: boolean
       } & FieldAdmin
       label: Required<FieldBase['label']>
     }
@@ -917,6 +921,8 @@ export type CollapsibleField = {
 export type CollapsibleFieldClient = {
   admin?: {
     initCollapsed?: boolean
+    /** Set to false to use initCollapsed on each mount without saving the collapsed state. @default true */
+    persistCollapsedState?: boolean
   } & AdminClient
   fields: ClientField[]
   label: StaticLabel

@@ -6,7 +6,6 @@ import {
   and,
   eq,
   exists,
-  getTableName,
   isNotNull,
   isNull,
   like,
@@ -16,7 +15,7 @@ import {
   sql,
 } from 'drizzle-orm'
 import { PgUUID } from 'drizzle-orm/pg-core'
-import { APIError, getFieldByPath, QueryError } from 'payload'
+import { getFieldByPath, QueryError } from 'payload'
 import {
   hasManyRelationshipOperatorSet,
   isNestedRelationshipQuery,
@@ -31,9 +30,9 @@ import type { DrizzleResolvedOperator } from './operatorMap.js'
 
 import { escapeSQLValue } from '../utilities/escapeSQLValue.js'
 import { getNameFromDrizzleTable } from '../utilities/getNameFromDrizzleTable.js'
-import { isValidStringID } from '../utilities/isValidStringID.js'
 import { DistinctSymbol, isRawConstraint } from '../utilities/rawConstraint.js'
 import { buildAndOrConditions } from './buildAndOrConditions.js'
+import { buildLimitedIDList } from './buildLimitedIDList.js'
 import { buildOperatorConstraint } from './buildOperatorConstraint.js'
 import { escapeLike } from './escapeLike.js'
 import { getTableAlias } from './getTableAlias.js'
@@ -454,6 +453,19 @@ export function parseParams({
                   Array.isArray(queryValue) &&
                   queryOperator === 'not_in'
                 ) {
+                  if (adapter.limitedBoundParameters && relationOrPath === 'parent') {
+                    constraints.push(
+                      or(
+                        isNull(resolvedColumn),
+                        buildLimitedIDList({
+                          column: resolvedColumn,
+                          operator: 'not_in',
+                          values: queryValue,
+                        }),
+                      ),
+                    )
+                    break
+                  }
                   constraints.push(
                     sql`(${notInArray(table[columnName], queryValue)} OR
                     ${table[columnName]}
@@ -574,46 +586,17 @@ export function parseParams({
                 if (
                   adapter.limitedBoundParameters &&
                   (operator === 'in' || operator === 'not_in') &&
-                  relationOrPath === 'id' &&
+                  (relationOrPath === 'id' ||
+                    (relationOrPath === 'parent' && field.type === 'relationship')) &&
                   Array.isArray(queryValue)
                 ) {
-                  let isInvalid = false
-                  for (const val of queryValue) {
-                    if (typeof val === 'number' || val === null) {
-                      continue
-                    }
-                    if (typeof val === 'string') {
-                      if (!isValidStringID(val)) {
-                        isInvalid = true
-                        break
-                      } else {
-                        continue
-                      }
-                    }
-                    isInvalid = true
-                    break
-                  }
-
-                  if (isInvalid) {
-                    throw new APIError(`Invalid ID value in ${JSON.stringify(queryValue)}`)
-                  }
-
+                  const inlineConstraint = buildLimitedIDList({
+                    column: resolvedColumn,
+                    operator: operator as 'in' | 'not_in',
+                    values: resolvedQueryValue as unknown[],
+                  })
                   constraints.push(
-                    sql.raw(
-                      `"${getTableName(resolvedColumn.table)}"."${resolvedColumn.name}" ${operator === 'in' ? 'IN' : 'NOT IN'} (${queryValue
-                        .map((e) => {
-                          if (e === null) {
-                            return `NULL`
-                          }
-
-                          if (typeof e === 'number') {
-                            return e
-                          }
-
-                          return `'${e}'`
-                        })
-                        .join(',')})`,
-                    ),
+                    orConditions.length ? or(...orConditions, inlineConstraint) : inlineConstraint,
                   )
                   break
                 }

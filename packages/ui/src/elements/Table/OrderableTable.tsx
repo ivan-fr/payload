@@ -13,6 +13,7 @@ import { useConfig } from '../../providers/Config/index.js'
 import { useListQuery } from '../../providers/ListQuery/index.js'
 import { useLocale } from '../../providers/Locale/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
+import { getResponseErrorMessage } from '../../utilities/getResponseErrorMessage.js'
 import { DraggableSortableItem } from '../DraggableSortable/DraggableSortableItem/index.js'
 import { DraggableSortable } from '../DraggableSortable/index.js'
 import { OrderableRow } from './OrderableRow.js'
@@ -103,7 +104,7 @@ export const OrderableTable: React.FC<Props> = ({
     setLocalData((currentData) => {
       const newData = [...currentData]
       // Update the rendered cell for the moved row to show "pending"
-      newData[moveFromIndex][orderableFieldName] = `pending`
+      newData[moveFromIndex] = { ...newData[moveFromIndex], [orderableFieldName]: `pending` }
       // Move the item in the array
       newData.splice(moveToIndex, 0, newData.splice(moveFromIndex, 1)[0])
       return newData
@@ -149,13 +150,15 @@ export const OrderableTable: React.FC<Props> = ({
         },
       )
 
-      if (response.status === 403) {
-        throw new Error('You do not have permission to reorder these rows')
-      }
-
       if (!response.ok) {
         throw new Error(
-          'Failed to reorder. This can happen if you reorder several rows too quickly. Please try again.',
+          await getResponseErrorMessage({
+            fallback:
+              response.status === 403
+                ? 'You do not have permission to reorder these rows'
+                : 'Failed to reorder. This can happen if you reorder several rows too quickly. Please try again.',
+            response,
+          }),
         )
       }
 

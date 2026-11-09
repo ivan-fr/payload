@@ -349,6 +349,7 @@ export const EditManyDrawerContent: React.FC<EditManyDrawerContentProps> = (prop
           className={`${baseClass}__form`}
           isInitializing={isInitializing}
           onChange={[onChange]}
+          onPartialSuccess={onSuccess}
           onSuccess={onSuccess}
         >
           <div className={`${baseClass}__header`}>
