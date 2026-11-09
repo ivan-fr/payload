@@ -23,9 +23,9 @@ test.suite('scheduled publication cleanup (#19448)', { config: './config.ts' }, 
         collection = postsSlug,
         asString = true,
       }: {
-        id: number | string
-        collection?: string
         asString?: boolean
+        collection?: string
+        id: number | string
       }) =>
         payload.jobs.queue({
           task: 'schedulePublish',
