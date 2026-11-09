@@ -86,3 +86,39 @@ run also left its disposable SQLite file unusable. Final database checks use fre
 temporary files. These setup failures are not counted as product regressions.
 Complete CI, including PostgreSQL/MongoDB variants and both framework E2E matrices,
 remains necessary on the published revision.
+
+## Follow-up after the complete CI run
+
+The full run on `b86dea3` completed with 313 successful checks, including the entire
+browser matrix and SonarCloud (zero new/accepted issues and zero security hotspots).
+Three integration jobs remained red, plus their aggregate required-check result:
+
+- CosmosDB and Firestore compatibility profiles explicitly disable transactions.
+  The nested-docs test incorrectly required rollback from those profiles. It now
+  probes transaction support, closes the probe transaction immediately, and still
+  requires the descendant error to propagate on every adapter. Transactional
+  adapters retain parent-title, timestamp and child-breadcrumb rollback assertions.
+  Nontransactional adapters must expose the earlier parent write while leaving the
+  rejected descendant unchanged; no test is skipped for these profiles.
+- The custom-schema PostgreSQL job executed the documentation's default table
+  names without schema qualification. The regression now qualifies both current
+  and version relationship tables using the configured schema, escaping identifier
+  quotes, and the documentation explains the `search_path` requirement.
+
+Validation for this follow-up:
+
+- SQLite, transactions enabled: **5 passed** across the nested-docs and migration /
+  upload fixtures.
+- SQLite, transactions disabled in a temporary fixture configuration: **3 passed**,
+  exercising the same no-op transaction contract used by the compatibility profiles.
+  The fixture configuration was restored before publication.
+- PostgreSQL custom-schema fixture through the normal `pg` client and a temporary
+  PGlite socket server: **2 passed**, including both migration directions and full /
+  byte-range upload responses. This uses a PostgreSQL engine, not a native server.
+- Targeted formatting, Oxlint and whitespace checks passed; existing cleanup-style
+  warnings in the upload fixture remain.
+
+Native MongoDB could not start in the local runtime (`open: Operation not permitted`),
+so provider-profile confirmation remains a fresh-CI check. The complete CI matrix
+and production behavior are unchanged by this follow-up; only tests and migration
+documentation change.

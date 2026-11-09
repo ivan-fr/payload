@@ -1,4 +1,4 @@
-import type { SQLiteAdapter } from '@payloadcms/db-sqlite'
+import type { DrizzleAdapter } from '@payloadcms/drizzle'
 
 import { readFile, rm } from 'node:fs/promises'
 import { expect } from 'vitest'
@@ -39,7 +39,7 @@ test.suite(
         const section = docs.slice(docs.indexOf('## Renaming relationship fields'))
         const snippets = [...section.matchAll(/```sql\n([\s\S]*?)```/g)].map((match) => match[1]!)
         expect(snippets).toHaveLength(2)
-        const db = payload.db as SQLiteAdapter
+        const db = payload.db as DrizzleAdapter
         const read = async () => ({
           document: await payload.findByID({
             collection: reportsSlug,
@@ -58,7 +58,14 @@ test.suite(
         })
         for (const [index, snippet] of snippets.entries()) {
           for (const statement of snippet.split(';').filter((value) => value.trim())) {
-            await db.execute({ drizzle: db.drizzle, raw: statement })
+            // Documentation uses default table names; custom schemas require qualification.
+            const qualifiedStatement = db.schemaName
+              ? statement.replace(
+                  /"(?:reports_rels|_reports_v_rels)"/g,
+                  (table) => `"${db.schemaName!.replaceAll('"', '""')}".${table}`,
+                )
+              : statement
+            await db.execute({ drizzle: db.drizzle, raw: qualifiedStatement })
           }
           const result = await read()
           for (const value of [result.document, result.version]) {

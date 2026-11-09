@@ -333,4 +333,6 @@ UPDATE "reports_rels" SET "path" = 'owners' WHERE "path" = 'owners2';
 UPDATE "_reports_v_rels" SET "path" = 'version.owners' WHERE "path" = 'version.owners2';
 ```
 
+For a custom PostgreSQL schema, qualify both table names, for example `"cms"."reports_rels"` and `"cms"."_reports_v_rels"`. An unqualified table name follows the connection's `search_path`, which may not include your Payload schema.
+
 These updates preserve the referenced IDs, parent IDs, locale and ordering values. Test against a copy of your data, check that both current documents and versions retain their relationships, and keep a backup before deploying. Do not use these SQL statements for MongoDB; its document-key renames require a MongoDB data migration. Single relationships stored in their own foreign-key column must instead follow the generated column migration.

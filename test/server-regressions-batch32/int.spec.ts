@@ -5,9 +5,15 @@ import { pagesSlug } from './slugs.js'
 
 test.suite('nested document child failures (#17457)', { config: './config.ts' }, () => {
   for (const isGrandchild of [false, true]) {
-    test(`should reject a failed descendant save and roll back the parent (grandchild: ${isGrandchild})`, async ({
+    test(`should reject a failed descendant save and respect transaction support (grandchild: ${isGrandchild})`, async ({
       payload,
     }) => {
+      const transactionID = await payload.db.beginTransaction()
+      const hasTransactions = transactionID !== null
+      if (transactionID !== null) {
+        await payload.db.rollbackTransaction(transactionID)
+      }
+
       const parent = await payload.create({
         collection: pagesSlug,
         data: { title: 'Original parent' },
@@ -44,17 +50,25 @@ test.suite('nested document child failures (#17457)', { config: './config.ts' },
         id: parent.id,
         overrideAccess: true,
       })
-      expect(stored.title).toBe('Original parent')
-      expect(stored.updatedAt).toBe(before.updatedAt)
+      expect(stored).toMatchObject({
+        title: hasTransactions ? 'Original parent' : 'Rejected parent',
+        ...(hasTransactions ? { updatedAt: before.updatedAt } : {}),
+      })
       const storedChild = await payload.findByID({
         collection: pagesSlug,
         id: child.id,
         overrideAccess: true,
       })
       expect(storedChild.breadcrumbs?.map(({ label }) => label)).toEqual([
-        'Original parent',
+        hasTransactions || !isGrandchild ? 'Original parent' : 'Rejected parent',
         'Child',
       ])
+      const rejected = isGrandchild
+        ? await payload.findByID({ collection: pagesSlug, id: failing.id, overrideAccess: true })
+        : storedChild
+      expect(rejected.breadcrumbs?.map(({ label }) => label)).toEqual(
+        isGrandchild ? ['Original parent', 'Child', 'Grandchild'] : ['Original parent', 'Child'],
+      )
     })
   }
   test('should still persist a valid parent change and refresh child breadcrumbs', async ({
