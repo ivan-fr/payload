@@ -39,6 +39,7 @@ import { handleBackToDashboard } from '../../utilities/handleBackToDashboard.js'
 import { handleGoBack } from '../../utilities/handleGoBack.js'
 import { handleTakeOver } from '../../utilities/handleTakeOver.js'
 import { Auth } from './Auth/index.js'
+import { getFormStateOnSave } from './getFormStateOnSave.js'
 import { SetDocumentStepNav } from './SetDocumentStepNav/index.js'
 import { SetDocumentTitle } from './SetDocumentTitle/index.js'
 import './index.css'
@@ -379,23 +380,31 @@ export function DefaultEditView({
       if (id || globalSlug) {
         const docPreferences = await getDocPreferences()
 
-        const { livePreviewURL, previewURL, state } = await getFormState({
-          id,
-          collectionSlug,
-          data: document,
-          docPermissions,
-          docPreferences,
-          formState,
-          globalSlug,
-          operation,
-          renderAllFields: false,
-          returnLivePreviewURL: isLivePreviewEnabled && typeofLivePreviewURL === 'function',
-          returnLockStatus: false,
-          returnPreviewURL: isPreviewEnabled,
-          schemaPath: schemaPathSegments.join('.'),
-          signal: controller.signal,
-          skipValidation: true,
+        const savedFormState = await getFormStateOnSave({
+          args: {
+            id,
+            collectionSlug,
+            data: document,
+            docPermissions,
+            docPreferences,
+            formState,
+            globalSlug,
+            operation,
+            renderAllFields: false,
+            returnLivePreviewURL: isLivePreviewEnabled && typeofLivePreviewURL === 'function',
+            returnLockStatus: false,
+            returnPreviewURL: isPreviewEnabled,
+            schemaPath: schemaPathSegments.join('.'),
+            signal: controller.signal,
+            skipValidation: true,
+          },
+          getFormState,
         })
+
+        if (!savedFormState || controller.signal.aborted) {
+          return
+        }
+        const { livePreviewURL, previewURL, state } = savedFormState
 
         // For upload collections, clear the file field from the returned state
         // to prevent the File object from persisting in form state after save

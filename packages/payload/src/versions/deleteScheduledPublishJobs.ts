@@ -42,13 +42,13 @@ export const deleteScheduledPublishJobs = async ({
             ? {
                 or: ids.map((id) => ({
                   'input.doc.value': {
-                    equals: id,
+                    equals: String(id),
                   },
                 })),
               }
             : {
                 'input.doc.value': {
-                  equals: id,
+                  equals: String(id),
                 },
               },
           {

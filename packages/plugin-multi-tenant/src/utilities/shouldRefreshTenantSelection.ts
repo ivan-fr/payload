@@ -4,4 +4,4 @@ export const shouldRefreshTenantSelection = ({
 }: {
   initialValue?: number | string
   tenantCookie?: string
-}): boolean => !initialValue && Boolean(tenantCookie)
+}): boolean => initialValue === undefined && Boolean(tenantCookie)

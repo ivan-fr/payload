@@ -3224,8 +3224,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17639",
       "labels": ["status: needs-triage", "area: ui", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 17645,
@@ -3316,8 +3318,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17684",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 17699,
@@ -3461,8 +3465,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17779",
       "labels": ["`area: live-preview`", "`area: ui`", "`area: templates`"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 17792,
@@ -3506,8 +3512,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17833",
       "labels": ["plugin: multi-tenant", "payloadcms/payload", "3.x"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 17844,
@@ -5721,7 +5729,33 @@
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
       "last_checked_date": "2026-11-08"
+    },
+    {
+      "number": 19396,
+      "title": "[v4] Button: `buttonStyle=\"link\"` is in the type but has no styles",
+      "url": "https://github.com/payloadcms/payload/issues/19396",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T15:22:36Z",
+      "added_date": "2026-11-09",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
+    },
+    {
+      "number": 19448,
+      "title": "Scheduled publish jobs are not deleted when their document is deleted (string id in the job, raw id in the cleanup)",
+      "url": "https://github.com/payloadcms/payload/issues/19448",
+      "labels": ["db: sqlite", "area: core", "Bug"],
+      "created_at": "2026-11-09T05:20:57Z",
+      "added_date": "2026-11-09",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     }
   ],
-  "branch_fix_count": 180
+  "branch_fix_count": 186
 }

@@ -21,6 +21,7 @@ import {
   deleteWorkflowPostsByTitle,
   enterWorkflowGrid,
   expectFocusInside,
+  expectTextContrast,
   expectNoPageOverflow,
   expectPersistedWorkflowPost,
   getFocusIndicatorStyle,
@@ -1584,6 +1585,64 @@ test.describe('Shared layout CSS regressions', () => {
     { theme: 'dark', enhancedContrast: true },
   ] as const) {
     test.describe(`${theme}, enhanced contrast: ${enhancedContrast}`, () => {
+      test('should distinguish link button states and preserve keyboard focus (#19396)', async ({
+        page,
+      }) => {
+        await renderLayoutContract({
+          page,
+          theme,
+          enhancedContrast,
+          styles: ['css/utilities.css', 'elements/Button/index.css'],
+          markup: `<button class="btn btn--style-link">Enabled</button>
+            <button class="btn btn--style-link btn--disabled" disabled>Disabled</button>
+            <button class="btn btn--style-link btn--selected" aria-pressed="true">Selected</button>`,
+        })
+        await page.addStyleTag({
+          content: 'body { background: var(--color-bg); color: var(--color-text) }',
+        })
+        const enabled = page.getByRole('button', { name: 'Enabled' })
+        const disabled = page.getByRole('button', { name: 'Disabled' })
+        const selected = page.getByRole('button', { name: 'Selected' })
+        const brand = await enabled.evaluate((el) =>
+          getComputedStyle(el).getPropertyValue('--color-text-brand').trim(),
+        )
+        const expectedColor = await enabled.evaluate((el) => {
+          const probe = document.createElement('span')
+          probe.style.color = 'var(--color-text-brand)'
+          el.append(probe)
+          const color = getComputedStyle(probe).color
+          probe.remove()
+          return color
+        })
+        expect(brand).not.toBe('')
+        await expect(enabled).toHaveCSS('color', expectedColor)
+        // The underline identifies an action independently of color.
+        await expect(enabled).toHaveCSS('text-decoration-line', 'underline')
+        if (enhancedContrast) {
+          await expectTextContrast({ targets: enabled })
+          await expectTextContrast({ targets: selected })
+        }
+        await expect(disabled).not.toHaveCSS('color', expectedColor)
+        await expect(disabled).toBeDisabled()
+        await expect(selected).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+        await page.mouse.move(1900, 900)
+        const normalBackground = await enabled.evaluate(
+          (el) => getComputedStyle(el).backgroundColor,
+        )
+        await enabled.hover()
+        await expect(enabled).not.toHaveCSS('background-color', normalBackground)
+        if (enhancedContrast) {
+          await expectTextContrast({ targets: enabled })
+        }
+        await page.mouse.move(0, 0)
+        await page.keyboard.press('Tab')
+        await expect(enabled).toBeFocused()
+        await expect(enabled).toBeInViewport()
+        await expect(enabled).not.toHaveCSS('outline-style', 'none')
+        await page.keyboard.press('Tab')
+        await expect(selected).toBeFocused()
+      })
+
       test('should retain the icon-only dashed frame (#19397)', async ({ page }) => {
         await renderLayoutContract({
           page,

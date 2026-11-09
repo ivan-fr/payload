@@ -103,6 +103,24 @@
     }
   }
 
+  .btn.btn--style-link {
+    color: var(--color-text-brand);
+    text-decoration: underline;
+
+    &:hover:not(.btn--disabled),
+    &.btn--selected:not(.btn--disabled) {
+      background-color: var(--color-bg-brand-tertiary);
+    }
+
+    &:active:not(.btn--disabled) {
+      background-color: var(--color-bg-brand-tertiary-hover);
+    }
+
+    &.btn--disabled {
+      color: var(--color-text-disabled);
+    }
+  }
+
   .btn--style-pill {
     color: var(--color-text);
     background-color: var(--color-bg-secondary);

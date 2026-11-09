@@ -311,3 +311,7 @@ On `fix/payload-six-issues-20261108`, based on merged `main` at `3a9b73836f58391
 The same branch adds #18331 (unreadable field hooks), #18332 (per-target polymorphic join access), #16659 (repeated list-column URL encoding), #15686 (numeric relationship titles), #19017 (large Stripe carts) and #19055 (cart digests and transaction shipping addresses). See [batch-30.md](batch-30.md) for regressions, compatibility, schema-migration implications and evidence limits.
 
 This brings the branch to **12 scoped reports** and the fork inventory to **180 scoped fixes**: 158 historical and 22 later reports. SQLite integration, complete unit checks, affected package types and targeted quality checks are recorded in the report. No new PR is opened by this batch.
+
+## Batch 31 — scheduling and Admin state
+
+[Batch 31](./batch-31.md) adds six scoped fixes on `fix/payload-six-issues-20261108`: #19448, #17779, #17684, #17833, #17639 and #19396. Validation includes 4,680 passing unit tests, 7 component contracts, 28 layout CSS browser contracts and 2 real SQLite integration cases, plus package TypeScript, lint, formatting and local SonarJS checks. Full Admin/AT verification and SonarCloud remain outside this batch's evidence. The fork now has 186 scoped fixes (162 historical plus 24 later reports); this branch contains 18 reports. No PR was created.
