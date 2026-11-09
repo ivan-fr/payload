@@ -303,3 +303,30 @@ The `import` function provides data extracted from the MDX. It takes the followi
 | `props`    | object | These are the props passed to the block, parsed from the opening tag into an object. |
 
 The returning object is equal to the block field data.
+
+## Customizing link Markdown
+
+`PAYLOAD_LINK`, `createPayloadLinkTransformer` and the `CreatePayloadLinkTransformerArgs` type are exported from `@payloadcms/richtext-lexical` and `@payloadcms/richtext-lexical/client`. Use the client entry point in browser code. The factory accepts an `internalDocToHref` callback to resolve internal document references when exporting Markdown. The transformer also handles Payload's custom link fields and URL sanitization, so Lexical's generic link transformer does not replace it.
+
+For example, in a Lexical editor-state read:
+
+```ts
+import { createPayloadLinkTransformer } from '@payloadcms/richtext-lexical'
+import { $convertToMarkdownString } from '@payloadcms/richtext-lexical/lexical/markdown'
+
+const linkTransformer = createPayloadLinkTransformer({
+  internalDocToHref: ({ linkNode }) => {
+    const doc = linkNode.fields.doc
+    const id =
+      doc && doc.value !== null && typeof doc.value === 'object'
+        ? doc.value.id
+        : doc?.value
+    return id == null ? '' : `/documents/${encodeURIComponent(String(id))}`
+  },
+})
+
+// Run inside editor.getEditorState().read(...).
+const markdown = $convertToMarkdownString([linkTransformer])
+```
+
+This example installs only the link transformer. Combine it with the other transformers your editor needs. Resolve URLs according to your application's routes and the referenced collection.

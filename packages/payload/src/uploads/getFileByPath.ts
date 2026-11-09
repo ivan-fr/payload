@@ -1,8 +1,9 @@
-import { fileTypeFromFile } from 'file-type'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import type { PayloadRequest } from '../types/index.js'
+
+import { detectFileTypeFromFile } from './detectFileTypeFromFile.js'
 
 const mimeTypeEstimate: Record<string, string> = {
   svg: 'image/svg+xml',
@@ -19,7 +20,7 @@ export const getFileByPath = async (filePath: string): Promise<PayloadRequest['f
   const [data, stat, type] = await Promise.all([
     fs.readFile(filePath),
     fs.stat(filePath),
-    fileTypeFromFile(filePath),
+    detectFileTypeFromFile({ path: filePath }),
   ])
 
   return {

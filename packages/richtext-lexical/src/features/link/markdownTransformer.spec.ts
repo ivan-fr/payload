@@ -6,7 +6,7 @@ import { $convertToMarkdownString } from '@lexical/markdown'
 import { AutoLinkNode } from './nodes/AutoLinkNode.js'
 import { $createLinkNode, LinkNode } from './nodes/LinkNode.js'
 import type { SerializedLinkNode } from './server/schema.js'
-import { PAYLOAD_LINK, createPayloadLinkTransformer } from './markdownTransformer.js'
+import { PAYLOAD_LINK, createPayloadLinkTransformer } from '../../index.js'
 
 function createEditor() {
   return createHeadlessEditor({ nodes: [LinkNode, AutoLinkNode] })

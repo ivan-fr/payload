@@ -1,4 +1,4 @@
-import { fileTypeFromBuffer, fileTypeFromFile } from 'file-type'
+import { fileTypeFromBuffer } from 'file-type'
 import fs from 'node:fs/promises'
 
 import type { checkFileRestrictionsParams, FileAllowList } from './types.js'
@@ -6,6 +6,7 @@ import type { checkFileRestrictionsParams, FileAllowList } from './types.js'
 import { ValidationError } from '../errors/index.js'
 import { validateMimeType } from '../utilities/validateMimeType.js'
 import { validatePDF } from '../utilities/validatePDF.js'
+import { detectFileTypeFromFile } from './detectFileTypeFromFile.js'
 import { getFileTypeFallback } from './getFileTypeFallback.js'
 import {
   getFileExtension,
@@ -117,7 +118,7 @@ export const checkFileRestrictions = async ({
     return
   }
 
-  // For temp files, use fileTypeFromFile so large files (e.g. video) are never loaded into memory
+  // For temp files, use a file tokenizer so large files (e.g. video) are never loaded into memory
   // just for detection. Content validation streams SVG/XML temp files and only loads a full
   // temp-file buffer for PDF integrity checks.
   const { tempFilePath } = file
@@ -155,7 +156,7 @@ export const checkFileRestrictions = async ({
   try {
     detected =
       isTempFile && tempFilePath
-        ? await fileTypeFromFile(tempFilePath)
+        ? await detectFileTypeFromFile({ path: tempFilePath })
         : await fileTypeFromBuffer(file.data)
   } catch {
     if (configMimeTypes.length > 0) {

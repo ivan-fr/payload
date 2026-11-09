@@ -310,3 +310,27 @@ This is an easy oversight, so be mindful of any environment-specific logic in yo
 - Manually update your migration file after it is generated to include any environment-specific configurations.
 - Temporarily enable any required production environment variables in your local setup when generating the migration to capture the necessary updates.
 - Use separate migration files for each environment to ensure the correct migration is executed in the corresponding environment.
+
+## Renaming relationship fields
+
+For SQL adapters, some relationship data is stored in rows of a shared `_rels` table, rather than in a column named after the field. This includes `hasMany` and polymorphic relationships. Each row has a `path` identifying the field that owns it.
+
+Renaming such a field changes the path Payload reads and writes. It may leave the SQL schema unchanged, so automatic schema diffing cannot infer a data migration for those existing path values. Review the generated migration and add the path update yourself. A generated column rename for a different kind of field does not migrate these relationship rows.
+
+For example, suppose a versioned `reports` collection has a top-level `owners` relationship with `hasMany: true`. After changing its name to `owners2`, a data migration for the default table names can include:
+
+```sql
+UPDATE "reports_rels" SET "path" = 'owners2' WHERE "path" = 'owners';
+UPDATE "_reports_v_rels" SET "path" = 'version.owners2' WHERE "path" = 'version.owners';
+```
+
+Run the statements through your normal migration workflow and transaction handling. The second statement applies only when the versions relationship table exists. Check the actual table names and stored paths first: custom `dbName`/table suffixes and nested groups, arrays or blocks change them. An array path can contain a row index, such as `items.0.owners`; an equality update for the top-level path does not migrate nested paths. Avoid unrestricted text replacement that could rename unrelated fields.
+
+To reverse the example migration before reverting the field configuration:
+
+```sql
+UPDATE "reports_rels" SET "path" = 'owners' WHERE "path" = 'owners2';
+UPDATE "_reports_v_rels" SET "path" = 'version.owners' WHERE "path" = 'version.owners2';
+```
+
+These updates preserve the referenced IDs, parent IDs, locale and ordering values. Test against a copy of your data, check that both current documents and versions retain their relationships, and keep a backup before deploying. Do not use these SQL statements for MongoDB; its document-key renames require a MongoDB data migration. Single relationships stored in their own foreign-key column must instead follow the generated column migration.

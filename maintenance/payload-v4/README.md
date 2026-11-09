@@ -319,3 +319,7 @@ This brings the branch to **12 scoped reports** and the fork inventory to **180 
 ## Batch 32 — query limits, cascade failures and Admin feedback
 
 [Batch 32](./batch-32.md) adds #18162, #18837, #16308, #17493, #17457 and #16952 on `fix/payload-six-issues-20261108`. Validation: 4,706 passing unit tests, 15 component cases, 3 transactional SQLite integration cases, package TypeScript, lint/formatting and local helper SonarJS checks. Collapsible preference persistence remains enabled by default; `admin.persistCollapsedState: false` enables the requested reset-on-mount behavior. The fork now has 192 scoped fixes (168 historical plus 24 later reports), including 24 reports on this branch. Full Admin/AT verification, live D1 and SonarCloud are not claimed. No PR was created.
+
+## Batch 33 — standalone uploads, list state and public Markdown API
+
+[Batch 33](./batch-33.md) addresses #17667, #17778, #13851, #13694, #18588 and #16955: five code fixes and a tested relationship-rename migration guide. Validation includes 4,711 passing unit tests, 29 component cases, 2 SQLite/REST integration cases, package TypeScript, lint/formatting, a Next file-trace regression and local SonarJS checks. The fork now tracks 198 scoped fixes (174 historical plus 24 later reports), including 30 on this branch. Full standalone deployment, full Admin/AT verification and SonarCloud are not claimed. No PR was created.

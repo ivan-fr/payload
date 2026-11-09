@@ -2,6 +2,7 @@
 import type { LabelFunction, OptionObject, StaticDescription, StaticLabel } from 'payload'
 
 import { getTranslation } from '@payloadcms/translations'
+import { dequal } from 'dequal/lite'
 import React from 'react'
 
 import type { ReactSelectAdapterProps } from '../../elements/ReactSelect/types.js'
@@ -107,6 +108,24 @@ export const SelectInput: React.FC<SelectInputProps> = (props) => {
     valueToRender = null
   }
 
+  const onSelectChange = React.useCallback<NonNullable<ReactSelectAdapterProps['onChange']>>(
+    (...args) => {
+      const [selected] = args
+      const incomingValue = hasMany
+        ? Array.isArray(selected)
+          ? selected.map((option) => option.value)
+          : []
+        : selected && !Array.isArray(selected)
+          ? selected.value
+          : undefined
+      const currentValue = hasMany ? (value ?? []) : (value ?? undefined)
+      if (!dequal(incomingValue, currentValue)) {
+        onChange?.(...args)
+      }
+    },
+    [hasMany, onChange, value],
+  )
+
   return (
     <div
       className={[
@@ -154,7 +173,7 @@ export const SelectInput: React.FC<SelectInputProps> = (props) => {
           isClearable={isClearable}
           isMulti={hasMany}
           isSortable={isSortable}
-          onChange={onChange}
+          onChange={onSelectChange}
           onInputChange={onInputChange}
           options={options.map((option) => ({
             ...option,
