@@ -76,8 +76,11 @@
       "url": "https://github.com/payloadcms/payload/issues/10125",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 36
     },
     {
       "number": 10250,
@@ -85,8 +88,11 @@
       "url": "https://github.com/payloadcms/payload/issues/10250",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 36
     },
     {
       "number": 10589,
@@ -103,8 +109,11 @@
       "url": "https://github.com/payloadcms/payload/issues/10605",
       "labels": ["status: needs-triage"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 36
     },
     {
       "number": 10790,
@@ -265,8 +274,11 @@
       "url": "https://github.com/payloadcms/payload/issues/11871",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 36
     },
     {
       "number": 11969,
@@ -2833,8 +2845,11 @@
       "url": "https://github.com/payloadcms/payload/issues/17119",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 36
     },
     {
       "number": 17133,
@@ -2985,8 +3000,11 @@
       "url": "https://github.com/payloadcms/payload/issues/17262",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 36
     },
     {
       "number": 17293,
@@ -5872,5 +5890,5 @@
       "fix_batch": 35
     }
   ],
-  "branch_fix_count": 210
+  "branch_fix_count": 216
 }

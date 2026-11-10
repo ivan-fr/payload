@@ -11,6 +11,8 @@ import {
   serverExternalPackages as serverExternalPayloadPackages,
 } from 'payload/build-config'
 
+import { warnIfUnsupportedNextVersion } from './warnIfUnsupportedNextVersion.js'
+
 const poweredByHeader = {
   key: 'X-Powered-By',
   value: 'Next.js, Payload',
@@ -23,6 +25,7 @@ const poweredByHeader = {
  * @param {boolean} [options.devBundleServerPackages] - Whether to bundle server packages in development mode. @default false
  * */
 export const withPayload = (nextConfig = {}, options = {}) => {
+  warnIfUnsupportedNextVersion()
   const env = { ...nextConfig.env }
   const clientHintSource = options.clientHintHeaders ?? '/:path*'
   const themeHintHeaders = [

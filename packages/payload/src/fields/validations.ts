@@ -368,7 +368,7 @@ export const checkbox: CheckboxFieldValidation = (value, { req: { t }, required 
   return true
 }
 
-export type DateFieldValidation = Validate<Date, unknown, unknown, DateField>
+export type DateFieldValidation = Validate<string, unknown, unknown, DateField>
 
 export const date: DateFieldValidation = (
   value,

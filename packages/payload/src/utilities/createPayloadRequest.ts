@@ -8,8 +8,11 @@ import { isolateObjectProperty } from './isolateObjectProperty.js'
 
 function getRequestContext(
   req: Partial<PayloadRequest> = { context: null } as unknown as PayloadRequest,
-  context: RequestContext = {},
+  context?: RequestContext,
 ): RequestContext {
+  if (context === undefined) {
+    return req.context ?? {}
+  }
   if (req.context) {
     if (Object.keys(req.context).length === 0 && req.context.constructor === Object) {
       // if req.context is `{}` avoid unnecessary spread
@@ -99,6 +102,30 @@ export type CreatePayloadRequestArgs = {
 
 type CreatePayloadRequest = (args: CreatePayloadRequestArgs) => Promise<PayloadRequest>
 
+function hasRequestScopeOverride({
+  context,
+  depth,
+  fallbackLocale,
+  locale,
+  req,
+}: Pick<
+  CreatePayloadRequestArgs,
+  'context' | 'depth' | 'fallbackLocale' | 'locale' | 'req'
+>): boolean {
+  if (!req) {
+    return false
+  }
+
+  const requestedLocale = locale === '*' ? 'all' : locale
+
+  return (
+    context !== undefined ||
+    (locale !== undefined && requestedLocale !== req.locale) ||
+    (fallbackLocale !== undefined && fallbackLocale !== req.fallbackLocale) ||
+    (depth !== undefined && depth !== req.query?.depth)
+  )
+}
+
 export const createPayloadRequest: CreatePayloadRequest = async ({
   context,
   depth,
@@ -110,15 +137,22 @@ export const createPayloadRequest: CreatePayloadRequest = async ({
   user,
 }): Promise<PayloadRequest> => {
   let req = incomingReq || {}
-  const requestedLocale = localeArg === '*' ? 'all' : localeArg
-  const shouldIsolateScope =
-    Boolean(incomingReq) &&
-    ((localeArg !== undefined && requestedLocale !== req.locale) ||
-      (fallbackLocale !== undefined && fallbackLocale !== req.fallbackLocale) ||
-      (depth !== undefined && depth !== req.query?.depth))
+  const shouldIsolateScope = hasRequestScopeOverride({
+    context,
+    depth,
+    fallbackLocale,
+    locale: localeArg,
+    req: incomingReq,
+  })
 
   if (shouldIsolateScope) {
-    req = isolateObjectProperty(req, ['locale', 'fallbackLocale', 'query', 'payloadDataLoader'])
+    req = isolateObjectProperty(req, [
+      'context',
+      'locale',
+      'fallbackLocale',
+      'query',
+      'payloadDataLoader',
+    ])
     req.query = isolateObjectProperty(req.query || {}, 'depth')
   }
 
