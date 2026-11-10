@@ -335,3 +335,7 @@ This brings the branch to **12 scoped reports** and the fork inventory to **180 
 ## Batch 36 — context isolation, callback defaults and developer utilities
 
 [Batch 36](./batch-36.md) adds #10250, #11871, #10605, #17119, #10125 and #17262 to `fix/payload-six-issues-20261110`: three bug fixes, a Next.js peer-version warning, a public multipart parser and PostGIS documentation. Validation includes 4,749 passing unit tests, 27 integration executions, date-validator type assertions, affected package declarations, actual documentation snippets, a published-layout CommonJS smoke, lint/formatting and scoped local SonarJS checks. The report records native-service and offline installation limits. The fork inventory reaches 216 scoped fixes (187 historical and 29 later reports), with 18 reports on this branch. No PR is created.
+
+## Batch 37 — hierarchy intent, JSON refs, metadata and project scaffolding
+
+[Batch 37](./batch-37.md) adds #17223, #11383, #11580, #12764, #16054 and #14682: five code/configuration fixes and a verification API documentation correction. Validation includes 4,775 passing unit tests, 31 integration executions, affected package types, an actual generated-project regression, lint/formatting and scoped local SonarJS. Production browser/AT, native database and Docker limits are recorded. The fork inventory reaches 222 scoped fixes (193 historical plus 29 later reports). The requested PR covers all 24 reports on `fix/payload-six-issues-20261110`.

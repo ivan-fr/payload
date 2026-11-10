@@ -385,6 +385,7 @@ export const findByIDOperation = async <
           collection: collectionConfig,
           context: req.context,
           doc: result,
+          draft: replaceWithVersion,
           overrideAccess,
           query,
           req,

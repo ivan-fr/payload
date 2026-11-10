@@ -259,6 +259,8 @@ export type AfterReadHook<T extends TypeWithID = any> = (args: {
   collection: SanitizedCollectionConfig
   context: RequestContext
   doc: T
+  /** Draft intent of the find or findByID operation, independent of document status. */
+  draft?: boolean
   findMany?: boolean
   /**
    * Whether access control is being overridden for this operation
