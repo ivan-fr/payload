@@ -1567,8 +1567,11 @@
       "url": "https://github.com/payloadcms/payload/issues/15784",
       "labels": ["created-by: Contributor", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 35
     },
     {
       "number": 15825,
@@ -1659,8 +1662,11 @@
       "url": "https://github.com/payloadcms/payload/issues/15959",
       "labels": ["area: core"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 35
     },
     {
       "number": 15962,
@@ -2116,8 +2122,11 @@
       "url": "https://github.com/payloadcms/payload/issues/16318",
       "labels": ["stale"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 35
     },
     {
       "number": 16325,
@@ -2524,8 +2533,11 @@
       "url": "https://github.com/payloadcms/payload/issues/16718",
       "labels": ["status: needs-triage", "stale", "area: core", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 35
     },
     {
       "number": 16727,
@@ -2551,8 +2563,11 @@
       "url": "https://github.com/payloadcms/payload/issues/16730",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 35
     },
     {
       "number": 16734,
@@ -5841,7 +5856,21 @@
       "upstream_state_last_checked": "open",
       "last_checked_date": "2026-11-10",
       "fix_batch": 34
+    },
+    {
+      "number": 19401,
+      "title": "[v4] json field: the migration guide's `jsonSchema` transform example fails typecheck and runs the json validator against `fetch(undefined)`",
+      "url": "https://github.com/payloadcms/payload/issues/19401",
+      "labels": ["status: needs-triage", "created-by: Contributor", "area: core", "Bug", "v3"],
+      "created_at": "2026-11-06T15:49:49Z",
+      "added_date": "2026-11-10",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 35
     }
   ],
-  "branch_fix_count": 204
+  "branch_fix_count": 210
 }

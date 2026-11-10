@@ -327,3 +327,7 @@ This brings the branch to **12 scoped reports** and the fork inventory to **180 
 ## Batch 34 — localized preview, block joins, version ties and CSV completeness
 
 [Batch 34](./batch-34.md) starts `fix/payload-six-issues-20261110` from merged fork `main` at `8d033ff6ee075bed5c6a3243943b097760bde216`. It addresses #19481, #19479, #19459, #17406, #19451 and #19140. Validation includes six reproduced baseline failures, 4,714 passing unit tests, seven integration cases on each of numeric SQLite, UUID SQLite and the PostgreSQL adapter through PGlite, plus affected package types. The report records CSV buffering and version-concurrency evidence limits. The inventory now has 204 scoped fixes (176 historical plus 28 later reports). No PR is created.
+
+## Batch 35 — hook dependencies, restoration and optional pricing/retry controls
+
+[Batch 35](./batch-35.md) adds #15959, #16718, #19401, #16318, #15784 and #16730 to `fix/payload-six-issues-20261110`: three bug fixes, optional retry jitter and Stripe amount resolution, and an executed draft-backfill guide. Validation includes 4,731 passing unit tests, eight integration cases on each of numeric SQLite, UUID SQLite and PostgreSQL through PGlite, core/ecommerce/UI types, the actual documentation example's types, lint/formatting and scoped local SonarJS rules. The report records publication/access behavior and live-service limits. The fork inventory reaches 210 scoped fixes (181 historical and 29 later reports), with 12 reports on this branch. No PR is created.

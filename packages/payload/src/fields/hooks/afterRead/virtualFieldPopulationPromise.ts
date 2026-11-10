@@ -3,6 +3,7 @@ import type { PayloadRequest } from '../../../types/index.js'
 import type { FlattenedField } from '../../config/types.js'
 
 import { createDataloaderCacheKey } from '../../../collections/dataloader.js'
+import { getHookDataSelect } from './getHookDataSelect.js'
 
 export const virtualFieldPopulationPromise = async ({
   name,
@@ -89,10 +90,19 @@ export const virtualFieldPopulationPromise = async ({
   ) {
     const select = {}
     let currentSelectRef: any = select
-    const currentFields = req.payload.collections[currentField.relationTo]?.config.flattenedFields
+    const relatedConfig = req.payload.collections[currentField.relationTo]?.config
+    const currentFields = relatedConfig?.flattenedFields
+    let fieldsToInspect = currentFields
+    let hasReadHooks = Boolean(
+      relatedConfig?.hooks?.afterRead?.length || relatedConfig?.hooks?.beforeRead?.length,
+    )
 
     for (let i = 0; i < segments.length; i++) {
-      const field = currentFields?.find((each) => each.name === segments[i])
+      const field = fieldsToInspect?.find((each) => each.name === segments[i])
+      hasReadHooks ||= Boolean(field && 'hooks' in field && field.hooks?.afterRead?.length)
+      if (field && 'flattenedFields' in field) {
+        fieldsToInspect = field.flattenedFields
+      }
 
       const shouldBreak =
         i === segments.length - 1 || field?.type === 'relationship' || field?.type === 'upload'
@@ -104,6 +114,15 @@ export const virtualFieldPopulationPromise = async ({
         break
       }
     }
+
+    const populationSelect =
+      hasReadHooks && currentFields
+        ? getHookDataSelect({
+            blocks: req.payload.blocks,
+            fields: currentFields,
+            targetPath: segments,
+          })
+        : select
 
     if (currentField.hasMany) {
       if (!Array.isArray(currentValue)) {
@@ -141,7 +160,7 @@ export const virtualFieldPopulationPromise = async ({
               fallbackLocale,
               locale,
               overrideAccess,
-              select,
+              select: populationSelect,
               showHiddenFields,
               transactionID: req.transactionID as number,
             }),
@@ -200,7 +219,7 @@ export const virtualFieldPopulationPromise = async ({
         fallbackLocale,
         locale,
         overrideAccess,
-        select,
+        select: populationSelect,
         showHiddenFields,
         transactionID: req.transactionID as number,
       }),

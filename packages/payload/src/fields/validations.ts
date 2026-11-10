@@ -352,7 +352,7 @@ export const json: JSONFieldValidation = async (
     return t('validation:invalidInput')
   }
 
-  if (jsonSchema && isNotEmpty(value)) {
+  if (jsonSchema && !Array.isArray(jsonSchema) && isNotEmpty(value)) {
     return validateJSONSchema({ jsonSchema, value })
   }
   return true

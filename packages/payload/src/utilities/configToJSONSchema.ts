@@ -652,7 +652,7 @@ export function fieldsToJSONSchema({
           }
 
           case 'json': {
-            fieldSchema = field.jsonSchema?.schema || {
+            fieldSchema = (!Array.isArray(field.jsonSchema) && field.jsonSchema?.schema) || {
               ...baseFieldSchema,
               type: ['object', 'array', 'string', 'number', 'boolean', 'null'],
             }
@@ -935,8 +935,14 @@ export function fieldsToJSONSchema({
           }
         }
 
-        if ('jsonSchema' in field && Array.isArray(field.jsonSchema)) {
-          for (const schema of field.jsonSchema) {
+        let schemaTransforms = Array.isArray(field.jsonSchema) ? field.jsonSchema : undefined
+
+        if (field.type === 'json' && !Array.isArray(field.jsonSchema)) {
+          schemaTransforms = field.jsonSchema?.transforms
+        }
+
+        if (schemaTransforms) {
+          for (const schema of schemaTransforms) {
             fieldSchema = schema({ jsonSchema: fieldSchema!, variant })
           }
         }
