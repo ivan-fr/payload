@@ -18,6 +18,7 @@ import { useLocale } from '../../providers/Locale/index.js'
 import { useOperation } from '../../providers/Operation/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { useUploadEdits } from '../../providers/UploadEdits/index.js'
+import { getFallbackLocaleQuery } from '../../utilities/getFallbackLocaleQuery.js'
 import { traverseForLocalizedFields } from '../../utilities/traverseForLocalizedFields.js'
 import { PopupList } from '../Popup/index.js'
 import { FieldErrorsToast } from '../Toasts/fieldErrors.js'
@@ -106,7 +107,7 @@ export function PublishButton({
       {
         depth: 0,
         draft: true,
-        'fallback-locale': 'null',
+        'fallback-locale': getFallbackLocaleQuery({ localization }),
         locale: localeCode,
         uploadEdits: uploadEdits || undefined,
       },
@@ -141,7 +142,7 @@ export function PublishButton({
       },
       skipValidation: true,
     })
-  }, [disabled, localeCode, collectionSlug, globalSlug, submit, api, id, uploadEdits])
+  }, [disabled, localeCode, collectionSlug, globalSlug, submit, api, id, uploadEdits, localization])
 
   useHotkey({ cmdCtrlKey: true, editDepth, keyCodes: ['s'] }, (e) => {
     e.preventDefault()

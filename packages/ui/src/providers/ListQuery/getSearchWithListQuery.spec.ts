@@ -59,3 +59,27 @@ describe('getSearchWithListQuery', () => {
     )
   })
 })
+
+it('should keep already serialized columns stable across back navigation, sort and refresh (#16659)', () => {
+  let currentSearch = '?columns=%5B%22title%22%2C%22updatedAt%22%5D'
+  for (let refresh = 0; refresh < 10; refresh++) {
+    const columns = new URLSearchParams(currentSearch).get('columns')
+    currentSearch = getSearchWithListQuery({
+      currentSearch,
+      query: { columns, sort: 'title' } as never,
+    })
+    expect(new URLSearchParams(currentSearch).get('columns')).toBe('["title","updatedAt"]')
+  }
+})
+
+it('should recover previously nested JSON and keep grouped query state stable (#16659)', () => {
+  let columns = JSON.stringify(['title'])
+  for (let count = 0; count < 4; count++) columns = JSON.stringify(columns)
+  const search = getSearchWithListQuery({
+    currentSearch: '?locale=fr',
+    query: { columns, queryByGroup: JSON.stringify({ category: { page: 2 } }) } as never,
+  })
+  expect(new URLSearchParams(search).get('columns')).toBe('["title"]')
+  expect(new URLSearchParams(search).get('queryByGroup')).toBe('{"category":{"page":2}}')
+  expect(new URLSearchParams(search).get('locale')).toBe('fr')
+})

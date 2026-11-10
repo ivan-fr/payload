@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+
 type RecordValue = Record<string, unknown>
 
 type SettlementPaymentIntent = {
@@ -24,7 +26,7 @@ type SettlementTransaction = {
 
 type SettlementValidationArgs = {
   canonicalCartID: unknown
-  cartItemsSnapshot: unknown
+  cartItemsSnapshot?: unknown
   customerEmail: unknown
   paymentIntent: SettlementPaymentIntent
   paymentIntentID: string
@@ -132,6 +134,42 @@ export const validateSettlement = ({
     throw new Error('Canonical cart does not match the PaymentIntent cart')
   }
 
+  validatePurchaser({ customerEmail, transaction, user })
+
+  const stripeCustomerID = getNestedString(transaction, 'stripe', 'customerID')
+
+  if (!stripeCustomerID || stripeCustomerID !== getRelationshipID(paymentIntent.customer)) {
+    throw new Error('Stripe customer does not match the transaction')
+  }
+
+  if (paymentIntent.amount !== transaction.amount) {
+    throw new Error('Stripe amount does not match the transaction amount')
+  }
+
+  if (
+    typeof paymentIntent.currency !== 'string' ||
+    typeof transaction.currency !== 'string' ||
+    paymentIntent.currency.toUpperCase() !== transaction.currency
+  ) {
+    throw new Error('Stripe currency does not match the transaction currency')
+  }
+
+  validateCartItems({
+    cartItemsHash: metadata?.cartItemsHash,
+    cartItemsSnapshot,
+    items: transaction.items,
+  })
+
+  if (paymentIntent.status !== 'succeeded') {
+    throw new Error('Payment not completed.')
+  }
+}
+
+const validatePurchaser = ({
+  customerEmail,
+  transaction,
+  user,
+}: Pick<SettlementValidationArgs, 'customerEmail' | 'transaction' | 'user'>): void => {
   const transactionCustomerID = getRelationshipID(transaction.customer)
 
   if (user !== null && user !== undefined) {
@@ -158,34 +196,36 @@ export const validateSettlement = ({
       throw new Error('Guest email does not match the transaction email')
     }
   }
+}
 
-  const stripeCustomerID = getNestedString(transaction, 'stripe', 'customerID')
+/** Fixed-size metadata binds normalized persisted items to the cart priced at initiation. */
+export const getCartItemsHash = ({ items }: { items: unknown }): string =>
+  createHash('sha256')
+    .update(stableSerialize(normalizeCartItems(items)))
+    .digest('hex')
 
-  if (!stripeCustomerID || stripeCustomerID !== getRelationshipID(paymentIntent.customer)) {
-    throw new Error('Stripe customer does not match the transaction')
+const validateCartItems = ({
+  cartItemsHash,
+  cartItemsSnapshot,
+  items,
+}: {
+  cartItemsHash: unknown
+  cartItemsSnapshot: unknown
+  items: unknown
+}): void => {
+  const normalizedItems = normalizeCartItems(items)
+  if (cartItemsHash !== undefined) {
+    if (typeof cartItemsHash !== 'string' || cartItemsHash !== getCartItemsHash({ items })) {
+      throw new Error('Stripe cart items do not match the transaction items')
+    }
+    return
   }
-
-  if (paymentIntent.amount !== transaction.amount) {
-    throw new Error('Stripe amount does not match the transaction amount')
-  }
-
+  // Old intents may carry a snapshot; releases between the snapshot and digest formats do not.
   if (
-    typeof paymentIntent.currency !== 'string' ||
-    typeof transaction.currency !== 'string' ||
-    paymentIntent.currency.toUpperCase() !== transaction.currency
+    cartItemsSnapshot !== undefined &&
+    stableSerialize(normalizeCartItems(cartItemsSnapshot)) !== stableSerialize(normalizedItems)
   ) {
-    throw new Error('Stripe currency does not match the transaction currency')
-  }
-
-  const normalizedSnapshot = normalizeCartItems(cartItemsSnapshot)
-  const normalizedTransactionItems = normalizeCartItems(transaction.items)
-
-  if (stableSerialize(normalizedSnapshot) !== stableSerialize(normalizedTransactionItems)) {
     throw new Error('Stripe cart items do not match the transaction items')
-  }
-
-  if (paymentIntent.status !== 'succeeded') {
-    throw new Error('Payment not completed.')
   }
 }
 

@@ -43,6 +43,7 @@ export const TenantSelectionProvider = async ({
     userHasAccessToAllTenants,
   })
 
+  const canAccessAllTenants = Boolean(user && userHasAccessToAllTenants(user))
   const cookies = await server.getCookies()
   const tenantCookie = cookies.get('payload-tenant')?.value
   let initialValue = undefined
@@ -60,12 +61,14 @@ export const TenantSelectionProvider = async ({
   /**
    * If the there was no cookie or the cookie was an invalid tenantID set intialValue
    */
-  if (!initialValue) {
+  if (initialValue === undefined && !canAccessAllTenants) {
     initialValue = tenantOptions.length > 1 ? undefined : tenantOptions[0]?.value
   }
 
   return (
     <TenantSelectionProviderClient
+      canAccessAllTenants={canAccessAllTenants}
+      hasValidatedTenantOptions={Boolean(user)}
       initialTenantOptions={tenantOptions}
       initialValue={initialValue}
       tenantsCollectionSlug={tenantsCollectionSlug}

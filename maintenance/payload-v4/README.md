@@ -299,3 +299,27 @@ The current inventory contains **134 scoped fixes + 431 unassessed** in the orig
 ## PR #7 review follow-up
 
 [The review follow-up](pr-7-review.md) records the CI failures on `af08312`: upload request proxies lost file rollback ownership, cloud metadata tests assumed request object identity, and grouping excluded relationship-backed virtual scalar paths. The corrective changes retain file isolation while sharing cleanup ownership and restore eligible virtual options. This review adds no upstream issue to the count.
+
+## Batch 29: six shared admin layout regressions
+
+On `fix/payload-six-issues-20261108`, based on merged `main` at `3a9b73836f5839143cad367a4b273c0e33e2e22b`: six more official reports checked open on 2026-11-08. Fixes cover empty document-control spacing (#19395), icon-only dashed button borders (#19397), drawer viewport scrolling (#19403), order-independent inactive tab colors (#19406), wide custom file previews (#19412), and adjacent collapsible-group separators (#19413).
+
+[Batch 29 scope, reproduction and accessibility evidence](batch-29.md): all 12 initial native-browser CSS contracts failed before correction; the final 24 pass in light/dark, ordinary/enhanced-contrast modes. These isolate production CSS cascade and geometry from the full Admin app; live Admin integration and assistive-technology verification remain separate. Inventory: 152 historical + 22 later scoped fixes = **174 scoped fork fixes**. No new PR is opened by this batch.
+
+## Batch 30: six additional access, query and checkout reports
+
+The same branch adds #18331 (unreadable field hooks), #18332 (per-target polymorphic join access), #16659 (repeated list-column URL encoding), #15686 (numeric relationship titles), #19017 (large Stripe carts) and #19055 (cart digests and transaction shipping addresses). See [batch-30.md](batch-30.md) for regressions, compatibility, schema-migration implications and evidence limits.
+
+This brings the branch to **12 scoped reports** and the fork inventory to **180 scoped fixes**: 158 historical and 22 later reports. SQLite integration, complete unit checks, affected package types and targeted quality checks are recorded in the report. No new PR is opened by this batch.
+
+## Batch 31 — scheduling and Admin state
+
+[Batch 31](./batch-31.md) adds six scoped fixes on `fix/payload-six-issues-20261108`: #19448, #17779, #17684, #17833, #17639 and #19396. Validation includes 4,680 passing unit tests, 7 component contracts, 28 layout CSS browser contracts and 2 real SQLite integration cases, plus package TypeScript, lint, formatting and local SonarJS checks. Full Admin/AT verification and SonarCloud remain outside this batch's evidence. The fork now has 186 scoped fixes (162 historical plus 24 later reports); this branch contains 18 reports. No PR was created.
+
+## Batch 32 — query limits, cascade failures and Admin feedback
+
+[Batch 32](./batch-32.md) adds #18162, #18837, #16308, #17493, #17457 and #16952 on `fix/payload-six-issues-20261108`. Validation: 4,706 passing unit tests, 15 component cases, 3 transactional SQLite integration cases, package TypeScript, lint/formatting and local helper SonarJS checks. Collapsible preference persistence remains enabled by default; `admin.persistCollapsedState: false` enables the requested reset-on-mount behavior. The fork now has 192 scoped fixes (168 historical plus 24 later reports), including 24 reports on this branch. Full Admin/AT verification, live D1 and SonarCloud are not claimed. No PR was created.
+
+## Batch 33 — standalone uploads, list state and public Markdown API
+
+[Batch 33](./batch-33.md) addresses #17667, #17778, #13851, #13694, #18588 and #16955: five code fixes and a tested relationship-rename migration guide. Validation includes 4,711 passing unit tests, 29 component cases, 2 SQLite/REST integration cases, package TypeScript, lint/formatting, a Next file-trace regression and local SonarJS checks. The fork now tracks 198 scoped fixes (174 historical plus 24 later reports), including 30 on this branch. Full standalone deployment, full Admin/AT verification and SonarCloud are not claimed. No PR was created.

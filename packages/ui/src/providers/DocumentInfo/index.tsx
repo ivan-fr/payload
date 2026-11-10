@@ -10,6 +10,7 @@ import type { DocumentInfoContext, DocumentInfoProps } from './types.js'
 import { useControllableState } from '../../hooks/useControllableState.js'
 import { useAuth } from '../../providers/Auth/index.js'
 import { requests } from '../../utilities/api.js'
+import { getFallbackLocaleQuery } from '../../utilities/getFallbackLocaleQuery.js'
 import { useConfig } from '../Config/index.js'
 import { DocumentTitleProvider } from '../DocumentTitle/index.js'
 import { useLocale, useLocaleLoading } from '../Locale/index.js'
@@ -63,6 +64,7 @@ const DocumentInfo: React.FC<
     config: {
       admin: { dateFormat },
       collections,
+      localization,
       routes: { api },
     },
     getEntityConfig,
@@ -362,7 +364,7 @@ const DocumentInfo: React.FC<
       path: `${docPath}${qs.stringify(
         {
           depth: 0,
-          'fallback-locale': 'null',
+          'fallback-locale': getFallbackLocaleQuery({ localization }),
           locale,
           uploadEdits: uploadEdits || undefined,
         },
@@ -371,7 +373,7 @@ const DocumentInfo: React.FC<
         },
       )}` as `/${string}`,
     })
-  }, [api, locale, pluralType, id, slug, uploadEdits])
+  }, [api, locale, localization, pluralType, id, slug, uploadEdits])
 
   const value: DocumentInfoContext = {
     ...props,

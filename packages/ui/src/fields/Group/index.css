@@ -112,6 +112,10 @@
     padding-top: 0;
   }
 
+  .group-field--within-collapsible + .group-field--within-collapsible::before {
+    top: calc(var(--spacing-field) * -1.5);
+  }
+
   .group-field--within-row + .group-field--within-row {
     margin-top: 0;
   }

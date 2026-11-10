@@ -39,6 +39,7 @@ import { fieldBaseClass } from '../shared/index.js'
 import { createRelationMap } from './createRelationMap.js'
 import { findOptionsByValue } from './findOptionsByValue.js'
 import { getRelationshipIDsToLoad } from './getRelationshipIDsToLoad.js'
+import { getRelationshipSearchWhere } from './getRelationshipSearchWhere.js'
 import { optionsReducer } from './optionsReducer.js'
 import './index.css'
 import { MultiValueLabel } from './select-components/MultiValueLabel/index.js'
@@ -278,12 +279,13 @@ export const RelationshipInput: React.FC<RelationshipInputProps> = (props) => {
                 },
               }
 
-              if (searchArg) {
-                query.where.and.push({
-                  [fieldToSearch]: {
-                    like: searchArg,
-                  },
-                })
+              const searchWhere = getRelationshipSearchWhere({ collection, search: searchArg })
+              if (searchWhere === false) {
+                setLastFullyLoadedRelation(relations.indexOf(relation))
+                return
+              }
+              if (searchWhere) {
+                query.where.and.push(searchWhere)
               }
 
               if (relationFilterOption && typeof relationFilterOption !== 'boolean') {

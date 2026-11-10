@@ -1,4 +1,5 @@
 'use client'
+
 import type { ClientCollectionConfig, ViewTypes, Where } from 'payload'
 
 import { useModal } from '@faceless-ui/modal'
@@ -17,6 +18,7 @@ import { useRouter, useSearchParams } from '../../providers/RouterAdapter/index.
 import { SelectAllStatus, useSelection } from '../../providers/Selection/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { requests } from '../../utilities/api.js'
+import { getUniqueErrorMessages } from '../../utilities/getUniqueErrorMessages.js'
 import { parseSearchParams } from '../../utilities/parseSearchParams.js'
 import { ConfirmationModal } from '../ConfirmationModal/index.js'
 import { ListSelectionButton } from '../ListSelection/index.js'
@@ -137,7 +139,10 @@ export const RestoreMany: React.FC<Props> = (props) => {
 
       if (json?.errors?.length > 0) {
         toast.error(json.message, {
-          description: json.errors.map((e) => e.message).join('\n'),
+          description: getUniqueErrorMessages({
+            errors: json.errors,
+            fallback: t('error:unknown'),
+          }).join('\n'),
         })
       }
     } catch (err) {

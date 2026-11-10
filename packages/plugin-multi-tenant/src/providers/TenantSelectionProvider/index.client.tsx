@@ -101,16 +101,21 @@ const getTenantCookie = (args: { cookieName?: string } = {}): string | undefined
 }
 
 export const TenantSelectionProviderClient = ({
+  canAccessAllTenants: initialCanAccessAllTenants = false,
   children,
+  hasValidatedTenantOptions = true,
   initialTenantOptions,
   initialValue,
   tenantsCollectionSlug,
 }: {
+  canAccessAllTenants?: boolean
   children: React.ReactNode
+  hasValidatedTenantOptions?: boolean
   initialTenantOptions: OptionObject[]
   initialValue?: number | string
   tenantsCollectionSlug: string
 }) => {
+  const [canAccessAllTenants, setCanAccessAllTenants] = React.useState(initialCanAccessAllTenants)
   const [selectedTenantID, setSelectedTenantID] = React.useState<number | string | undefined>(
     initialValue,
   )
@@ -148,8 +153,8 @@ export const TenantSelectionProviderClient = ({
   const setTenant = React.useCallback<ContextType['setTenant']>(
     ({ id, refresh }) => {
       if (id === undefined) {
-        if (tenantOptions.length > 1 || tenantOptions.length === 0) {
-          // users with multiple tenants can clear the tenant selection
+        if (canAccessAllTenants || tenantOptions.length !== 1) {
+          // Users with all-tenant access can also clear a single-tenant selection.
           setTenantAndCookie({ id: undefined, refresh })
         } else if (tenantOptions[0]) {
           // if there is only one tenant, auto-select that tenant
@@ -166,7 +171,7 @@ export const TenantSelectionProviderClient = ({
         setTenantAndCookie({ id, refresh })
       }
     },
-    [tenantOptions, setTenantAndCookie],
+    [canAccessAllTenants, tenantOptions, setTenantAndCookie],
   )
 
   const syncTenants = React.useCallback(async () => {
@@ -184,18 +189,26 @@ export const TenantSelectionProviderClient = ({
 
       const result = await req.json()
 
-      if (result.tenantOptions && userID) {
+      if (result.tenantOptions && userID && userID === prevUserID.current) {
         setTenantOptions(result.tenantOptions)
 
-        if (result.tenantOptions.length === 1) {
-          setSelectedTenantID(result.tenantOptions[0].value)
-          setTenantCookie({ value: String(result.tenantOptions[0].value) })
-        }
+        const canAccessAll = result.canAccessAllTenants === true
+        setCanAccessAllTenants(canAccessAll)
+        const tenantCookie = getTenantCookie()
+        const matchingOption = (result.tenantOptions as OptionObject[]).find(
+          (option) => String(option.value) === tenantCookie,
+        )
+        const id =
+          matchingOption?.value ??
+          (!canAccessAll && result.tenantOptions.length === 1
+            ? result.tenantOptions[0].value
+            : undefined)
+        setTenantAndCookie({ id })
       }
     } catch (e) {
       toast.error(`Error fetching tenants`)
     }
-  }, [config.routes.api, tenantsCollectionSlug, userID])
+  }, [config.routes.api, tenantsCollectionSlug, userID, setTenantAndCookie])
 
   const updateTenants = React.useCallback<ContextType['updateTenants']>(
     ({ id, label }) => {
@@ -224,7 +237,10 @@ export const TenantSelectionProviderClient = ({
    * remounts, we sync them explicitly via this effect.
    */
   React.useEffect(() => {
-    if (initialTenantOptions.length > 0) {
+    if (hasValidatedTenantOptions) {
+      setCanAccessAllTenants(initialCanAccessAllTenants)
+    }
+    if (hasValidatedTenantOptions) {
       setTenantOptions((prev) => {
         if (
           prev.length === initialTenantOptions.length &&
@@ -235,12 +251,20 @@ export const TenantSelectionProviderClient = ({
         return initialTenantOptions
       })
 
-      if (initialTenantOptions.length === 1 && initialTenantOptions[0]) {
+      if (initialValue !== undefined) {
+        setSelectedTenantID(initialValue)
+      } else if (
+        !initialCanAccessAllTenants &&
+        initialTenantOptions.length === 1 &&
+        initialTenantOptions[0]
+      ) {
         setSelectedTenantID(initialTenantOptions[0].value)
         setTenantCookie({ value: String(initialTenantOptions[0].value) })
+      } else {
+        setSelectedTenantID(undefined)
       }
     }
-  }, [initialTenantOptions])
+  }, [hasValidatedTenantOptions, initialCanAccessAllTenants, initialTenantOptions, initialValue])
 
   React.useEffect(() => {
     const hasTenantSelectionMismatch = initialValue && String(initialValue) !== getTenantCookie()
@@ -291,6 +315,7 @@ export const TenantSelectionProviderClient = ({
    */
   React.useEffect(() => {
     if (
+      hasValidatedTenantOptions &&
       shouldRefreshTenantSelection({
         initialValue,
         tenantCookie: getTenantCookie(),
@@ -298,7 +323,7 @@ export const TenantSelectionProviderClient = ({
     ) {
       setTenant({ id: undefined, refresh: true })
     }
-  }, [initialValue, setTenant])
+  }, [hasValidatedTenantOptions, initialValue, setTenant])
 
   /**
    * If there is no selected tenant ID and the entity type is 'global', set the first tenant as selected.

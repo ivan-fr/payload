@@ -90,7 +90,7 @@ export const GroupFieldComponent: React.FC<GroupFieldClientProps> = (props) => {
                         <FieldLabel
                           as="span"
                           label={getTranslation(label, i18n)}
-                          localized={false}
+                          localized={field.localized}
                           path={path}
                           required={false}
                         />

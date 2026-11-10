@@ -234,11 +234,14 @@ export { HeadingFeature, type HeadingFeatureProps } from './features/heading/ser
 export { HorizontalRuleFeature } from './features/horizontalRule/server/index.js'
 export { IndentFeature } from './features/indent/server/index.js'
 
+export { createPayloadLinkTransformer, PAYLOAD_LINK } from './features/link/markdownTransformer.js'
+export type { CreatePayloadLinkTransformerArgs } from './features/link/markdownTransformer.js'
 export {
   $createAutoLinkNode,
   $isAutoLinkNode,
   AutoLinkNode,
 } from './features/link/nodes/AutoLinkNode.js'
+
 export { $createLinkNode, $isLinkNode, LinkNode } from './features/link/nodes/LinkNode.js'
 export { LinkFeature, type LinkFeatureServerProps } from './features/link/server/index.js'
 
@@ -246,6 +249,7 @@ export type { LinkFields } from './features/link/server/schema.js'
 export { ChecklistFeature } from './features/lists/checklist/server/index.js'
 
 export { OrderedListFeature } from './features/lists/orderedList/server/index.js'
+
 export { UnorderedListFeature } from './features/lists/unorderedList/server/index.js'
 
 export { ParagraphFeature } from './features/paragraph/server/index.js'
@@ -254,18 +258,18 @@ export {
   RelationshipFeature,
   type RelationshipFeatureProps,
 } from './features/relationship/server/index.js'
-
 export { RelationshipServerNode } from './features/relationship/server/nodes/RelationshipNode.js'
-
 export type { RelationshipData } from './features/relationship/server/schema.js'
 export { TableFeature } from './features/table/server/index.js'
+
 export { defaultColors } from './features/textState/defaultColors.js'
+
 export { TextStateFeature } from './features/textState/feature.server.js'
-
 export { FixedToolbarFeature } from './features/toolbars/fixed/server/index.js'
-
 export { InlineToolbarFeature } from './features/toolbars/inline/server/index.js'
+
 export type { ToolbarGroup, ToolbarGroupItem } from './features/toolbars/types.js'
+
 export type {
   BaseClientFeatureProps,
   ClientFeature,
@@ -301,13 +305,12 @@ export type {
   ServerFeature,
   ServerFeatureProviderMap,
 } from './features/typesServer.js'
-
 export { createNode } from './features/typeUtilities.js' // Only useful in feature.server.ts
 
 export { UploadFeature } from './features/upload/server/index.js'
 export type { UploadFeatureProps } from './features/upload/server/index.js'
-
 export { UploadServerNode } from './features/upload/server/nodes/UploadNode.js'
+
 export type { UploadData } from './features/upload/server/schema.js'
 export type { EditorConfigContextType } from './lexical/config/client/EditorConfigProvider.js'
 
@@ -317,25 +320,26 @@ export {
   defaultEditorLexicalConfig,
 } from './lexical/config/server/default.js'
 export { loadFeatures, sortFeaturesForOptimalLoading } from './lexical/config/server/loader.js'
+export type { AdapterProps }
 
 export {
   sanitizeServerEditorConfig,
   sanitizeServerFeatures,
 } from './lexical/config/server/sanitize.js'
+
 export type {
   ClientEditorConfig,
   SanitizedClientEditorConfig,
   SanitizedServerEditorConfig,
   ServerEditorConfig,
 } from './lexical/config/types.js'
-export type { AdapterProps }
-
 export { getEnabledNodes, getEnabledNodesFromServerNodes } from './lexical/nodes/index.js'
 
 export type {
   SlashMenuGroup,
   SlashMenuItem,
 } from './lexical/plugins/SlashMenu/LexicalTypeaheadMenuPlugin/types.js'
+
 export { $convertFromMarkdownString } from './lexical/utils/markdown/convertFromMarkdownString.js'
 
 export {
@@ -352,11 +356,11 @@ export {
   TEXT_TYPE_TO_FORMAT,
   TEXT_TYPE_TO_MODE,
 } from './lexical/utils/nodeFormat.js'
-
 export { sanitizeUrl, validateUrl } from './lexical/utils/url.js'
-
 export { defaultRichTextValue } from './populateGraphQL/defaultValue.js'
+
 export { populate } from './populateGraphQL/populate.js'
+
 export type {
   ClientFeaturesMap,
   LexicalEditorArgs,
@@ -368,15 +372,14 @@ export type {
   SerializedNodeBase,
   ViewMapBlockComponentProps,
 } from './types/index.js'
-
 export type * from './types/nodeTypes.js'
 
 export { buildDefaultEditorState, buildEditorState } from './utilities/buildEditorState.js'
 export { createServerFeature } from './utilities/createServerFeature.js'
 
 export { editorConfigFactory } from './utilities/editorConfigFactory.js'
-export type { FieldsDrawerProps } from './utilities/fieldsDrawer/Drawer.js'
 
+export type { FieldsDrawerProps } from './utilities/fieldsDrawer/Drawer.js'
 export { extractPropsFromJSXPropsString } from './utilities/jsx/extractPropsFromJSXPropsString.js'
 
 export {

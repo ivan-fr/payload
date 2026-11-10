@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('file-type', () => ({
   fileTypeFromBuffer: vi.fn().mockResolvedValue(undefined),
-  fileTypeFromFile: vi.fn().mockResolvedValue(undefined),
+  fileTypeFromTokenizer: vi.fn().mockResolvedValue(undefined),
 }))
 
 import { checkFileRestrictions } from './checkFileRestrictions.js'

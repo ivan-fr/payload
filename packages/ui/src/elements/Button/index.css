@@ -84,7 +84,7 @@
     }
   }
 
-  .btn--style-dashed {
+  .btn.btn--style-dashed {
     color: var(--color-text);
     background-color: transparent;
     border: var(--stroke-width-small) dashed var(--special-border-translucent);
@@ -100,6 +100,24 @@
     &.btn--disabled {
       color: var(--color-text-disabled);
       border-color: var(--color-border-disabled);
+    }
+  }
+
+  .btn.btn--style-link {
+    color: var(--color-text-brand);
+    text-decoration: underline;
+
+    &:hover:not(.btn--disabled),
+    &.btn--selected:not(.btn--disabled) {
+      background-color: var(--color-bg-brand-tertiary);
+    }
+
+    &:active:not(.btn--disabled) {
+      background-color: var(--color-bg-brand-tertiary-hover);
+    }
+
+    &.btn--disabled {
+      color: var(--color-text-disabled);
     }
   }
 
