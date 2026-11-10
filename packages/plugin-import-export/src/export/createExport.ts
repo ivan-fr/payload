@@ -269,24 +269,11 @@ export const createExport = async (args: CreateExportArgs) => {
     if (limitErrorMsg) {
       throw new APIError(limitErrorMsg)
     }
+  }
 
-    // Get schema-based columns first (provides base ordering and handles empty exports)
-    let schemaColumns: string[] = []
-    if (isCSV) {
-      schemaColumns = inferCSVColumns()
-
-      if (debug) {
-        req.payload.logger.debug({
-          columnCount: schemaColumns.length,
-          msg: 'Schema-based column inference complete',
-        })
-      }
-    }
-
-    // allColumns will be finalized after first batch (schema + data columns merged)
-    let allColumns: string[] = []
-    let columnsFinalized = false
-
+  // CSV needs the columns of every batch before writing its header. Reuse the
+  // buffered export path so hooks run once and later array items are preserved.
+  if (download && !isCSV) {
     const encoder = new TextEncoder()
     let isFirstBatch = true
     let currentBatchPage = adjustedPage
@@ -304,10 +291,7 @@ export const createExport = async (args: CreateExportArgs) => {
         const remaining = Math.max(0, maxDocs - fetched)
 
         if (remaining === 0) {
-          if (!isCSV) {
-            // If first batch with no remaining, output empty array; otherwise just close
-            this.push(encoder.encode(isFirstBatch ? '[]' : ']'))
-          }
+          this.push(encoder.encode(isFirstBatch ? '[]' : ']'))
           this.push(null)
           return
         }
@@ -325,154 +309,62 @@ export const createExport = async (args: CreateExportArgs) => {
         }
 
         if (result.docs.length === 0) {
-          // Close JSON array properly if JSON
-          if (!isCSV) {
-            // If first batch with no docs, output empty array; otherwise just close
-            this.push(encoder.encode(isFirstBatch ? '[]' : ']'))
-          }
+          this.push(encoder.encode(isFirstBatch ? '[]' : ']'))
           this.push(null)
           return
         }
 
         streamBatchNumber++
 
-        if (isCSV) {
-          // --- CSV Streaming ---
-          const batchRows = result.docs.map((doc) =>
-            filterDisabledCSV(
-              flattenObject({
+        // --- JSON Streaming ---
+        const batchRows = result.docs.map(
+          (doc) =>
+            filterDisabledJSON(
+              applyFieldHooks({
                 data: doc,
-                fields,
+                fieldHooks: exportFieldHooks,
+                fields: collectionConfig.flattenedFields,
                 format,
-                exportFieldHooks,
+                operation: 'export',
                 req,
+                type: 'beforeExport',
               }),
-            ),
-          )
+            ) as Record<string, unknown>,
+        )
 
-          const originalDocs = result.docs as Record<string, unknown>[]
-          let batchRowsToWrite = batchRows
-          if (exportHooks?.before && batchRows.length > 0) {
-            batchRowsToWrite = await exportHooks.before({
-              batchNumber: streamBatchNumber,
-              data: batchRows,
-              exportDoc,
-              format,
-              originalData: originalDocs,
-              req,
-              totalBatches,
-            })
-          }
-
-          // On first batch, discover additional columns from data and merge with schema
-          if (!columnsFinalized) {
-            const dataColumns: string[] = []
-            const seenCols = new Set<string>()
-            for (const row of batchRowsToWrite) {
-              for (const key of Object.keys(row)) {
-                if (!seenCols.has(key)) {
-                  seenCols.add(key)
-                  dataColumns.push(key)
-                }
-              }
-            }
-            // Merge schema columns with data-discovered columns.
-            // When a before hook is active and rows exist, restrict to columns actually present
-            // in the data so that the hook can remove fields by not returning them.
-            const mergedColumns = mergeColumns(inferCSVColumns({ dataColumns }), dataColumns)
-            allColumns =
-              Boolean(exportHooks?.before) && batchRowsToWrite.length > 0
-                ? mergedColumns.filter((col) => dataColumns.includes(col))
-                : mergedColumns
-            columnsFinalized = true
-
-            if (debug) {
-              req.payload.logger.debug({
-                dataColumnsCount: dataColumns.length,
-                finalColumnsCount: allColumns.length,
-                msg: 'Merged schema and data columns',
-              })
-            }
-          }
-
-          const paddedRows = batchRowsToWrite.map((row) => {
-            const fullRow: Record<string, unknown> = {}
-            for (const col of allColumns) {
-              fullRow[col] = row[col] ?? ''
-            }
-            return fullRow
+        const originalDocs = result.docs as Record<string, unknown>[]
+        let batchRowsToWrite = batchRows
+        if (exportHooks?.before && batchRows.length > 0) {
+          batchRowsToWrite = await exportHooks.before({
+            batchNumber: streamBatchNumber,
+            data: batchRows,
+            exportDoc,
+            format,
+            originalData: originalDocs,
+            req,
+            totalBatches,
           })
+        }
 
-          const csvString = stringify(paddedRows, {
-            bom: isFirstBatch,
-            header: isFirstBatch,
-            columns: allColumns,
-          })
+        // Convert each filtered/flattened row into JSON string
+        const batchJSON = batchRowsToWrite.map((row) => JSON.stringify(row)).join(',')
 
-          this.push(encoder.encode(csvString))
-
-          if (exportHooks?.after && batchRowsToWrite.length > 0) {
-            await exportHooks.after({
-              batchNumber: streamBatchNumber,
-              data: batchRowsToWrite,
-              exportDoc,
-              format,
-              originalData: originalDocs,
-              req,
-              totalBatches,
-            })
-          }
+        if (isFirstBatch) {
+          this.push(encoder.encode('[' + batchJSON))
         } else {
-          // --- JSON Streaming ---
-          const batchRows = result.docs.map(
-            (doc) =>
-              filterDisabledJSON(
-                applyFieldHooks({
-                  data: doc,
-                  fieldHooks: exportFieldHooks,
-                  fields: collectionConfig.flattenedFields,
-                  format,
-                  operation: 'export',
-                  req,
-                  type: 'beforeExport',
-                }),
-              ) as Record<string, unknown>,
-          )
+          this.push(encoder.encode(',' + batchJSON))
+        }
 
-          const originalDocs = result.docs as Record<string, unknown>[]
-          let batchRowsToWrite = batchRows
-          if (exportHooks?.before && batchRows.length > 0) {
-            batchRowsToWrite = await exportHooks.before({
-              batchNumber: streamBatchNumber,
-              data: batchRows,
-              exportDoc,
-              format,
-              originalData: originalDocs,
-              req,
-              totalBatches,
-            })
-          }
-
-          // Convert each filtered/flattened row into JSON string
-          const batchJSON = batchRowsToWrite.map((row) => JSON.stringify(row)).join(',')
-
-          if (isFirstBatch) {
-            this.push(encoder.encode('[' + batchJSON))
-          } else {
-            this.push(encoder.encode(',' + batchJSON))
-          }
-
-          if (exportHooks?.after && batchRowsToWrite.length > 0) {
-            await exportHooks.after({
-              batchNumber: streamBatchNumber,
-              data: batchRowsToWrite,
-              exportDoc,
-              format,
-              originalData: originalDocs,
-              req,
-              totalBatches,
-            })
-          }
+        if (exportHooks?.after && batchRowsToWrite.length > 0) {
+          await exportHooks.after({
+            batchNumber: streamBatchNumber,
+            data: batchRowsToWrite,
+            exportDoc,
+            format,
+            originalData: originalDocs,
+            req,
+            totalBatches,
+          })
         }
 
         fetched += result.docs.length
@@ -483,9 +375,7 @@ export const createExport = async (args: CreateExportArgs) => {
           if (debug) {
             req.payload.logger.debug('Stream complete - no more pages')
           }
-          if (!isCSV) {
-            this.push(encoder.encode(']'))
-          }
+          this.push(encoder.encode(']'))
           this.push(null) // End the stream
         }
       },
@@ -494,12 +384,12 @@ export const createExport = async (args: CreateExportArgs) => {
     return new Response(Readable.toWeb(stream) as ReadableStream, {
       headers: {
         'Content-Disposition': `attachment; filename="${name}"`,
-        'Content-Type': isCSV ? 'text/csv; charset=utf-8' : 'application/json',
+        'Content-Type': 'application/json',
       },
     })
   }
 
-  // Non-download path (buffered export)
+  // Saved exports and CSV downloads collect columns across every batch.
   if (debug) {
     req.payload.logger.debug('Starting file generation')
   }
@@ -600,6 +490,15 @@ export const createExport = async (args: CreateExportArgs) => {
   const buffer = Buffer.from(content.length > 0 ? content : '\n')
   if (debug) {
     req.payload.logger.debug(`${format} file generation complete`)
+  }
+
+  if (download) {
+    return new Response(buffer, {
+      headers: {
+        'Content-Disposition': `attachment; filename="${name}"`,
+        'Content-Type': 'text/csv; charset=utf-8',
+      },
+    })
   }
 
   if (!id) {

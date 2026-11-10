@@ -1,6 +1,7 @@
 import type { DrizzleAdapter } from './types.js'
 
 import { createClient } from '@libsql/client'
+import { drizzle } from 'drizzle-orm/libsql'
 import { SQLiteSyncDialect, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -37,7 +38,7 @@ describe('version latest write amplification (#18465)', () => {
           tables: { versions: table },
           tableNameMap: new Map([['_posts_v', 'versions']]),
           versionsSuffix: '_v',
-          drizzle: {},
+          drizzle: drizzle(client, { schema: { versions: table } }),
           sessions: {},
           payload: {
             config: {},

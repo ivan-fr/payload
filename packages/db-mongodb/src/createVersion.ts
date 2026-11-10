@@ -83,15 +83,37 @@ export const createVersion: CreateVersion = async function createVersion(
           },
         },
         {
-          updatedAt: {
-            $lt: new Date(doc.updatedAt),
-          },
+          $or: [
+            { updatedAt: { $lt: new Date(doc.updatedAt) } },
+            { _id: { $lt: doc._id }, updatedAt: new Date(doc.updatedAt) },
+          ],
         },
       ],
     },
     { $unset: { latest: 1 } },
     options,
   )
+
+  const newerVersion = await Model.findOne(
+    {
+      $and: [
+        parentQuery,
+        {
+          $or: [
+            { updatedAt: { $gt: new Date(doc.updatedAt) } },
+            { _id: { $gt: doc._id }, updatedAt: new Date(doc.updatedAt) },
+          ],
+        },
+      ],
+    },
+    { _id: 1 },
+    options,
+  ).lean()
+
+  if (newerVersion) {
+    await Model.updateOne({ _id: doc._id, latest: true }, { $unset: { latest: 1 } }, options)
+    doc.latest = undefined
+  }
 
   if (returning === false) {
     return null

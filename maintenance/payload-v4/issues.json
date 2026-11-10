@@ -3062,8 +3062,11 @@
       "url": "https://github.com/payloadcms/payload/issues/17406",
       "labels": ["status: needs-triage", "area: core", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 34
     },
     {
       "number": 17425,
@@ -5148,8 +5151,11 @@
       "url": "https://github.com/payloadcms/payload/issues/19140",
       "labels": ["plugin: import-export", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 34
     },
     {
       "number": 19141,
@@ -5779,7 +5785,63 @@
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
       "last_checked_date": "2026-11-09"
+    },
+    {
+      "number": 19451,
+      "title": "Concurrent scheduled publish and unpublish leave two versions flagged latest, and the unpublished document is still returned to an anonymous draft=true read",
+      "url": "https://github.com/payloadcms/payload/issues/19451",
+      "labels": ["db: sqlite", "area: core", "Bug"],
+      "created_at": "2026-11-09T06:38:47Z",
+      "added_date": "2026-11-10",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 34
+    },
+    {
+      "number": 19459,
+      "title": "db-postgres: OR filters on two text fields in the same block throw a duplicate JOIN alias error",
+      "url": "https://github.com/payloadcms/payload/issues/19459",
+      "labels": ["db: postgres", "Bug"],
+      "created_at": "2026-11-09T13:37:21Z",
+      "added_date": "2026-11-10",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 34
+    },
+    {
+      "number": 19479,
+      "title": "Live preview throws on localized group fields (afterRead treats flattened group as locale map when flattenLocales: false)",
+      "url": "https://github.com/payloadcms/payload/issues/19479",
+      "labels": ["area: core", "Bug", "Payload-OSS", "plugin: live-preview"],
+      "created_at": "2026-11-10T12:14:28Z",
+      "added_date": "2026-11-10",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 34
+    },
+    {
+      "number": 19481,
+      "title": "Armenian (hy) admin shows \"Loading...\" for every date: importDateFNSLocale has no 'hy-AM' case",
+      "url": "https://github.com/payloadcms/payload/issues/19481",
+      "labels": ["area: ui", "created-by: Contributor", "Bug"],
+      "created_at": "2026-11-10T12:55:24Z",
+      "added_date": "2026-11-10",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 34
     }
   ],
-  "branch_fix_count": 198
+  "branch_fix_count": 204
 }

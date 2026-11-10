@@ -323,3 +323,7 @@ This brings the branch to **12 scoped reports** and the fork inventory to **180 
 ## Batch 33 — standalone uploads, list state and public Markdown API
 
 [Batch 33](./batch-33.md) addresses #17667, #17778, #13851, #13694, #18588 and #16955: five code fixes and a tested relationship-rename migration guide. Validation includes 4,711 passing unit tests, 29 component cases, 2 SQLite/REST integration cases, package TypeScript, lint/formatting, a Next file-trace regression and local SonarJS checks. The fork now tracks 198 scoped fixes (174 historical plus 24 later reports), including 30 on this branch. Full standalone deployment, full Admin/AT verification and SonarCloud are not claimed. No PR was created.
+
+## Batch 34 — localized preview, block joins, version ties and CSV completeness
+
+[Batch 34](./batch-34.md) starts `fix/payload-six-issues-20261110` from merged fork `main` at `8d033ff6ee075bed5c6a3243943b097760bde216`. It addresses #19481, #19479, #19459, #17406, #19451 and #19140. Validation includes six reproduced baseline failures, 4,714 passing unit tests, seven integration cases on each of numeric SQLite, UUID SQLite and the PostgreSQL adapter through PGlite, plus affected package types. The report records CSV buffering and version-concurrency evidence limits. The inventory now has 204 scoped fixes (176 historical plus 28 later reports). No PR is created.
