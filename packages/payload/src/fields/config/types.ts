@@ -1143,7 +1143,7 @@ export type JSONFieldValidationSchema = {
   fileMatch: string[]
   schema?: JSONSchema4
   /** Type-generation transforms, applied after the validation schema. */
-  transforms?: FieldBase['jsonSchema']
+  transforms?: NonNullable<FieldBase['jsonSchema']>
   uri: string
 }
 
@@ -1159,7 +1159,7 @@ export type JSONField = {
     maxHeight?: number
   } & FieldAdmin
 
-  jsonSchema?: FieldBase['jsonSchema'] | JSONFieldValidationSchema
+  jsonSchema?: JSONFieldValidationSchema | NonNullable<FieldBase['jsonSchema']>
   type: 'json'
   validate?: JSONFieldValidation
 } & Omit<FieldBase, 'admin' | 'jsonSchema' | 'validate'>

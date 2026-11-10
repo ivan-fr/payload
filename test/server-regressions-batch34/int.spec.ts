@@ -142,7 +142,7 @@ test.suite('batch 34 server regressions', { config: './config.ts' }, () => {
         parent: article.id,
         createdAt: updatedAt,
         updatedAt,
-        versionData: { _status: 'draft', plainDefault: updatedAt },
+        versionData: { _status: { en: 'draft', fr: 'draft' }, plainDefault: updatedAt },
       })
     const timestamp = '2099-01-01T00:00:00.000Z'
     const first = await write({ updatedAt: timestamp })

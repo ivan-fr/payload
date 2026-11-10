@@ -9,7 +9,7 @@ import { getCartItemsHash } from './validateSettlement.js'
 type Props = {
   apiVersion?: Stripe.StripeConfig['apiVersion']
   appInfo?: Stripe.StripeConfig['appInfo']
-  resolveAmount?: StripeAdapterArgs['resolveAmount']
+  resolveAmount?: NonNullable<StripeAdapterArgs['resolveAmount']>
   secretKey: StripeAdapterArgs['secretKey']
 }
 

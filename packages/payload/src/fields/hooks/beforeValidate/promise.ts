@@ -371,6 +371,17 @@ export const promise = async <T>({
 
     onFieldAccess?.({ accessResult, path })
 
+    if (
+      req.context?.isRestoringVersion &&
+      accessResult &&
+      siblingData[field.name!] === undefined &&
+      (field.type === 'relationship' || field.type === 'upload') &&
+      field.hasMany
+    ) {
+      // MongoDB ignores undefined updates, so explicitly clear a relationship absent in the snapshot.
+      siblingData[field.name!] = []
+    }
+
     if (siblingData[field.name!] === undefined && !req.context?.isRestoringVersion) {
       const isDocumentValueAllowed =
         operation === 'update' || operation === 'validate' || accessResult

@@ -58,9 +58,14 @@ test.suite('batch 36 server regressions', { config: './config.ts' }, () => {
     expect(req.context.marker).toBe('outer')
   })
 
-  test('should roll back a nested write together with its parent when context is overridden', async ({
+  test('should respect transaction support for nested writes when context is overridden', async ({
     payload,
   }) => {
+    const transactionID = await payload.db.beginTransaction()
+    const hasTransactions = transactionID !== null
+    if (transactionID !== null) {
+      await payload.db.rollbackTransaction(transactionID)
+    }
     const target = await payload.create({ collection: contextSlug, data: { title: 'Original' } })
 
     await expect(
@@ -72,7 +77,7 @@ test.suite('batch 36 server regressions', { config: './config.ts' }, () => {
     ).rejects.toThrow('Rollback parent and nested write')
     const saved = await payload.findByID({ collection: contextSlug, id: target.id })
 
-    expect(saved.title).toBe('Original')
+    expect(saved.title).toBe(hasTransactions ? 'Original' : 'Must roll back')
     expect((await payload.count({ collection: contextSlug })).totalDocs).toBe(1)
   })
 })

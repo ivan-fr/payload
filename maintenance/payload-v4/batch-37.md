@@ -22,7 +22,7 @@ Adds six distinct official reports to `fix/payload-six-issues-20261110`, based o
 
 ## Scope and limits
 
-Hierarchy's new optional hook argument is supplied by `find`/`findByID`. Other hook call sites retain their existing document-status fallback. Single-locale ancestor selection and shared-request draft/published cache separation are covered; the older locale-all ancestor fallback strategy is unchanged. This does not claim to resolve the broader operation-argument request #16180.
+Hierarchy's new optional hook argument is supplied by `find`/`findByID`. Other hook call sites retain their existing document-status fallback. Single-locale ancestor selection and shared-request draft/published cache separation are covered; locale-all ancestor reads now also forward draft intent (see [PR 9 review](./pr-9-review.md)). This does not claim to resolve the broader operation-argument request #16180.
 
 JSON reference relocation covers root-relative JSON pointers (`#` and `#/...`). External references are left alone, as are nested schemas declaring their own resource IDs. It is not a general external-schema bundler or anchor resolver. Validation continues using the original configured schema, including its declared JSON Schema draft.
 
