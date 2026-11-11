@@ -15,12 +15,8 @@ export type GeneratePageMetadataArgs = {
 }
 
 const oneSegmentMetaKeys: Record<string, AdminViewKey> = {
-  'create-first-user': 'createFirstUser',
-  forgot: 'forgot',
-  login: 'login',
   logout: 'unauthorized',
   'logout-inactivity': 'unauthorized',
-  unauthorized: 'unauthorized',
 }
 
 /**
@@ -38,84 +34,34 @@ export const generatePageMetadata = async ({
   const rawSegments = params.segments
   const segments = Array.isArray(rawSegments) ? rawSegments : []
   const currentRoute = `/${segments.join('/')}`
-  const [segmentOne, segmentTwo, segmentThree] = segments
+  const [segmentOne, segmentTwo] = segments
 
-  const isCollection = segmentOne === 'collections'
-  const isGlobal = segmentOne === 'globals'
+  const configuredView = getConfiguredAuthMetadataView({ config, currentRoute })
 
-  const collectionConfig =
-    isCollection && segments.length > 1
-      ? config?.collections?.find((c) => c.slug === segmentTwo)
-      : undefined
-
-  const globalConfig =
-    isGlobal && segments.length > 1
-      ? config?.globals?.find((g) => g.slug === segmentTwo)
-      : undefined
+  if (configuredView) {
+    return adminViews[configuredView].generateMetadata({ config, i18n })
+  }
 
   let meta: MetaConfig | undefined
 
-  switch (segments.length) {
-    case 0: {
-      meta = await adminViews.dashboard.generateMetadata({ config, i18n })
-      break
+  if (segments.length === 0) {
+    meta = await adminViews.dashboard.generateMetadata({ config, i18n })
+  } else if (segments.length === 1) {
+    if (segmentOne === 'account') {
+      meta = await adminViews.account.generateMetadata({ config, i18n })
+    } else if (oneSegmentMetaKeys[segmentOne]) {
+      meta = await adminViews[oneSegmentMetaKeys[segmentOne]].generateMetadata({ config, i18n })
     }
-    case 1: {
-      if (segmentOne === 'account') {
-        meta = await adminViews.account.generateMetadata({ config, i18n })
-      } else if (oneSegmentMetaKeys[segmentOne]) {
-        const key = oneSegmentMetaKeys[segmentOne]
-        meta = await adminViews[key].generateMetadata({ config, i18n })
-      }
-      break
-    }
-    case 2: {
-      if (`/${segmentOne}` === config.admin.routes.reset) {
-        meta = await adminViews.reset.generateMetadata({ config, i18n })
-      } else if (isCollection && collectionConfig) {
-        meta = await generateListViewMetadata({ collectionConfig, config, i18n })
-      } else if (isGlobal && globalConfig) {
-        meta = await getMetaBySegment({
-          adminViews,
-          config,
-          globalConfig,
-          i18n,
-          params,
-        })
-      }
-      break
-    }
-    default: {
-      if (segmentTwo === 'verify') {
-        meta = await adminViews.verify.generateMetadata({ config, i18n })
-      } else if (isCollection && collectionConfig) {
-        if (segmentThree === 'trash' && segments.length === 3) {
-          meta = await generateCollectionTrashMetadata({
-            collectionConfig,
-            config,
-            i18n,
-            params,
-          })
-        } else {
-          meta = await getMetaBySegment({
-            adminViews,
-            collectionConfig,
-            config,
-            i18n,
-            params,
-          })
-        }
-      } else if (isGlobal && globalConfig) {
-        meta = await getMetaBySegment({
-          adminViews,
-          config,
-          globalConfig,
-          i18n,
-          params,
-        })
-      }
-      break
-    }
+  } else if (segments.length > 2 && segmentTwo === 'verify') {
+    meta = await adminViews.verify.generateMetadata({ config, i18n })
+  } else {
+    meta = await getEntityMetadata({
+      adminViews,
+      config,
+      i18n,
+      params,
+      segments,
+    })
   }
 
   if (!meta) {
@@ -129,4 +75,63 @@ export const generatePageMetadata = async ({
   }
 
   return meta
+}
+
+function getConfiguredAuthMetadataView({
+  config,
+  currentRoute,
+}: {
+  config: SanitizedConfig
+  currentRoute: string
+}): AdminViewKey | undefined {
+  const { routes } = config.admin
+  const keys = ['createFirstUser', 'forgot', 'login', 'unauthorized'] as const
+
+  for (const key of keys) {
+    if (routes[key] && currentRoute === routes[key]) {
+      return key
+    }
+  }
+
+  if (routes.reset && currentRoute.startsWith(`${routes.reset}/`)) {
+    return 'reset'
+  }
+  return undefined
+}
+
+function getEntityMetadata({
+  adminViews,
+  config,
+  i18n,
+  params,
+  segments,
+}: {
+  segments: string[]
+} & GeneratePageMetadataArgs) {
+  const [segmentOne, segmentTwo] = segments
+  const isCollection = segmentOne === 'collections'
+  const isGlobal = segmentOne === 'globals'
+
+  const collectionConfig =
+    isCollection && segments.length > 1
+      ? config?.collections?.find((c) => c.slug === segmentTwo)
+      : undefined
+
+  const globalConfig =
+    isGlobal && segments.length > 1
+      ? config?.globals?.find((g) => g.slug === segmentTwo)
+      : undefined
+
+  if (collectionConfig) {
+    if (segments.length === 2) {
+      return generateListViewMetadata({ collectionConfig, config, i18n })
+    }
+    if (segments.length === 3 && segments[2] === 'trash') {
+      return generateCollectionTrashMetadata({ collectionConfig, config, i18n, params })
+    }
+    return getMetaBySegment({ adminViews, collectionConfig, config, i18n, params })
+  }
+  if (globalConfig) {
+    return getMetaBySegment({ adminViews, config, globalConfig, i18n, params })
+  }
 }

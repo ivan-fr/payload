@@ -9,6 +9,7 @@ import { getCartItemsHash } from './validateSettlement.js'
 type Props = {
   apiVersion?: Stripe.StripeConfig['apiVersion']
   appInfo?: Stripe.StripeConfig['appInfo']
+  resolveAmount?: NonNullable<StripeAdapterArgs['resolveAmount']>
   secretKey: StripeAdapterArgs['secretKey']
 }
 
@@ -17,12 +18,11 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
   async ({ customersSlug, data, req, transactionsSlug }) => {
     const payload = req.payload
     const authenticatedCustomer = getCustomer({ customersSlug, req })
-    const { apiVersion, appInfo, secretKey } = props || {}
+    const { apiVersion, appInfo, resolveAmount, secretKey } = props || {}
 
     const customerEmail = data.customerEmail
     const currency = data.currency
     const cart = data.cart
-    const amount = cart.subtotal
     const billingAddressFromData = data.billingAddress
     const shippingAddressFromData = data.shippingAddress
 
@@ -42,7 +42,9 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
       throw new Error('A valid customer email is required to make a purchase.')
     }
 
-    if (!amount || typeof amount !== 'number' || amount <= 0) {
+    const amount = resolveAmount ? await resolveAmount({ cart, data, req }) : cart.subtotal
+
+    if (typeof amount !== 'number' || !Number.isSafeInteger(amount) || amount <= 0) {
       throw new Error('A valid amount is required to initiate a payment.')
     }
 

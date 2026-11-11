@@ -57,7 +57,7 @@ type Args = {
 
 export const hierarchyCollectionAfterRead =
   ({ parentFieldName, slugPathFieldName, titlePathFieldName }: Args): CollectionAfterReadHook =>
-  async ({ collection, context, doc, req }) => {
+  async ({ collection, context, doc, draft, req }) => {
     // Skip if deleting
     if (context?.isDeleting) {
       return doc
@@ -80,7 +80,7 @@ export const hierarchyCollectionAfterRead =
       const { slugPath, titlePath } = await computePaths({
         collection,
         doc,
-        draft: doc._status === 'draft',
+        draft: draft ?? doc._status === 'draft',
         locale:
           isTitleLocalized && req.locale === 'all'
             ? 'all'

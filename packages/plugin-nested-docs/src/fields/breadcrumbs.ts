@@ -1,5 +1,7 @@
 import type { ArrayField, Field } from 'payload'
 
+import { ensureUniqueBreadcrumbIDs } from '../utilities/ensureUniqueBreadcrumbIDs.js'
+
 export const createBreadcrumbsField = (
   relationTo: string,
   overrides: Partial<ArrayField> = {},
@@ -44,4 +46,8 @@ export const createBreadcrumbsField = (
     },
     ...(overrides?.fields || []),
   ],
+  hooks: {
+    ...overrides.hooks,
+    beforeChange: [...(overrides.hooks?.beforeChange || []), ensureUniqueBreadcrumbIDs],
+  },
 })

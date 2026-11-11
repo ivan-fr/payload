@@ -1,6 +1,6 @@
 import type { CreateVersionArgs, JsonObject, TypeWithVersion } from 'payload'
 
-import { sql } from 'drizzle-orm'
+import { and, eq, gt, or, sql } from 'drizzle-orm'
 import { buildVersionCollectionFields } from 'payload'
 import { hasDraftsEnabled } from 'payload/shared'
 import toSnakeCase from 'to-snake-case'
@@ -78,10 +78,34 @@ export async function createVersion<T extends JsonObject = JsonObject>(
         SET latest = false
         WHERE ${table.id} != ${result.id}
           AND ${table.parent} = ${parent}
-          AND ${table.updatedAt} < ${result.updatedAt || updatedAt}
+          AND (
+            ${table.updatedAt} < ${result.updatedAt || updatedAt}
+            OR (${table.updatedAt} = ${result.updatedAt || updatedAt} AND ${table.id} < ${result.id})
+          )
           AND ${table.latest} IS NOT FALSE
       `,
     })
+
+    // A higher-ranked version may have completed before this insert. Do not leave the
+    // losing insert marked latest when timestamps tie or writes finish out of order.
+    const newerVersion = await db.query[tableName].findFirst({
+      columns: { id: true },
+      where: and(
+        eq(table.parent, parent),
+        or(
+          gt(table.updatedAt, result.updatedAt || updatedAt),
+          and(eq(table.updatedAt, result.updatedAt || updatedAt), gt(table.id, result.id)),
+        ),
+      ),
+    })
+
+    if (newerVersion) {
+      await this.execute({
+        db,
+        sql: sql`UPDATE ${table} SET latest = false WHERE ${table.id} = ${result.id} AND ${table.latest} IS NOT FALSE`,
+      })
+      result.latest = false
+    }
   }
 
   if (returning === false) {

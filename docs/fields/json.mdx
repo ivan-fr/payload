@@ -36,7 +36,7 @@ export const MyJSONField: Field = {
 | **`unique`**       | Enforce that each entry in the Collection has a unique value for this field. This creates a database-level unique index on the field's path. [More details](/docs/database/indexes#unique-fields).                                                                                   |
 | **`index`**        | Build an [index](/docs/database/indexes) for this field to produce faster queries. Set this field to `true` if your users will perform queries on this field's data often.                                                                                                           |
 | **`validate`**     | Provide a custom validation function that will be executed on both the Admin Panel and the backend. [More details](/docs/fields/overview#validation).                                                                                                                                |
-| **`jsonSchema`**   | Provide a JSON schema that will be used for validation. [JSON schemas](https://json-schema.org/learn/getting-started-step-by-step)                                                                                                                                                   |
+| **`jsonSchema`**   | Provide a validation schema object, a type-generation transform array, or both through the object’s `transforms` property. [Details](#schema-transforms).                                                                                                                            |
 | **`saveToJWT`**    | If this field is top-level and nested in a config supporting [Authentication](/docs/authentication/overview), include its data in the user JWT.                                                                                                                                      |
 | **`hooks`**        | Provide Field Hooks to control logic for this field. [More details](../hooks/fields).                                                                                                                                                                                                |
 | **`access`**       | Provide Field Access Control to denote what users can see and do with this field's data. [More details](../access-control/fields).                                                                                                                                                   |
@@ -46,7 +46,6 @@ export const MyJSONField: Field = {
 | **`required`**     | Require this field to have a value.                                                                                                                                                                                                                                                  |
 | **`admin`**        | Admin-specific configuration. [More details](#admin-options).                                                                                                                                                                                                                        |
 | **`custom`**       | Extension point for adding custom data (e.g. for plugins)                                                                                                                                                                                                                            |
-| **`jsonSchema`**   | Override field JSON Schema used for type generation and MCP validation                                                                                                                                                                                                               |
 | **`virtual`**      | Provide `true` to disable field in the database, or provide a string path to [link the field with a relationship](/docs/fields/overview#string-path-virtual-fields). See [Virtual Fields](https://payloadcms.com/blog/learn-how-virtual-fields-can-help-solve-common-cms-challenges) |
 
 _\* An asterisk denotes that a property is required._
@@ -238,3 +237,32 @@ export const CustomJSONFieldLabelClient: React.FC<
   )
 }
 ```
+
+## Schema transforms
+
+A JSON field accepts two forms of `jsonSchema`. An object containing `uri`, `fileMatch` and `schema` validates saved values. An array of functions transforms the generated JSON Schema, as it does on other fields; it does not act as a runtime validator or trigger a schema fetch.
+
+```ts
+{
+  name: 'tags',
+  type: 'json',
+  jsonSchema: [() => ({ type: 'array', items: { type: 'string' } })],
+}
+```
+
+To validate values and transform their generated schema independently, put the transforms on the validation object:
+
+```ts
+{
+  name: 'tags',
+  type: 'json',
+  jsonSchema: {
+    uri: 'urn:example:tags',
+    fileMatch: ['*'],
+    schema: { type: 'array', items: { type: 'string' } },
+    transforms: [({ jsonSchema }) => ({ ...jsonSchema, description: 'Article tags' })],
+  },
+}
+```
+
+Transforms affect generated types and MCP schemas. The original validation schema continues to validate saves; keep any transformed input schema compatible with that validation.

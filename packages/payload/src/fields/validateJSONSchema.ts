@@ -1,10 +1,10 @@
 import type { JSONSchema4 } from 'json-schema'
 import type { core } from 'zod'
 
-import type { JSONField } from './config/types.js'
+import type { JSONFieldValidationSchema } from './config/types.js'
 
 type Args = {
-  jsonSchema: NonNullable<JSONField['jsonSchema']>
+  jsonSchema: JSONFieldValidationSchema
   value: unknown
 }
 

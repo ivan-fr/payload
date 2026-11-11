@@ -38,6 +38,37 @@ const runBeforeValidate = async ({
 }
 
 describe('beforeValidate field access results', () => {
+  it.each(['relationship', 'upload'] as const)(
+    'should explicitly clear an absent hasMany %s on restore and preserve denied values',
+    async (type) => {
+      const fields: Field[] = [
+        { name: 'allowed', type, relationTo: 'media', hasMany: true },
+        {
+          name: 'denied',
+          type,
+          relationTo: 'media',
+          hasMany: true,
+          access: { update: () => false },
+        },
+      ]
+      const doc = { allowed: ['old'], denied: ['protected'] }
+      const run = (isRestoringVersion: boolean) =>
+        beforeValidate({
+          collection: { fields } as SanitizedCollectionConfig,
+          context: { isRestoringVersion },
+          data: {} as JsonObject,
+          doc,
+          global: null,
+          operation: 'update',
+          overrideAccess: false,
+          req: { context: { isRestoringVersion }, payload: { config: {} } } as PayloadRequest,
+        })
+
+      expect(await run(true)).toEqual({ allowed: [], denied: ['protected'] })
+      expect(await run(false)).toEqual({ allowed: ['old'], denied: ['protected'] })
+    },
+  )
+
   it('should report explicit and implicit field access results', async () => {
     const fieldAccessResults = await runBeforeValidate({
       fields: [

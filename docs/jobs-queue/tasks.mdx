@@ -594,3 +594,16 @@ export default buildConfig({
   },
 })
 ```
+
+## Retry jitter
+
+To spread retries from jobs that fail together, enable `jitter` on exponential backoff:
+
+```ts
+retries: {
+  attempts: 5,
+  backoff: { type: 'exponential', delay: 1000, jitter: true },
+}
+```
+
+Each retry waits between 50% and 100% of its calculated exponential delay. For example, a calculated 4000 ms delay becomes a randomized delay from 2000 ms up to 4000 ms. Fixed backoff is unaffected. Jitter defaults to `false`, preserving existing retry timing; the option also applies to workflows using the same retry configuration.

@@ -352,7 +352,7 @@ export const json: JSONFieldValidation = async (
     return t('validation:invalidInput')
   }
 
-  if (jsonSchema && isNotEmpty(value)) {
+  if (jsonSchema && !Array.isArray(jsonSchema) && isNotEmpty(value)) {
     return validateJSONSchema({ jsonSchema, value })
   }
   return true
@@ -368,7 +368,7 @@ export const checkbox: CheckboxFieldValidation = (value, { req: { t }, required 
   return true
 }
 
-export type DateFieldValidation = Validate<Date, unknown, unknown, DateField>
+export type DateFieldValidation = Validate<string, unknown, unknown, DateField>
 
 export const date: DateFieldValidation = (
   value,

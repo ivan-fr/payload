@@ -22,7 +22,7 @@ export const getDefaultValue = async ({
   }
 
   if (defaultValue && typeof defaultValue === 'function') {
-    return await defaultValue({ locale, req, user })
+    return deepCopyObjectSimple(await defaultValue({ locale, req, user }))
   }
 
   if (typeof defaultValue === 'object') {

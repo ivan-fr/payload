@@ -791,17 +791,19 @@ Virtual fields (fields with `virtual: true`) are handled differently during impo
 
 There are four possible ways that the plugin allows for exporting documents, the first two are available in the admin UI from the list view of a collection:
 
-1. Direct download - Using a `POST` to `/api/exports/download` and streams the response as a file download
+1. Direct download - Using a `POST` to `/api/exports/download` to return an export file
 2. File storage - Goes to the `exports` collection as an uploads enabled collection
 3. Local API - A create call to the exports collection: `payload.create({ collection: 'exports', data: { collectionSlug: 'pages', format: 'json' }, overrideAccess: true })`
 4. Jobs Queue - `payload.jobs.queue({ task: 'createCollectionExport', input: parameters, overrideAccess: true })`
 
 In the Export drawer you can choose:
 
-- **Download** — Streams the export file directly to the browser without saving. Nothing is stored in the exports collection.
+- **Download** — Returns the export file directly to the browser without saving. Nothing is stored in the exports collection.
 - **Save** — Creates a document in the exports collection (an upload) so the export is stored and can be reused or downloaded later.
 
 To download a saved export, open the exports collection (go to `/admin/collections/exports` or, if you made it visible as in [Collection Visibility](#collection-visibility), use the sidebar), open the export document, and use the file download from there. Either the Download or Save option can be disabled per collection via [ExportConfig](#exportconfig-options) (`disableDownload`, `disableSave`).
+
+JSON downloads stream their batches. CSV downloads collect the selected rows before generating the header so that array items in later batches are included. CSV memory use grows with the export size; configure an export `limit` for large collections.
 
 The UI for creating exports provides options so that users can be selective about which documents to include and also which columns or fields to include.
 

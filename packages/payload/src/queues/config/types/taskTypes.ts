@@ -151,6 +151,11 @@ export type RetryConfig = {
      */
     delay?: number
     /**
+     * Randomize exponential delays between 50% and 100% of the calculated delay.
+     * Fixed backoff is unaffected. Defaults to false.
+     */
+    jitter?: boolean
+    /**
      * @default fixed
      *
      * The backoff strategy to use when retrying the task. This determines how long to wait before retrying the task.

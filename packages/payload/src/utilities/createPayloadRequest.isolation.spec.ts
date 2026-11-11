@@ -87,3 +87,33 @@ describe('nested request locale/depth isolation (#18844)', () => {
     expect(nested.payloadDataLoader).toBe(loader)
   })
 })
+
+describe('nested explicit context isolation (#10250)', () => {
+  it('should keep child context out of its parent and sibling while sharing transactions', async () => {
+    const parent = await createPayloadRequest({ payload, context: { outer: true } })
+    parent.transactionID = 'tx'
+    const originalContext = parent.context
+    const originalLoader = parent.payloadDataLoader
+    const child = await createPayloadRequest({ payload, req: parent, context: { value: 5 } })
+    const sibling = await createPayloadRequest({ payload, req: parent })
+
+    expect(child.context).toEqual({ outer: true, value: 5 })
+    expect(sibling.context).toEqual({ outer: true })
+    expect(parent.context).toBe(originalContext)
+    expect(parent.payloadDataLoader).toBe(originalLoader)
+    expect(child.payloadDataLoader).not.toBe(originalLoader)
+    child.context.childOnly = true
+    expect(parent.context.childOnly).toBeUndefined()
+    child.transactionID = 'next-tx'
+    expect(parent.transactionID).toBe('next-tx')
+  })
+
+  it('should isolate an explicitly empty context without isolating inherited context by default', async () => {
+    const parent = await createPayloadRequest({ payload, context: { outer: true } })
+    const child = await createPayloadRequest({ payload, req: parent, context: {} })
+
+    child.context.outer = false
+    expect(parent.context.outer).toBe(true)
+    expect(await createPayloadRequest({ payload, req: parent })).toBe(parent)
+  })
+})
