@@ -123,11 +123,18 @@ export const traverseFields = ({
    */
   const markNestedRowsForDeletion = ({
     fieldName,
+    isAppend = false,
     locale,
   }: {
     fieldName: string
+    /** A `$push` adds rows to the field and leaves its existing items in place. */
+    isAppend?: boolean
     locale?: string
   }): void => {
+    if (isAppend) {
+      return
+    }
+
     const nestedRowsToDelete = { isPathPrefix: true, locale, path: `${path || ''}${fieldName}.` }
 
     relationshipsToDelete.push({ ...nestedRowsToDelete })
@@ -183,9 +190,11 @@ export const traverseFields = ({
             }
 
             if (Array.isArray(localeData)) {
-              if (!push) {
-                markNestedRowsForDeletion({ fieldName: field.name, locale: localeKey })
-              }
+              markNestedRowsForDeletion({
+                fieldName: field.name,
+                isAppend: push,
+                locale: localeKey,
+              })
 
               const newRows = transformArray({
                 adapter,
@@ -230,9 +239,11 @@ export const traverseFields = ({
           push = true
         }
 
-        if (!push) {
-          markNestedRowsForDeletion({ fieldName: field.name, locale: withinArrayOrBlockLocale })
-        }
+        markNestedRowsForDeletion({
+          fieldName: field.name,
+          isAppend: push,
+          locale: withinArrayOrBlockLocale,
+        })
 
         const newRows = transformArray({
           adapter,

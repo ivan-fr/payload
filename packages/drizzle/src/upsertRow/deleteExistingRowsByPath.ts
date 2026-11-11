@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from 'drizzle-orm'
+import { and, eq, inArray, or, sql } from 'drizzle-orm'
 
 import type { DrizzleAdapter, DrizzleTransaction } from '../types.js'
 
@@ -59,23 +59,20 @@ export const deleteExistingRowsByPath = async ({
 
   // Prefixes are deleted first, so the rows about to be inserted below them start from a clean
   // slate. `substr` is used instead of LIKE because paths can contain LIKE wildcards such as `_`.
-  if (pathColumnName && table[pathColumnName]) {
-    for (const { locale, prefix } of prefixesToDelete) {
-      const whereConstraints = [
-        eq(table[parentColumnName], parentID),
-        sql`substr(${table[pathColumnName]}, 1, ${prefix.length}) = ${prefix}`,
-      ]
+  if (pathColumnName && table[pathColumnName] && prefixesToDelete.length > 0) {
+    const prefixConstraints = prefixesToDelete.map(({ locale, prefix }) => {
+      const isBelowPrefix = sql`substr(${table[pathColumnName]}, 1, ${prefix.length}) = ${prefix}`
 
-      if (locale && table[localeColumnName]) {
-        whereConstraints.push(eq(table[localeColumnName], locale))
-      }
+      return locale && table[localeColumnName]
+        ? and(isBelowPrefix, eq(table[localeColumnName], locale))
+        : isBelowPrefix
+    })
 
-      await adapter.deleteWhere({
-        db,
-        tableName,
-        where: and(...whereConstraints),
-      })
-    }
+    await adapter.deleteWhere({
+      db,
+      tableName,
+      where: and(eq(table[parentColumnName], parentID), or(...prefixConstraints)),
+    })
   }
 
   if (localizedPathsToDelete.size > 0) {

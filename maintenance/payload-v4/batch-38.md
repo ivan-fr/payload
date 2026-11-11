@@ -25,6 +25,7 @@ Upstream state: the issue pages did not expose an open or closed state in the se
 
 ## Limits
 
+- **Sessions on MongoDB.** MongoDB aborts transactions that write the same document at the same time. Concurrent logins to one account can therefore be rejected there with a write conflict, as they could before this change. A login that succeeds keeps its session; the regression test asserts exactly that on MongoDB and requires every login to succeed on SQL adapters.
 - **Sessions.** Adapters cannot remove single array rows, so removing expired sessions, logout and refresh still rewrite the list. Expired sessions are removed in a separate step that re-reads the list right before writing; a session added inside that short window can still be lost. The list is not bounded.
 - **Nested rows.** Rows already orphaned in an existing database are removed the next time the affected field is saved. No migration removes them proactively.
 - **Locales.** A config with a locale object lacking `code` now fails at startup. It did not work before either, but failed later.
