@@ -251,3 +251,112 @@ describe('draft parent ID and title searches (#15648)', () => {
     },
   )
 })
+
+describe('ID lists with limited bound parameters (#17493)', () => {
+  const versionFields = [
+    { name: 'parent', type: 'relationship', relationTo: 'posts' },
+    { name: 'latest', type: 'checkbox' },
+  ] as FlattenedField[]
+  const versionsTable = sqliteTable('_posts_v', {
+    id: integer('id'),
+    latest: integer('latest'),
+    parent: integer('parent_id'),
+  })
+  const postsTable = sqliteTable('posts', { id: integer('id'), parent: text('parent') })
+
+  const buildQuery = ({
+    fields,
+    limitedBoundParameters = true,
+    tableName,
+    where,
+  }: {
+    fields: FlattenedField[]
+    limitedBoundParameters?: boolean
+    tableName: string
+    where: Parameters<typeof parseParams>[0]['where']
+  }) => {
+    const adapter = {
+      name: 'sqlite',
+      idType: 'serial',
+      limitedBoundParameters,
+      operators: operatorMap,
+      payload: {
+        collections: { posts: { config: { flattenedFields: [] }, customIDType: undefined } },
+        config: {},
+        db: { defaultIDType: 'number' },
+      },
+      tables: { _posts_v: versionsTable, posts: postsTable },
+    } as unknown as DrizzleAdapter
+
+    return new SQLiteSyncDialect().sqlToQuery(
+      parseParams({
+        adapter,
+        context: { sort: undefined },
+        fields,
+        joins: [],
+        parentIsLocalized: false,
+        selectFields: {},
+        tableName,
+        where,
+      }),
+    )
+  }
+
+  const parentIDs = Array.from({ length: 150 }, (_, index) => index + 1)
+
+  it.each(['in', 'not_in'] as const)(
+    'should inline a %s list of version parents instead of binding one parameter per ID',
+    (operator) => {
+      const query = buildQuery({
+        fields: versionFields,
+        tableName: '_posts_v',
+        where: { and: [{ parent: { [operator]: parentIDs } }, { latest: { equals: true } }] },
+      })
+
+      expect(query.params.length).toBeLessThan(5)
+      expect(query.sql).toContain(
+        `"_posts_v"."parent_id" ${operator === 'in' ? 'IN' : 'NOT IN'} (1,2,3,`,
+      )
+
+      const db = new DatabaseSync(':memory:')
+
+      try {
+        db.exec(
+          'CREATE TABLE _posts_v (id integer, latest integer, parent_id integer); INSERT INTO _posts_v VALUES (1, 1, 7), (2, 1, 900), (3, 0, 8)',
+        )
+        const rows = db
+          .prepare(`SELECT id FROM _posts_v WHERE ${query.sql} ORDER BY id`)
+          .all(
+            ...query.params.map(
+              (param) => (typeof param === 'boolean' ? Number(param) : param) as number,
+            ),
+          )
+
+        expect(rows.map((row) => row.id)).toEqual(operator === 'in' ? [1] : [2])
+      } finally {
+        db.close()
+      }
+    },
+  )
+
+  it('should keep binding version parents when the adapter has no parameter limit', () => {
+    const query = buildQuery({
+      fields: versionFields,
+      limitedBoundParameters: false,
+      tableName: '_posts_v',
+      where: { parent: { in: parentIDs } },
+    })
+
+    expect(query.params).toHaveLength(parentIDs.length)
+  })
+
+  it('should keep binding values of a text field that happens to be called parent', () => {
+    const query = buildQuery({
+      fields: [{ name: 'parent', type: 'text' }] as FlattenedField[],
+      tableName: 'posts',
+      where: { parent: { in: ["it's a text value", 'another one'] } },
+    })
+
+    expect(query.params).toEqual(["it's a text value", 'another one'])
+  })
+})

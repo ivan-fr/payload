@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This fork contains **192 scoped fixes** for official Payload reports against **4.0.0-beta.6**. This batch starts from `3bc7c91183` on `codex/six-more-payload-fixes-20261111`. Details and verification limits for the six new reports are recorded in [batch 32](batch-32.md), following [batch 31](batch-31.md), [batch 30](batch-30.md) and [batch 29](batch-29.md) on the same branch. Only two of the six could be re-confirmed open on 2026-11-11; the upstream state of the other four could not be read in that session. No PR is opened and no official issue is closed.
+This fork contains **200 scoped fixes** for official Payload reports against **4.0.0-beta.6**. This batch starts from `eaaff6f` on `codex/six-more-payload-fixes-20261111`. Details and verification limits for the new reports are recorded in [batch 33](batch-33.md), following [batch 32](batch-32.md), [batch 31](batch-31.md), [batch 30](batch-30.md) and [batch 29](batch-29.md) on the same branch. The upstream state of the batch 33 reports could not be read in that session; they are open in the 2026-11-02 snapshot. No PR is opened and no official issue is closed.
 
-The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests: **165 snapshot issues have scoped fixes; 400 remain unassessed**. Another **27 scoped fixes** concern reports opened after that snapshot. Counts describe changes in this fork, not upstream closures. Historical validation below applies to the revisions stated in each batch.
+The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests: **173 snapshot issues have scoped fixes; 392 remain unassessed**. Another **27 scoped fixes** concern reports opened after that snapshot. Counts describe changes in this fork, not upstream closures. Historical validation below applies to the revisions stated in each batch.
 
 ## Changes and evidence
 

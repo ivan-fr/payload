@@ -452,6 +452,39 @@ export function parseParams({
                   break
                 }
 
+                // Drafts queries rewrite `id` to the version's `parent` relationship, which holds
+                // the same document IDs and must be inlined for the same reason.
+                const isVersionParentPath =
+                  relationOrPath === 'parent' &&
+                  field.type === 'relationship' &&
+                  typeof field.relationTo === 'string' &&
+                  !field.hasMany
+                const isInlinableIDList =
+                  Array.isArray(queryValue) &&
+                  queryValue.every(
+                    (val) =>
+                      typeof val === 'number' ||
+                      val === null ||
+                      (typeof val === 'string' && isValidStringID(val)),
+                  )
+
+                const shouldInlineVersionParents =
+                  Boolean(adapter.limitedBoundParameters) &&
+                  isVersionParentPath &&
+                  isInlinableIDList
+
+                if (
+                  shouldInlineVersionParents &&
+                  Array.isArray(queryValue) &&
+                  queryOperator === 'not_in'
+                ) {
+                  constraints.push(
+                    sql`(${buildInlineIDList({ column: resolvedColumn, ids: queryValue, operator: 'not_in' })} OR ${resolvedColumn} IS NULL)`,
+                  )
+
+                  break
+                }
+
                 if (
                   (field.type === 'relationship' || field.type === 'upload') &&
                   Array.isArray(queryValue) &&
@@ -577,46 +610,15 @@ export function parseParams({
                 if (
                   adapter.limitedBoundParameters &&
                   (operator === 'in' || operator === 'not_in') &&
-                  relationOrPath === 'id' &&
-                  Array.isArray(queryValue)
+                  Array.isArray(queryValue) &&
+                  (relationOrPath === 'id' || shouldInlineVersionParents)
                 ) {
-                  let isInvalid = false
-                  for (const val of queryValue) {
-                    if (typeof val === 'number' || val === null) {
-                      continue
-                    }
-                    if (typeof val === 'string') {
-                      if (!isValidStringID(val)) {
-                        isInvalid = true
-                        break
-                      } else {
-                        continue
-                      }
-                    }
-                    isInvalid = true
-                    break
-                  }
-
-                  if (isInvalid) {
+                  if (!isInlinableIDList) {
                     throw new APIError(`Invalid ID value in ${JSON.stringify(queryValue)}`)
                   }
 
                   constraints.push(
-                    sql.raw(
-                      `"${getTableName(resolvedColumn.table)}"."${resolvedColumn.name}" ${operator === 'in' ? 'IN' : 'NOT IN'} (${queryValue
-                        .map((e) => {
-                          if (e === null) {
-                            return `NULL`
-                          }
-
-                          if (typeof e === 'number') {
-                            return e
-                          }
-
-                          return `'${e}'`
-                        })
-                        .join(',')})`,
-                    ),
+                    buildInlineIDList({ column: resolvedColumn, ids: queryValue, operator }),
                   )
                   break
                 }
@@ -832,3 +834,32 @@ function buildHasManyRelationshipCondition({
       return notExists(buildRelationshipRowsSubquery(exists(relatedDocumentSubquery)))
   }
 }
+
+/**
+ * Writes an ID list into the SQL text instead of binding one parameter per ID, for databases
+ * that limit the number of bound parameters. Callers must validate the IDs first.
+ */
+const buildInlineIDList = ({
+  column,
+  ids,
+  operator,
+}: {
+  column: { name: string; table: Parameters<typeof getTableName>[0] }
+  ids: unknown[]
+  operator: 'in' | 'not_in'
+}): SQL =>
+  sql.raw(
+    `"${getTableName(column.table)}"."${column.name}" ${operator === 'in' ? 'IN' : 'NOT IN'} (${ids
+      .map((id) => {
+        if (id === null) {
+          return `NULL`
+        }
+
+        if (typeof id === 'number') {
+          return id
+        }
+
+        return `'${String(id)}'`
+      })
+      .join(',')})`,
+  )

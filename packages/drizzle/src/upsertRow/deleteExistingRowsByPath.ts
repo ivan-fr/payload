@@ -1,4 +1,4 @@
-import { and, eq, inArray } from 'drizzle-orm'
+import { and, eq, inArray, sql } from 'drizzle-orm'
 
 import type { DrizzleAdapter, DrizzleTransaction } from '../types.js'
 
@@ -27,9 +27,27 @@ export const deleteExistingRowsByPath = async ({
   const pathsToDelete = new Set<string>()
   const table = adapter.tables[tableName]
 
+  if (!table) {
+    return
+  }
+
+  const prefixesToDelete: { locale?: string; prefix: string }[] = []
+
   rows.forEach((row) => {
     const path = row[pathColumnName]
     const localeData = row[localeColumnName]
+
+    if (row.isPathPrefix === true) {
+      if (typeof row.path === 'string' && row.path) {
+        prefixesToDelete.push({
+          locale: typeof row.locale === 'string' ? row.locale : undefined,
+          prefix: row.path,
+        })
+      }
+
+      return
+    }
+
     if (typeof path === 'string') {
       if (typeof localeData === 'string') {
         localizedPathsToDelete.add(path)
@@ -38,6 +56,27 @@ export const deleteExistingRowsByPath = async ({
       }
     }
   })
+
+  // Prefixes are deleted first, so the rows about to be inserted below them start from a clean
+  // slate. `substr` is used instead of LIKE because paths can contain LIKE wildcards such as `_`.
+  if (pathColumnName && table[pathColumnName]) {
+    for (const { locale, prefix } of prefixesToDelete) {
+      const whereConstraints = [
+        eq(table[parentColumnName], parentID),
+        sql`substr(${table[pathColumnName]}, 1, ${prefix.length}) = ${prefix}`,
+      ]
+
+      if (locale && table[localeColumnName]) {
+        whereConstraints.push(eq(table[localeColumnName], locale))
+      }
+
+      await adapter.deleteWhere({
+        db,
+        tableName,
+        where: and(...whereConstraints),
+      })
+    }
+  }
 
   if (localizedPathsToDelete.size > 0) {
     const whereConstraints = [eq(table[parentColumnName], parentID)]

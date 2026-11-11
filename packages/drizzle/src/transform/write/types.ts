@@ -25,6 +25,11 @@ export type BlockRowToInsert = {
 }
 
 export type RelationshipToDelete = {
+  /**
+   * When true, `path` is a prefix: every row stored below it is deleted. Used when an array or
+   * blocks field is rewritten, so rows that belonged to removed items do not stay behind.
+   */
+  isPathPrefix?: boolean
   itemToRemove?: any // For $remove operations - stores the item data to match
   locale?: string
   path: string
@@ -39,11 +44,15 @@ export type RelationshipToAppend = {
 }
 
 export type TextToDelete = {
+  /** When true, `path` is a prefix: every row stored below it is deleted. */
+  isPathPrefix?: boolean
   locale?: string
   path: string
 }
 
 export type NumberToDelete = {
+  /** When true, `path` is a prefix: every row stored below it is deleted. */
+  isPathPrefix?: boolean
   locale?: string
   path: string
 }

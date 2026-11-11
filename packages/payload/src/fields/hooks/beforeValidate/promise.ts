@@ -365,7 +365,12 @@ export const promise = async <T>({
 
     onFieldAccess?.({ accessResult, path })
 
-    if (siblingData[field.name!] === undefined && !req.context?.isRestoringVersion) {
+    // A restore must not backfill missing values from the current document: an absent value is
+    // part of the version. A value that field access just removed is different. The user may not
+    // change that field, so it keeps the value of the current document.
+    const shouldSkipDocumentFallback = Boolean(req.context?.isRestoringVersion) && accessResult
+
+    if (siblingData[field.name!] === undefined && !shouldSkipDocumentFallback) {
       const isDocumentValueAllowed =
         operation === 'update' || operation === 'validate' || accessResult
 
