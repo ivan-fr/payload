@@ -4,10 +4,13 @@
     justify-content: center;
     align-items: center;
     white-space: nowrap;
+  }
+
+  .doc-tab.btn--style-ghost {
     color: var(--color-text-secondary);
   }
 
-  .doc-tab:hover {
+  .doc-tab.btn:hover {
     color: var(--color-text);
   }
 

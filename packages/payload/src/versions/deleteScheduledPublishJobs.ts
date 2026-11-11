@@ -1,6 +1,6 @@
+import type { Payload } from '../index.js'
 import type { PayloadRequest } from '../types/index.js'
 
-import { type Payload } from '../index.js'
 import { jobsCollectionSlug } from '../queues/config/collection.js'
 
 type Args = {
@@ -21,6 +21,16 @@ export const deleteScheduledPublishJobs = async ({
   payload,
   req,
 }: Args): Promise<void> => {
+  const documentIDs = ids ?? (id === undefined ? [] : [id])
+
+  if (documentIDs.length === 0) {
+    return
+  }
+
+  const documentIDValues = [
+    ...new Set(documentIDs.flatMap((id) => (typeof id === 'number' ? [id, String(id)] : [id]))),
+  ]
+
   try {
     await payload.db.deleteMany({
       collection: jobsCollectionSlug,
@@ -38,19 +48,11 @@ export const deleteScheduledPublishJobs = async ({
               exists: false,
             },
           },
-          ids
-            ? {
-                or: ids.map((id) => ({
-                  'input.doc.value': {
-                    equals: id,
-                  },
-                })),
-              }
-            : {
-                'input.doc.value': {
-                  equals: id,
-                },
-              },
+          {
+            'input.doc.value': {
+              in: documentIDValues,
+            },
+          },
           {
             'input.doc.relationTo': {
               equals: slug,

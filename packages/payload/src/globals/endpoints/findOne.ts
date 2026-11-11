@@ -4,6 +4,7 @@ import { getRequestGlobal } from '../../utilities/getRequestEntity.js'
 import { headersWithCors } from '../../utilities/headersWithCors.js'
 import { httpStatus } from '../../utilities/httpStatus.js'
 import { isNumber } from '../../utilities/isNumber.js'
+import { parseBooleanString } from '../../utilities/parseBooleanString.js'
 import { sanitizePopulateParam } from '../../utilities/sanitizePopulateParam.js'
 import { sanitizeSelectParam } from '../../utilities/sanitizeSelectParam.js'
 import { findOneOperation } from '../operations/findOne.js'
@@ -30,6 +31,9 @@ export const findOneHandler: PayloadHandler = async (req) => {
     draft: data ? data.draft : searchParams.get('draft') === 'true',
     flattenLocales,
     globalConfig,
+    isLocalizedDataFlattened: parseBooleanString(
+      data ? data.isLocalizedDataFlattened : searchParams.get('isLocalizedDataFlattened'),
+    ),
     populate: sanitizePopulateParam(req.query.populate),
     req,
     select: sanitizeSelectParam(req.query.select),

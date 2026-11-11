@@ -107,6 +107,7 @@
     }
 
     .file-manager {
+      min-inline-size: 0;
       order: 0;
       /* Stacked — no vertical divider; the file manager's own bottom border separates it. */
       border-inline-start: 0;

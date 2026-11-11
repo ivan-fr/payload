@@ -56,6 +56,7 @@ export const mergeData = async <T extends Record<string, any>>(args: {
       depth,
       // The incoming data already has had its locales flattened
       flattenLocales: false,
+      isLocalizedDataFlattened: true,
       locale,
     },
     endpoint: encodeURI(

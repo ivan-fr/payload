@@ -50,6 +50,7 @@ type Args = {
   fieldPromises: Promise<void>[]
   findMany: boolean
   global: null | SanitizedGlobalConfig
+  isLocalizedDataFlattened?: boolean
   locale: null | string
   overrideAccess: boolean
   parentIndexPath: string
@@ -75,8 +76,8 @@ type Args = {
 // - Remove hidden fields from response
 // - Flatten locales into requested locale
 // - Sanitize outgoing data (point field, etc.)
-// - Execute field hooks
 // - Execute read access control
+// - Execute field hooks
 // - Populate relationships
 
 export const promise = async ({
@@ -95,6 +96,7 @@ export const promise = async ({
   findMany,
   flattenLocales,
   global,
+  isLocalizedDataFlattened = false,
   locale,
   overrideAccess,
   parentIndexPath,
@@ -124,19 +126,12 @@ export const promise = async ({
   const pathSegments = path ? path.split('.') : []
   const schemaPathSegments = schemaPath ? schemaPath.split('.') : []
   const indexPathSegments = indexPath ? indexPath.split('-').filter(Boolean)?.map(Number) : []
-  let removedFieldValue = false
 
   const isTopLevelIDField = fieldAffectsDataResult && field.name === 'id' && fieldDepth === 0
 
-  if (
-    fieldAffectsDataResult &&
-    field.hidden &&
-    siblingDoc[field.name!] !== undefined &&
-    !showHiddenFields &&
-    !isTopLevelIDField
-  ) {
-    removedFieldValue = true
+  if (fieldAffectsDataResult && field.hidden && !showHiddenFields && !isTopLevelIDField) {
     delete siblingDoc[field.name!]
+    return
   }
 
   if (path !== 'id') {
@@ -269,6 +264,7 @@ export const promise = async ({
   // If locale is `all`, siblingDoc[field.name] will be an object mapping locales to values - locales won't be flattened.
   // In this case, run the hook for each locale and value pair
   const shouldRunHookOnAllLocales =
+    !isLocalizedDataFlattened &&
     locale === 'all' &&
     'name' in field &&
     typeof field.name === 'string' &&
@@ -280,6 +276,38 @@ export const promise = async ({
     typeof siblingDoc[field.name] === 'object'
 
   if (fieldAffectsDataResult) {
+    // Execute access control
+    if (triggerAccessControl && field.access && field.access.read) {
+      const canReadField = overrideAccess
+        ? true
+        : await field.access.read(
+            collection
+              ? {
+                  id: doc.id as number | string,
+                  blockData,
+                  collection,
+                  data: doc,
+                  doc,
+                  req,
+                  siblingData: siblingDoc,
+                }
+              : {
+                  id: doc.id as number | string,
+                  blockData,
+                  data: doc,
+                  doc,
+                  global: global!,
+                  req,
+                  siblingData: siblingDoc,
+                },
+          )
+
+      if (!canReadField) {
+        delete siblingDoc[field.name!]
+        return
+      }
+    }
+
     // Execute hooks
     if (triggerHooks && 'hooks' in field && field.hooks?.afterRead) {
       for (const hook of field.hooks.afterRead) {
@@ -348,47 +376,9 @@ export const promise = async ({
       }
     }
 
-    // Execute access control
-    let allowDefaultValue = true
-    if (triggerAccessControl && field.access && field.access.read) {
-      const canReadField = overrideAccess
-        ? true
-        : await field.access.read(
-            collection
-              ? {
-                  id: doc.id as number | string,
-                  blockData,
-                  collection,
-                  data: doc,
-                  doc,
-                  req,
-                  siblingData: siblingDoc,
-                }
-              : {
-                  id: doc.id as number | string,
-                  blockData,
-                  data: doc,
-                  doc,
-                  global: global!,
-                  req,
-                  siblingData: siblingDoc,
-                },
-          )
-
-      if (!canReadField) {
-        allowDefaultValue = false
-        delete siblingDoc[field.name!]
-      }
-    }
-
     // Set defaultValue on the field for globals being returned without being first created
     // or collection documents created prior to having a default.
-    if (
-      !removedFieldValue &&
-      allowDefaultValue &&
-      siblingDoc[field.name!] === undefined &&
-      field.defaultValue !== undefined
-    ) {
+    if (siblingDoc[field.name!] === undefined && field.defaultValue !== undefined) {
       siblingDoc[field.name!] = await getDefaultValue({
         defaultValue: field.defaultValue,
         locale: locale!,
@@ -401,8 +391,6 @@ export const promise = async ({
     let virtualPopulationPromise: Promise<void> | undefined
 
     if (
-      allowDefaultValue &&
-      !removedFieldValue &&
       'virtual' in field &&
       typeof field.virtual === 'string' &&
       (!field.hidden || showHiddenFields)
@@ -475,6 +463,7 @@ export const promise = async ({
             findMany,
             flattenLocales,
             global,
+            isLocalizedDataFlattened,
             locale,
             overrideAccess,
             parentIndexPath: '',
@@ -511,6 +500,7 @@ export const promise = async ({
                 findMany,
                 flattenLocales,
                 global,
+                isLocalizedDataFlattened,
                 locale,
                 overrideAccess,
                 parentIndexPath: '',
@@ -573,6 +563,7 @@ export const promise = async ({
               findMany,
               flattenLocales,
               global,
+              isLocalizedDataFlattened,
               locale,
               overrideAccess,
               parentIndexPath: '',
@@ -619,6 +610,7 @@ export const promise = async ({
                   findMany,
                   flattenLocales,
                   global,
+                  isLocalizedDataFlattened,
                   locale,
                   overrideAccess,
                   parentIndexPath: '',
@@ -663,6 +655,7 @@ export const promise = async ({
         findMany,
         flattenLocales,
         global,
+        isLocalizedDataFlattened,
         locale,
         overrideAccess,
         parentIndexPath: indexPath,
@@ -690,7 +683,7 @@ export const promise = async ({
             ? (select?.[field.name] as SelectType)
             : undefined
 
-        if (shouldLocalizeField && !shouldHoistLocalizedValue) {
+        if (shouldLocalizeField && !shouldHoistLocalizedValue && !isLocalizedDataFlattened) {
           Object.values(siblingDoc[field.name] || {}).forEach((localizedData) => {
             traverseFields({
               blockData,
@@ -707,6 +700,7 @@ export const promise = async ({
               findMany,
               flattenLocales,
               global,
+              isLocalizedDataFlattened,
               locale,
               overrideAccess,
               parentIndexPath: '',
@@ -740,6 +734,7 @@ export const promise = async ({
             findMany,
             flattenLocales,
             global,
+            isLocalizedDataFlattened,
             locale,
             overrideAccess,
             parentIndexPath: '',
@@ -773,6 +768,7 @@ export const promise = async ({
           findMany,
           flattenLocales,
           global,
+          isLocalizedDataFlattened,
           locale,
           overrideAccess,
           parentIndexPath: indexPath,
@@ -899,7 +895,7 @@ export const promise = async ({
           typeof select?.[field.name] === 'object'
             ? (select?.[field.name] as SelectType)
             : undefined
-        if (shouldLocalizeField && !shouldHoistLocalizedValue) {
+        if (shouldLocalizeField && !shouldHoistLocalizedValue && !isLocalizedDataFlattened) {
           Object.values(siblingDoc[field.name] || {}).forEach((localizedData) => {
             traverseFields({
               blockData,
@@ -916,6 +912,7 @@ export const promise = async ({
               findMany,
               flattenLocales,
               global,
+              isLocalizedDataFlattened,
               locale,
               overrideAccess,
               parentIndexPath: '',
@@ -949,6 +946,7 @@ export const promise = async ({
             findMany,
             flattenLocales,
             global,
+            isLocalizedDataFlattened,
             locale,
             overrideAccess,
             parentIndexPath: '',
@@ -982,6 +980,7 @@ export const promise = async ({
           findMany,
           flattenLocales,
           global,
+          isLocalizedDataFlattened,
           locale,
           overrideAccess,
           parentIndexPath: isNamedTab ? '' : indexPath,
@@ -1019,6 +1018,7 @@ export const promise = async ({
         findMany,
         flattenLocales,
         global,
+        isLocalizedDataFlattened,
         locale,
         overrideAccess,
         parentIndexPath: indexPath,

@@ -23,6 +23,11 @@ export type AfterReadArgs<T extends JsonObject> = {
    */
   flattenLocales?: boolean
   global: null | SanitizedGlobalConfig
+  /**
+   * Set to true when supplied document data already contains values for a single locale,
+   * as in Live Preview. Raw locale maps remain the default for supplied data.
+   */
+  isLocalizedDataFlattened?: boolean
   locale: string
   overrideAccess: boolean
   populate?: PopulateType
@@ -36,8 +41,8 @@ export type AfterReadArgs<T extends JsonObject> = {
  * - Remove hidden fields from response
  * - Flatten locales into requested locale. If the input doc contains all locales, the output doc after this function will only contain the requested locale.
  * - Sanitize outgoing data (point field, etc.)
- * - Execute field hooks
  * - Execute read access control
+ * - Execute field hooks
  * - Populate relationships
  */
 
@@ -53,6 +58,7 @@ export async function afterRead<T extends JsonObject>(args: AfterReadArgs<T>): P
     findMany,
     flattenLocales = true,
     global,
+    isLocalizedDataFlattened = false,
     locale,
     overrideAccess,
     populate,
@@ -86,8 +92,9 @@ export async function afterRead<T extends JsonObject>(args: AfterReadArgs<T>): P
     fieldPromises,
     fields: (collection?.fields || global?.fields)!,
     findMany: findMany!,
-    flattenLocales,
+    flattenLocales: flattenLocales && !isLocalizedDataFlattened,
     global,
+    isLocalizedDataFlattened,
     locale,
     overrideAccess,
     parentIndexPath: '',

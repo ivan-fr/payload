@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This branch fixes 138 reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
+This fork contains **186 scoped fixes** for official Payload reports against **4.0.0-beta.6**. This batch starts from `23cca29c17` on `codex/six-more-payload-fixes-20261111`. The six new reports were checked open on 2026-11-11; details and verification limits are recorded in [batch 31](batch-31.md), following [batch 30](batch-30.md) and [batch 29](batch-29.md) on the same branch. No PR is opened and no official issue is closed.
 
-The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **129 snapshot issues have scoped fixes here; 436 snapshot issues remain unassessed**. Nine reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **138 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
+The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests: **159 snapshot issues have scoped fixes; 406 remain unassessed**. Another **27 scoped fixes** concern reports opened after that snapshot. Counts describe changes in this fork, not upstream closures. Historical validation below applies to the revisions stated in each batch.
 
 ## Changes and evidence
 
