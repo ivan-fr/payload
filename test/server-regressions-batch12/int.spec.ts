@@ -172,7 +172,7 @@ test.suite('Server regressions batch 12', { config: './config.ts' }, () => {
           client_secret: 'client_secret',
           metadata: {
             cartID: body.get('metadata[cartID]'),
-            cartItemsSnapshot: body.get('metadata[cartItemsSnapshot]'),
+            cartItemsHash: body.get('metadata[cartItemsHash]'),
           },
         }
         intents.set(paymentIntent.id, paymentIntent)

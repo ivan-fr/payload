@@ -21,6 +21,7 @@ import { useConfig } from '../../../providers/Config/index.js'
 import { useDocumentInfo } from '../../../providers/DocumentInfo/index.js'
 import { useLocale } from '../../../providers/Locale/index.js'
 import { useTranslation } from '../../../providers/Translation/index.js'
+import { getNoFallbackLocaleParam } from '../../../utilities/getNoFallbackLocaleParam.js'
 import { APIKeyGenerationModal } from './APIKeyGenerationModal.js'
 
 const path = 'apiKey'
@@ -99,7 +100,11 @@ export const APIKey: React.FC<{ readonly readOnly?: boolean; readonly reveal?: b
       return false
     }
     try {
-      const searchParams = new URLSearchParams({ depth: '0', 'fallback-locale': 'null' })
+      const searchParams = new URLSearchParams({ depth: '0' })
+      const fallbackLocaleParam = getNoFallbackLocaleParam({ localization: config.localization })
+      if (fallbackLocaleParam) {
+        searchParams.set('fallback-locale', fallbackLocaleParam)
+      }
       if (locale?.code) {
         searchParams.set('locale', locale.code)
       }

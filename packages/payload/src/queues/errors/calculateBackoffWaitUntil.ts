@@ -21,7 +21,13 @@ export function calculateBackoffWaitUntil({
       } else if (retriesConfig.backoff.type === 'exponential') {
         // 2 ^ (attempts - 1) * delay (current attempt is not included in totalTried, thus no need for -1)
         const delay = retriesConfig.backoff.delay ? retriesConfig.backoff.delay : 0
-        waitUntil = new Date(now.getTime() + Math.pow(2, totalTried) * delay)
+        const exponentialDelay = Math.pow(2, totalTried) * delay
+        // Equal jitter: keep at least half of the exponential delay so the growth curve is preserved,
+        // and randomize the rest so jobs that failed together do not all retry at the same instant.
+        const retryDelay = retriesConfig.backoff.jitter
+          ? exponentialDelay / 2 + Math.random() * (exponentialDelay / 2)
+          : exponentialDelay
+        waitUntil = new Date(now.getTime() + retryDelay)
       }
     }
   }

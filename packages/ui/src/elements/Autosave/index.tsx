@@ -27,6 +27,7 @@ import { useDocumentInfo } from '../../providers/DocumentInfo/index.js'
 import { useLocale } from '../../providers/Locale/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { useUploadEdits } from '../../providers/UploadEdits/index.js'
+import { getNoFallbackLocaleParam } from '../../utilities/getNoFallbackLocaleParam.js'
 import { reduceFieldsToValuesWithValidation } from '../../utilities/reduceFieldsToValuesWithValidation.js'
 import { LeaveWithoutSaving } from '../LeaveWithoutSaving/index.js'
 import './index.css'
@@ -45,9 +46,11 @@ export type Props = {
 export const Autosave: React.FC<Props> = ({ id, collection, global: globalDoc }) => {
   const {
     config: {
+      localization,
       routes: { api },
     },
   } = useConfig()
+  const fallbackLocaleParam = getNoFallbackLocaleParam({ localization })
 
   const {
     docConfig,
@@ -123,7 +126,7 @@ export const Autosave: React.FC<Props> = ({ id, collection, global: globalDoc })
               autosave: true,
               depth: 0,
               draft: true,
-              'fallback-locale': 'null',
+              'fallback-locale': fallbackLocaleParam,
               locale,
               uploadEdits: uploadEdits || undefined,
             },

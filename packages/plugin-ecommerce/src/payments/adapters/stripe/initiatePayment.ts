@@ -4,6 +4,7 @@ import type { PaymentAdapter } from '../../../types/index.js'
 import type { InitiatePaymentReturnType, StripeAdapterArgs } from './index.js'
 
 import { getCustomer } from '../../../utilities/getCustomer.js'
+import { createCartItemsHash } from './validateSettlement.js'
 
 type Props = {
   apiVersion?: Stripe.StripeConfig['apiVersion']
@@ -90,7 +91,14 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
         }
       })
 
-      const shippingAddressAsString = JSON.stringify(shippingAddressFromData)
+      // Stripe limits every metadata value to 500 characters, which a full address can exceed. The
+      // address is stored on the transaction instead. Only transactions collections without a
+      // `shippingAddress` field keep the previous metadata storage, so the address is not lost.
+      const canStoreShippingAddressOnTransaction = Boolean(
+        payload.collections?.[transactionsSlug]?.config.flattenedFields.some(
+          (field) => field.name === 'shippingAddress',
+        ),
+      )
 
       const paymentIntent = await stripe.paymentIntents.create({
         amount,
@@ -101,8 +109,10 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
         customer: customer.id,
         metadata: {
           cartID: cart.id,
-          cartItemsSnapshot: JSON.stringify(flattenedCart),
-          shippingAddress: shippingAddressAsString,
+          cartItemsHash: await createCartItemsHash({ items: flattenedCart }),
+          ...(canStoreShippingAddressOnTransaction || shippingAddressFromData === undefined
+            ? {}
+            : { shippingAddress: JSON.stringify(shippingAddressFromData) }),
         },
       })
 
@@ -117,6 +127,9 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
           currency: paymentIntent.currency.toUpperCase(),
           items: flattenedCart,
           paymentMethod: 'stripe',
+          ...(canStoreShippingAddressOnTransaction && shippingAddressFromData
+            ? { shippingAddress: shippingAddressFromData }
+            : {}),
           status: 'pending',
           stripe: {
             customerID: customer.id,

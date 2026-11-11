@@ -1,6 +1,7 @@
 'use client'
 import { useModal } from '@faceless-ui/modal'
 import { formatAdminURL } from 'payload/shared'
+import * as qs from 'qs-esm'
 import React, { useCallback } from 'react'
 import { toast } from 'sonner'
 
@@ -10,6 +11,7 @@ import { useDocumentInfo } from '../../providers/DocumentInfo/index.js'
 import { useLocale } from '../../providers/Locale/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { requests } from '../../utilities/api.js'
+import { getNoFallbackLocaleParam } from '../../utilities/getNoFallbackLocaleParam.js'
 import { Button } from '../Button/index.js'
 import { ConfirmationModal } from '../ConfirmationModal/index.js'
 import './index.css'
@@ -34,9 +36,11 @@ export const Status: React.FC = () => {
 
   const {
     config: {
+      localization,
       routes: { api },
     },
   } = useConfig()
+  const fallbackLocaleParam = getNoFallbackLocaleParam({ localization })
 
   const { reset: resetForm } = useForm()
   const currentLocale = useLocale()
@@ -65,10 +69,16 @@ export const Status: React.FC = () => {
     let url
     let method
 
+    const fallbackQuery = qs.stringify({
+      depth: 0,
+      'fallback-locale': fallbackLocaleParam,
+      locale,
+    })
+
     if (collectionSlug) {
       url = formatAdminURL({
         apiRoute: api,
-        path: `/${collectionSlug}/${id}?locale=${locale}&fallback-locale=null&depth=0`,
+        path: `/${collectionSlug}/${id}?${fallbackQuery}`,
       })
       method = 'patch'
     }
@@ -76,7 +86,7 @@ export const Status: React.FC = () => {
     if (globalSlug) {
       url = formatAdminURL({
         apiRoute: api,
-        path: `/globals/${globalSlug}?locale=${locale}&fallback-locale=null&depth=0`,
+        path: `/globals/${globalSlug}?${fallbackQuery}`,
       })
       method = 'post'
     }
@@ -135,6 +145,7 @@ export const Status: React.FC = () => {
   }, [
     api,
     collectionSlug,
+    fallbackLocaleParam,
     globalSlug,
     id,
     i18n.language,

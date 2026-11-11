@@ -15,6 +15,7 @@ import { useDocumentInfo } from '../../providers/DocumentInfo/index.js'
 import { useLocale } from '../../providers/Locale/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { requests } from '../../utilities/api.js'
+import { getNoFallbackLocaleParam } from '../../utilities/getNoFallbackLocaleParam.js'
 import { ConfirmationModal } from '../ConfirmationModal/index.js'
 import { PopupList } from '../Popup/index.js'
 export function UnpublishButton({
@@ -44,9 +45,11 @@ export function UnpublishButton({
   const unPublishModalSlug = `confirm-un-publish-${id}`
 
   const {
+    localization,
     routes: { api },
     serverURL,
   } = config
+  const fallbackLocaleParam = getNoFallbackLocaleParam({ localization })
 
   const { i18n, t } = useTranslation()
 
@@ -69,7 +72,7 @@ export function UnpublishButton({
         const queryString = qs.stringify(
           {
             depth: 0,
-            'fallback-locale': 'null',
+            'fallback-locale': fallbackLocaleParam,
             locale: unpublishAll ? undefined : localeCode,
             unpublishAllLocales: unpublishAll,
           },
@@ -144,6 +147,7 @@ export function UnpublishButton({
       globalSlug,
       serverURL,
       api,
+      fallbackLocaleParam,
       localeCode,
       id,
       i18n.language,

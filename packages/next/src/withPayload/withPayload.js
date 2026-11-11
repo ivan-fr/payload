@@ -11,6 +11,37 @@ import {
   serverExternalPackages as serverExternalPayloadPackages,
 } from 'payload/build-config'
 
+import {
+  getNextjsVersion,
+  getSupportedNextjsRange,
+  getUnsupportedNextjsVersionWarning,
+} from './withPayload.utils.js'
+
+let hasCheckedNextjsVersion = false
+
+/**
+ * `withPayload` can be evaluated several times per process, the version only needs checking once.
+ */
+const warnOnUnsupportedNextjsVersion = () => {
+  if (hasCheckedNextjsVersion) {
+    return
+  }
+
+  hasCheckedNextjsVersion = true
+
+  const range = getSupportedNextjsRange()
+
+  if (!range) {
+    return
+  }
+
+  const warning = getUnsupportedNextjsVersionWarning({ range, version: getNextjsVersion() })
+
+  if (warning) {
+    console.warn(warning)
+  }
+}
+
 const poweredByHeader = {
   key: 'X-Powered-By',
   value: 'Next.js, Payload',
@@ -23,6 +54,8 @@ const poweredByHeader = {
  * @param {boolean} [options.devBundleServerPackages] - Whether to bundle server packages in development mode. @default false
  * */
 export const withPayload = (nextConfig = {}, options = {}) => {
+  warnOnUnsupportedNextjsVersion()
+
   const env = { ...nextConfig.env }
   const clientHintSource = options.clientHintHeaders ?? '/:path*'
   const themeHintHeaders = [

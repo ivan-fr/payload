@@ -151,6 +151,14 @@ export type RetryConfig = {
      */
     delay?: number
     /**
+     * Randomizes the delay of the `exponential` strategy so that jobs which failed at the same time
+     * do not all retry at the same time. The delay is spread evenly between 50% and 100% of the
+     * exponential delay. Has no effect on the `fixed` strategy.
+     *
+     * @default false
+     */
+    jitter?: boolean
+    /**
      * @default fixed
      *
      * The backoff strategy to use when retrying the task. This determines how long to wait before retrying the task.
