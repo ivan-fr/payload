@@ -3802,8 +3802,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18132",
       "labels": ["Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 18139,
@@ -5818,5 +5820,5 @@
       "last_checked_date": "2026-11-11"
     }
   ],
-  "branch_fix_count": 200
+  "branch_fix_count": 201
 }

@@ -413,4 +413,93 @@ test.suite('batch 33 regressions', { config: './config.ts' }, () => {
       })
     })
   })
+
+  test.describe('concurrent logins to one account (#18132)', () => {
+    const email = 'concurrent@payloadcms.com'
+    const loginCount = 8
+
+    const readStoredSessions = async ({ payload, userID }: { payload: Payload; userID: number }) =>
+      (
+        await payload.db.findOne<{ sessions?: { expiresAt: Date | string; id: string }[] }>({
+          collection: usersSlug,
+          where: { id: { equals: userID } },
+        })
+      )?.sessions ?? []
+
+    test('should keep the session of every concurrent login', async ({ payload, restClient }) => {
+      const user = await createUser({ email, payload })
+
+      const logins = await Promise.all(
+        Array.from({ length: loginCount }, () =>
+          payload.login({ collection: usersSlug, data: { email, password } }),
+        ),
+      )
+
+      const storedSessions = await readStoredSessions({ payload, userID: user.id })
+
+      expect(new Set(storedSessions.map(({ id }) => id)).size).toBe(loginCount)
+
+      const authenticatedUsers = await Promise.all(
+        logins.map(async ({ token }) => {
+          const response = await restClient.GET(`/${usersSlug}/me`, {
+            auth: false,
+            headers: { Authorization: `JWT ${token}` },
+          })
+
+          return (await response.json()).user?.email
+        }),
+      )
+
+      expect(authenticatedUsers).toEqual(Array.from({ length: loginCount }, () => email))
+    })
+
+    test('should remove expired sessions on login and keep the active ones', async ({
+      payload,
+    }) => {
+      const user = await createUser({ email, payload })
+      const firstLogin = await payload.login({ collection: usersSlug, data: { email, password } })
+      const [activeSession] = await readStoredSessions({ payload, userID: user.id })
+
+      await payload.db.updateOne({
+        id: user.id,
+        collection: usersSlug,
+        data: {
+          sessions: [
+            activeSession,
+            { id: 'expired-session', createdAt: new Date(0), expiresAt: new Date(1000) },
+          ],
+        },
+      })
+
+      await payload.login({ collection: usersSlug, data: { email, password } })
+
+      const storedSessions = await readStoredSessions({ payload, userID: user.id })
+
+      expect(firstLogin.token).toEqual(expect.any(String))
+      expect(storedSessions).toHaveLength(2)
+      expect(storedSessions.map(({ id }) => id)).toContain(activeSession!.id)
+      expect(storedSessions.map(({ id }) => id)).not.toContain('expired-session')
+    })
+
+    test('should end only its own session on logout', async ({ payload, restClient }) => {
+      const user = await createUser({ email, payload })
+      const [firstLogin, secondLogin] = await Promise.all([
+        payload.login({ collection: usersSlug, data: { email, password } }),
+        payload.login({ collection: usersSlug, data: { email, password } }),
+      ])
+
+      const logout = await restClient.POST(`/${usersSlug}/logout`, {
+        auth: false,
+        headers: { Authorization: `JWT ${firstLogin.token}` },
+      })
+      const stillLoggedIn = await restClient.GET(`/${usersSlug}/me`, {
+        auth: false,
+        headers: { Authorization: `JWT ${secondLogin.token}` },
+      })
+
+      expect(logout.status).toBe(200)
+      expect(await readStoredSessions({ payload, userID: user.id })).toHaveLength(1)
+      expect((await stillLoggedIn.json()).user?.email).toBe(email)
+    })
+  })
 })

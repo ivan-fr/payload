@@ -27,15 +27,23 @@ The preference half of #18200 was already handled in this source. #17724 and #16
 
 **Locales.** A config that mixes string and object locales, or has an object without `code`, now fails at startup. Such a config did not work before; it failed later with unrelated errors. An empty locale list is still accepted.
 
+## Addendum: concurrent logins (#18132)
+
+[#18132](https://github.com/payloadcms/payload/issues/18132) was first excluded and then fixed on request. `addSessionToUser` appends the new session with the adapters' existing `$push` operation instead of writing back the session list it read earlier in the request. Concurrent logins therefore no longer overwrite each other.
+
+Evidence on SQLite: eight concurrent logins store eight sessions and all eight tokens authenticate; at baseline one session is stored. Logging out one of two concurrent sessions leaves the other in place, which also fails at baseline because only one session existed. Expired sessions are still removed on login.
+
+Limits. Adapters cannot remove single array rows, so removing expired sessions, logout and refresh still rewrite the list. Expired sessions are now removed in a separate step that re-reads the list immediately before writing and runs only when something has expired; a session added by another request inside that short window can still be lost. The list is not bounded in length. The MongoDB path uses the same `$push` support as the job log, but was not run against a live MongoDB, and no multi-process or PostgreSQL run was made.
+
 ## Investigated and excluded
 
-#18132 (concurrent logins lose sessions) reproduces on SQLite, one session stored for five successful logins. A correct fix needs an atomic append per adapter or a lock held until the transaction commits; it is not attempted here. #17443 reproduces only for non-draft restores, which validate on purpose; the admin restores as drafts. #16199, #14682 and #17928 need a design decision. #17645, #18086, #18139, #18246, #19198 and #15740 are already handled in this source. #14527, #14748, #15585, #15962, #17133 and #17923 did not reproduce on SQLite. Their inventory status is unchanged.
+#17443 reproduces only for non-draft restores, which validate on purpose; the admin restores as drafts. #16199, #14682 and #17928 need a design decision. #17645, #18086, #18139, #18246, #19198 and #15740 are already handled in this source. #14527, #14748, #15585, #15962, #17133 and #17923 did not reproduce on SQLite. Their inventory status is unchanged.
 
 ## Validation
 
 Runtime: Node `22.23.4` (the repository asks for `>=24.22.1`), pnpm `11.28.6`, Linux x64.
 
-- `test/server-regressions-batch33` on SQLite: **11 passed**. Against the previous implementation, 7 of those fail and the 4 controls pass.
+- `test/server-regressions-batch33` on SQLite: **14 passed**. Against the previous implementation, 9 of those fail and the 5 controls pass.
 - Broader SQLite integration, all passing: fields, relationships, array-update, select, locked-documents (**434 passed**); localization, versions, joins, auth, access-control (**716 passed**); database, hooks, trash, collections-rest (**445 passed**).
 - Unit: **1,141 passed across 114 files** for `packages/drizzle` and the touched areas of `packages/payload`.
 - Types: `pnpm exec tsc -b packages/payload packages/drizzle packages/ui --pretty false` passed. Formatting and oxlint pass on the changed package files.
@@ -44,4 +52,4 @@ Not verified: live PostgreSQL, MongoDB and D1. The nested-row cleanup and the `p
 
 ## Inventory
 
-The historical snapshot now contains **173 scoped fixes and 392 unassessed reports**, plus **27 later fixed reports**: **200 scoped fixes in this fork**. The inventory counts fork changes, not upstream issue closures.
+The historical snapshot now contains **174 scoped fixes and 391 unassessed reports**, plus **27 later fixed reports**: **201 scoped fixes in this fork**. The inventory counts fork changes, not upstream issue closures.
