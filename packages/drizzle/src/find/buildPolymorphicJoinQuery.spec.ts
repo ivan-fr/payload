@@ -231,7 +231,7 @@ describe('buildPolymorphicJoinQuery', () => {
     )
 
     expect(query.sql.match(/"title" = \?/g)).toHaveLength(2)
-    expect(query.sql).toContain('? = ?')
+    expect(query.sql).toContain('cast(? as text) = ?')
     expect(query.params.filter((value) => value === 'available')).toHaveLength(2)
     expect(query.params).toContain('articles')
     expect(query.params).toContain('notes')

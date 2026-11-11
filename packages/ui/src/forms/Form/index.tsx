@@ -41,6 +41,7 @@ import { useTranslation } from '../../providers/Translation/index.js'
 import { useUploadHandlers } from '../../providers/UploadHandlers/index.js'
 import { abortAndIgnore, handleAbortRef } from '../../utilities/abortAndIgnore.js'
 import { requests } from '../../utilities/api.js'
+import { getUniqueErrorMessages } from '../../utilities/getUniqueErrorMessages.js'
 import {
   BackgroundProcessingContext,
   DocumentFormContext,
@@ -81,6 +82,7 @@ export const Form: React.FC<FormProps> = (props) => {
     isDocumentForm,
     isInitializing: initializingFromProps,
     onChange,
+    onPartialSuccess,
     onSubmit,
     onSuccess,
     redirect,
@@ -509,8 +511,20 @@ export const Form: React.FC<FormProps> = (props) => {
 
           contextRef.current = { ...contextRef.current } // triggers rerender of all components that subscribe to form
 
+          if (
+            onPartialSuccess &&
+            Array.isArray(json.docs) &&
+            json.docs.length > 0 &&
+            Array.isArray(json.errors)
+          ) {
+            await onPartialSuccess(json, { context, formState: serializableFormState })
+          }
+
           if (json.message) {
-            errorToast(json.message)
+            const reasons = getUniqueErrorMessages({ errors: json.errors })
+            errorToast(
+              [json.message, ...reasons.filter((reason) => reason !== json.message)].join('\n'),
+            )
             return
           }
 
@@ -592,6 +606,7 @@ export const Form: React.FC<FormProps> = (props) => {
       dispatchFields,
       handleResponse,
       method,
+      onPartialSuccess,
       onSubmit,
       onSuccess,
       redirect,

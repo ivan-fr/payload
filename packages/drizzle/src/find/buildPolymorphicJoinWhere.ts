@@ -282,7 +282,8 @@ const resolveWherePath = ({
   if (schemaPath === 'relationTo') {
     return {
       type: 'scalar',
-      column: sql`${collection}`,
+      // PostgreSQL cannot infer a parameter's type when it is used only in IS NULL.
+      column: sql`cast(${collection} as text)`,
       pathPlan,
       queryValueContext: {
         type: 'scalar',

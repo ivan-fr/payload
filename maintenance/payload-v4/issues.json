@@ -76,8 +76,11 @@
       "url": "https://github.com/payloadcms/payload/issues/10125",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 36
     },
     {
       "number": 10250,
@@ -85,8 +88,11 @@
       "url": "https://github.com/payloadcms/payload/issues/10250",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 36
     },
     {
       "number": 10589,
@@ -103,8 +109,11 @@
       "url": "https://github.com/payloadcms/payload/issues/10605",
       "labels": ["status: needs-triage"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 36
     },
     {
       "number": 10790,
@@ -184,8 +193,11 @@
       "url": "https://github.com/payloadcms/payload/issues/11383",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 37
     },
     {
       "number": 11397,
@@ -211,8 +223,11 @@
       "url": "https://github.com/payloadcms/payload/issues/11580",
       "labels": ["created-by: Contributor"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 37
     },
     {
       "number": 11661,
@@ -265,8 +280,11 @@
       "url": "https://github.com/payloadcms/payload/issues/11871",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 36
     },
     {
       "number": 11969,
@@ -382,8 +400,11 @@
       "url": "https://github.com/payloadcms/payload/issues/12764",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 37
     },
     {
       "number": 12769,
@@ -564,8 +585,10 @@
       "url": "https://github.com/payloadcms/payload/issues/13694",
       "labels": ["created-by: Payload team"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 13753,
@@ -609,8 +632,10 @@
       "url": "https://github.com/payloadcms/payload/issues/13851",
       "labels": ["status: needs-triage", "stale"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 13853,
@@ -874,8 +899,11 @@
       "url": "https://github.com/payloadcms/payload/issues/14682",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 37
     },
     {
       "number": 14683,
@@ -1527,8 +1555,10 @@
       "url": "https://github.com/payloadcms/payload/issues/15686",
       "labels": ["plugin: richtext-lexical", "created-by: Contributor", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
     },
     {
       "number": 15712,
@@ -1563,8 +1593,11 @@
       "url": "https://github.com/payloadcms/payload/issues/15784",
       "labels": ["created-by: Contributor", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 35
     },
     {
       "number": 15825,
@@ -1655,8 +1688,11 @@
       "url": "https://github.com/payloadcms/payload/issues/15959",
       "labels": ["area: core"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 35
     },
     {
       "number": 15962,
@@ -1774,8 +1810,11 @@
       "url": "https://github.com/payloadcms/payload/issues/16054",
       "labels": ["status: needs-triage", "plugin: nested-docs", "db: postgres"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 37
     },
     {
       "number": 16061,
@@ -1917,7 +1956,7 @@
       "upstream_state_at_snapshot": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
+      "upstream_state_last_checked": "not_verified",
       "last_checked_date": "2026-11-11"
     },
     {
@@ -2085,8 +2124,10 @@
       "url": "https://github.com/payloadcms/payload/issues/16308",
       "labels": ["status: needs-triage", "area: ui", "stale"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 16314,
@@ -2114,8 +2155,9 @@
       "upstream_state_at_snapshot": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "not_verified",
-      "last_checked_date": "2026-11-11"
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 35
     },
     {
       "number": 16325,
@@ -2486,8 +2528,10 @@
       "url": "https://github.com/payloadcms/payload/issues/16659",
       "labels": ["stale", "area: core", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
     },
     {
       "number": 16674,
@@ -2524,8 +2568,9 @@
       "upstream_state_at_snapshot": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "not_verified",
-      "last_checked_date": "2026-11-11"
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 35
     },
     {
       "number": 16727,
@@ -2551,8 +2596,11 @@
       "url": "https://github.com/payloadcms/payload/issues/16730",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 35
     },
     {
       "number": 16734,
@@ -2716,8 +2764,10 @@
       "url": "https://github.com/payloadcms/payload/issues/16952",
       "labels": ["status: needs-triage", "area: ui", "stale", "Bug", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 16953,
@@ -2734,8 +2784,10 @@
       "url": "https://github.com/payloadcms/payload/issues/16955",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 16980,
@@ -2816,8 +2868,9 @@
       "upstream_state_at_snapshot": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "not_verified",
-      "last_checked_date": "2026-11-11"
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 36
     },
     {
       "number": 17133,
@@ -2910,8 +2963,11 @@
       "url": "https://github.com/payloadcms/payload/issues/17223",
       "labels": ["created-by: Contributor"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 37
     },
     {
       "number": 17232,
@@ -2970,8 +3026,11 @@
       "url": "https://github.com/payloadcms/payload/issues/17262",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 36
     },
     {
       "number": 17293,
@@ -3062,8 +3121,11 @@
       "url": "https://github.com/payloadcms/payload/issues/17406",
       "labels": ["status: needs-triage", "area: core", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 34
     },
     {
       "number": 17425,
@@ -3091,8 +3153,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17457",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 17461,
@@ -3133,8 +3197,8 @@
       "upstream_state_at_snapshot": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "not_verified",
-      "last_checked_date": "2026-11-11"
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 17508,
@@ -3236,8 +3300,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17639",
       "labels": ["status: needs-triage", "area: ui", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 17645,
@@ -3274,8 +3340,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17667",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 17668,
@@ -3328,8 +3396,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17684",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 17699,
@@ -3468,8 +3538,8 @@
       "upstream_state_at_snapshot": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "not_verified",
-      "last_checked_date": "2026-11-11"
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 17779,
@@ -3477,8 +3547,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17779",
       "labels": ["`area: live-preview`", "`area: ui`", "`area: templates`"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 17792,
@@ -3522,8 +3594,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17833",
       "labels": ["plugin: multi-tenant", "payloadcms/payload", "3.x"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 17844,
@@ -3853,8 +3927,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18162",
       "labels": ["area: ui", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 18163,
@@ -4015,7 +4091,7 @@
       "upstream_state_at_snapshot": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
+      "upstream_state_last_checked": "not_verified",
       "last_checked_date": "2026-11-11"
     },
     {
@@ -4106,7 +4182,7 @@
       "upstream_state_at_snapshot": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
+      "upstream_state_last_checked": "not_verified",
       "last_checked_date": "2026-11-11"
     },
     {
@@ -4171,7 +4247,7 @@
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
+      "last_checked_date": "2026-11-08"
     },
     {
       "number": 18332,
@@ -4182,7 +4258,7 @@
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
+      "last_checked_date": "2026-11-08"
     },
     {
       "number": 18334,
@@ -4254,7 +4330,7 @@
       "upstream_state_at_snapshot": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
+      "upstream_state_last_checked": "not_verified",
       "last_checked_date": "2026-11-11"
     },
     {
@@ -4548,8 +4624,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18588",
       "labels": ["area: core", "Bug", "area: uploads", "plugin: next (`withPayload`)"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 18623,
@@ -4787,8 +4865,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18837",
       "labels": ["area: ui", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
     },
     {
       "number": 18843,
@@ -4970,7 +5050,7 @@
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
+      "last_checked_date": "2026-11-08"
     },
     {
       "number": 19018,
@@ -5045,7 +5125,7 @@
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
+      "last_checked_date": "2026-11-08"
     },
     {
       "number": 19056,
@@ -5149,7 +5229,8 @@
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 34
     },
     {
       "number": 19141,
@@ -5482,26 +5563,13 @@
       "verified_source_version": "4.0.0-beta.6"
     },
     {
-      "number": 19318,
-      "title": "richtext-lexical: the editor upload card shows the cropped `thumbnail` size instead of the image",
-      "url": "https://github.com/payloadcms/payload/issues/19318",
+      "number": 19294,
+      "title": "Declared video mimetype not corrected to detected type (isProcessableImage only covers images)",
+      "url": "https://github.com/payloadcms/payload/issues/19294",
       "labels": ["Bug"],
       "added_date": "2026-11-04",
       "upstream_state_when_added": "open",
-      "created_at": "2026-11-04T05:39:58Z",
-      "status": "scoped_fix_in_branch",
-      "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-04"
-    },
-    {
-      "number": 19317,
-      "title": "richtext-lexical: `slashMenu.dynamicGroups` are dropped (self-concatenation in the merge, and not offered on a bare \"/\")",
-      "url": "https://github.com/payloadcms/payload/issues/19317",
-      "labels": ["Bug"],
-      "added_date": "2026-11-04",
-      "upstream_state_when_added": "open",
-      "created_at": "2026-11-04T05:39:57Z",
+      "created_at": "2026-11-03T14:29:48Z",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
@@ -5521,56 +5589,43 @@
       "last_checked_date": "2026-11-04"
     },
     {
-      "number": 19294,
-      "title": "Declared video mimetype not corrected to detected type (isProcessableImage only covers images)",
-      "url": "https://github.com/payloadcms/payload/issues/19294",
+      "number": 19317,
+      "title": "richtext-lexical: `slashMenu.dynamicGroups` are dropped (self-concatenation in the merge, and not offered on a bare \"/\")",
+      "url": "https://github.com/payloadcms/payload/issues/19317",
       "labels": ["Bug"],
       "added_date": "2026-11-04",
       "upstream_state_when_added": "open",
-      "created_at": "2026-11-03T14:29:48Z",
+      "created_at": "2026-11-04T05:39:57Z",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
       "last_checked_date": "2026-11-04"
     },
     {
-      "number": 19346,
-      "title": "List view requests the same relationship documents again while their first request is still pending",
-      "url": "https://github.com/payloadcms/payload/issues/19346",
-      "labels": ["area: ui", "Bug"],
-      "added_date": "2026-11-05",
+      "number": 19318,
+      "title": "richtext-lexical: the editor upload card shows the cropped `thumbnail` size instead of the image",
+      "url": "https://github.com/payloadcms/payload/issues/19318",
+      "labels": ["Bug"],
+      "added_date": "2026-11-04",
       "upstream_state_when_added": "open",
-      "created_at": "2026-11-04T19:32:46Z",
+      "created_at": "2026-11-04T05:39:58Z",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-05"
+      "last_checked_date": "2026-11-04"
     },
     {
-      "number": 19387,
-      "title": "sdk: `fallbackLocale: false` is not sent to the REST API",
-      "url": "https://github.com/payloadcms/payload/issues/19387",
-      "labels": ["status: needs-triage", "invalid-reproduction", "Bug", "v3"],
-      "created_at": "2026-11-06T06:20:19Z",
-      "added_date": "2026-11-06",
+      "number": 19322,
+      "title": "db-postgres / db-sqlite: nested block rows are not deleted when their parent block is removed, and reappear inside other blocks",
+      "url": "https://github.com/payloadcms/payload/issues/19322",
+      "labels": ["db: postgres", "Bug", "db: sqlite (all drizzle adapters)"],
+      "created_at": "2026-11-04T10:16:02Z",
+      "added_date": "2026-11-07",
       "upstream_state_when_added": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-06"
-    },
-    {
-      "number": 19385,
-      "title": "Lexical fields drawer: Save is silently refused when the debounced onChange aborts the submit's form-state request",
-      "url": "https://github.com/payloadcms/payload/issues/19385",
-      "labels": ["plugin: richtext-lexical", "area: ui", "Bug"],
-      "created_at": "2026-11-06T01:40:44Z",
-      "added_date": "2026-11-06",
-      "upstream_state_when_added": "open",
-      "status": "scoped_fix_in_branch",
-      "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-06"
+      "last_checked_date": "2026-11-07"
     },
     {
       "number": 19337,
@@ -5586,11 +5641,168 @@
       "last_checked_date": "2026-11-06"
     },
     {
-      "number": 19420,
-      "title": "plugin-multi-tenant: `isGlobal` collections redirect tenant-scoped users to `/admin` since 3.93.0 (GlobalViewRedirect prop-name mismatch)",
-      "url": "https://github.com/payloadcms/payload/issues/19420",
-      "labels": ["plugin: multi-tenant", "Bug"],
-      "created_at": "2026-11-06T17:49:36Z",
+      "number": 19346,
+      "title": "List view requests the same relationship documents again while their first request is still pending",
+      "url": "https://github.com/payloadcms/payload/issues/19346",
+      "labels": ["area: ui", "Bug"],
+      "added_date": "2026-11-05",
+      "upstream_state_when_added": "open",
+      "created_at": "2026-11-04T19:32:46Z",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-05"
+    },
+    {
+      "number": 19385,
+      "title": "Lexical fields drawer: Save is silently refused when the debounced onChange aborts the submit's form-state request",
+      "url": "https://github.com/payloadcms/payload/issues/19385",
+      "labels": ["plugin: richtext-lexical", "area: ui", "Bug"],
+      "created_at": "2026-11-06T01:40:44Z",
+      "added_date": "2026-11-06",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-06"
+    },
+    {
+      "number": 19387,
+      "title": "sdk: `fallbackLocale: false` is not sent to the REST API",
+      "url": "https://github.com/payloadcms/payload/issues/19387",
+      "labels": ["status: needs-triage", "invalid-reproduction", "Bug", "v3"],
+      "created_at": "2026-11-06T06:20:19Z",
+      "added_date": "2026-11-06",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-06"
+    },
+    {
+      "number": 19395,
+      "title": "[v4] Document controls: empty `__icon-buttons` wrapper doubles the gap before Save",
+      "url": "https://github.com/payloadcms/payload/issues/19395",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T14:52:31Z",
+      "added_date": "2026-11-08",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
+    },
+    {
+      "number": 19396,
+      "title": "[v4] Button: `buttonStyle=\"link\"` is in the type but has no styles",
+      "url": "https://github.com/payloadcms/payload/issues/19396",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T15:22:36Z",
+      "added_date": "2026-11-09",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-09"
+    },
+    {
+      "number": 19397,
+      "title": "[v4] Button: icon-only `dashed` loses its dashed border",
+      "url": "https://github.com/payloadcms/payload/issues/19397",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T15:27:05Z",
+      "added_date": "2026-11-08",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
+    },
+    {
+      "number": 19399,
+      "title": "JSON field: remote `jsonSchema` (`uri` only) is never validated, any value is saved",
+      "url": "https://github.com/payloadcms/payload/issues/19399",
+      "labels": ["status: needs-triage", "created-by: Contributor", "area: core", "Bug", "v3"],
+      "created_at": "2026-11-06T15:41:37Z",
+      "added_date": "2026-11-07",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
+    },
+    {
+      "number": 19401,
+      "title": "[v4] json field: the migration guide's `jsonSchema` transform example fails typecheck and runs the json validator against `fetch(undefined)`",
+      "url": "https://github.com/payloadcms/payload/issues/19401",
+      "labels": ["status: needs-triage", "created-by: Contributor", "area: core", "Bug", "v3"],
+      "created_at": "2026-11-06T15:49:49Z",
+      "added_date": "2026-11-10",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 35
+    },
+    {
+      "number": 19402,
+      "title": "[v4] `useActions().setViewActions` called on mount is wiped by `ActionsProvider`'s reset effect",
+      "url": "https://github.com/payloadcms/payload/issues/19402",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T15:52:41Z",
+      "added_date": "2026-11-07",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
+    },
+    {
+      "number": 19403,
+      "title": "[v4] Side drawer grows with its content instead of scrolling inside, so `position: sticky` in a Drawer never sticks",
+      "url": "https://github.com/payloadcms/payload/issues/19403",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T15:58:43Z",
+      "added_date": "2026-11-08",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
+    },
+    {
+      "number": 19404,
+      "title": "[v4] db-postgres: the generated `localize-status` migration crashes with \"query.getSQL is not a function\"",
+      "url": "https://github.com/payloadcms/payload/issues/19404",
+      "labels": ["status: needs-triage", "db: postgres", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T16:08:36Z",
+      "added_date": "2026-11-07",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-07"
+    },
+    {
+      "number": 19406,
+      "title": "[v4] Inactive document tabs use the ghost button color on Next.js (no Lexical): the `.doc-tab` color depends on stylesheet order",
+      "url": "https://github.com/payloadcms/payload/issues/19406",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T16:24:31Z",
+      "added_date": "2026-11-08",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
+    },
+    {
+      "number": 19407,
+      "title": "[v4] List view crashes (\"Cannot read properties of undefined (reading 'field')\") when the URL `where` uses `exists` on a path that isn't a filter option",
+      "url": "https://github.com/payloadcms/payload/issues/19407",
+      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
+      "created_at": "2026-11-06T16:27:56Z",
       "added_date": "2026-11-07",
       "upstream_state_when_added": "open",
       "status": "scoped_fix_in_branch",
@@ -5612,24 +5824,37 @@
       "last_checked_date": "2026-11-07"
     },
     {
-      "number": 19407,
-      "title": "[v4] List view crashes (\"Cannot read properties of undefined (reading 'field')\") when the URL `where` uses `exists` on a path that isn't a filter option",
-      "url": "https://github.com/payloadcms/payload/issues/19407",
+      "number": 19412,
+      "title": "[v4] Upload edit view: a wide custom `filePreview` widens the file panel and collapses the fields column",
+      "url": "https://github.com/payloadcms/payload/issues/19412",
       "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
-      "created_at": "2026-11-06T16:27:56Z",
-      "added_date": "2026-11-07",
+      "created_at": "2026-11-06T16:46:56Z",
+      "added_date": "2026-11-08",
       "upstream_state_when_added": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-07"
+      "last_checked_date": "2026-11-08"
     },
     {
-      "number": 19402,
-      "title": "[v4] `useActions().setViewActions` called on mount is wiped by `ActionsProvider`'s reset effect",
-      "url": "https://github.com/payloadcms/payload/issues/19402",
+      "number": 19413,
+      "title": "[v4] Group field: the divider of a second group inside a collapsible is drawn through the group's label",
+      "url": "https://github.com/payloadcms/payload/issues/19413",
       "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
-      "created_at": "2026-11-06T15:52:41Z",
+      "created_at": "2026-11-06T16:49:49Z",
+      "added_date": "2026-11-08",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-08"
+    },
+    {
+      "number": 19420,
+      "title": "plugin-multi-tenant: `isGlobal` collections redirect tenant-scoped users to `/admin` since 3.93.0 (GlobalViewRedirect prop-name mismatch)",
+      "url": "https://github.com/payloadcms/payload/issues/19420",
+      "labels": ["plugin: multi-tenant", "Bug"],
+      "created_at": "2026-11-06T17:49:36Z",
       "added_date": "2026-11-07",
       "upstream_state_when_added": "open",
       "status": "scoped_fix_in_branch",
@@ -5638,43 +5863,73 @@
       "last_checked_date": "2026-11-07"
     },
     {
-      "number": 19399,
-      "title": "JSON field: remote `jsonSchema` (`uri` only) is never validated, any value is saved",
-      "url": "https://github.com/payloadcms/payload/issues/19399",
-      "labels": ["status: needs-triage", "created-by: Contributor", "area: core", "Bug", "v3"],
-      "created_at": "2026-11-06T15:41:37Z",
-      "added_date": "2026-11-07",
+      "number": 19448,
+      "title": "Scheduled publish jobs are not deleted when their document is deleted (string id in the job, raw id in the cleanup)",
+      "url": "https://github.com/payloadcms/payload/issues/19448",
+      "labels": ["db: sqlite", "area: core", "Bug"],
+      "created_at": "2026-11-09T05:20:57Z",
+      "added_date": "2026-11-09",
       "upstream_state_when_added": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-07"
+      "last_checked_date": "2026-11-09"
     },
     {
-      "number": 19404,
-      "title": "[v4] db-postgres: the generated `localize-status` migration crashes with \"query.getSQL is not a function\"",
-      "url": "https://github.com/payloadcms/payload/issues/19404",
-      "labels": ["status: needs-triage", "db: postgres", "created-by: Contributor", "Bug", "v3"],
-      "created_at": "2026-11-06T16:08:36Z",
-      "added_date": "2026-11-07",
+      "number": 19451,
+      "title": "Concurrent scheduled publish and unpublish leave two versions flagged latest, and the unpublished document is still returned to an anonymous draft=true read",
+      "url": "https://github.com/payloadcms/payload/issues/19451",
+      "labels": ["db: sqlite", "area: core", "Bug"],
+      "created_at": "2026-11-09T06:38:47Z",
+      "added_date": "2026-11-10",
       "upstream_state_when_added": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-07"
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 34
     },
     {
-      "number": 19322,
-      "title": "db-postgres / db-sqlite: nested block rows are not deleted when their parent block is removed, and reappear inside other blocks",
-      "url": "https://github.com/payloadcms/payload/issues/19322",
-      "labels": ["db: postgres", "Bug", "db: sqlite (all drizzle adapters)"],
-      "created_at": "2026-11-04T10:16:02Z",
-      "added_date": "2026-11-07",
+      "number": 19459,
+      "title": "db-postgres: OR filters on two text fields in the same block throw a duplicate JOIN alias error",
+      "url": "https://github.com/payloadcms/payload/issues/19459",
+      "labels": ["db: postgres", "Bug"],
+      "created_at": "2026-11-09T13:37:21Z",
+      "added_date": "2026-11-10",
       "upstream_state_when_added": "open",
       "status": "scoped_fix_in_branch",
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-07"
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 34
+    },
+    {
+      "number": 19479,
+      "title": "Live preview throws on localized group fields (afterRead treats flattened group as locale map when flattenLocales: false)",
+      "url": "https://github.com/payloadcms/payload/issues/19479",
+      "labels": ["area: core", "Bug", "Payload-OSS", "plugin: live-preview"],
+      "created_at": "2026-11-10T12:14:28Z",
+      "added_date": "2026-11-10",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 34
+    },
+    {
+      "number": 19481,
+      "title": "Armenian (hy) admin shows \"Loading...\" for every date: importDateFNSLocale has no 'hy-AM' case",
+      "url": "https://github.com/payloadcms/payload/issues/19481",
+      "labels": ["area: ui", "created-by: Contributor", "Bug"],
+      "created_at": "2026-11-10T12:55:24Z",
+      "added_date": "2026-11-10",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-10",
+      "fix_batch": 34
     },
     {
       "number": 19490,
@@ -5688,137 +5943,7 @@
       "verified_source_version": "4.0.0-beta.6",
       "upstream_state_last_checked": "open",
       "last_checked_date": "2026-11-11"
-    },
-    {
-      "number": 19481,
-      "title": "Armenian (hy) admin shows \"Loading...\" for every date: importDateFNSLocale has no 'hy-AM' case",
-      "url": "https://github.com/payloadcms/payload/issues/19481",
-      "labels": ["area: ui", "created-by: Contributor", "Bug", "Payload-OSS"],
-      "created_at": "2026-11-10T12:55:24Z",
-      "added_date": "2026-11-11",
-      "upstream_state_when_added": "open",
-      "status": "scoped_fix_in_branch",
-      "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
-    },
-    {
-      "number": 19479,
-      "title": "Live preview throws on localized group fields (afterRead treats flattened group as locale map when flattenLocales: false)",
-      "url": "https://github.com/payloadcms/payload/issues/19479",
-      "labels": ["area: core", "Bug", "Payload-OSS", "plugin: live-preview"],
-      "created_at": "2026-11-10T12:14:28Z",
-      "added_date": "2026-11-11",
-      "upstream_state_when_added": "open",
-      "status": "scoped_fix_in_branch",
-      "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
-    },
-    {
-      "number": 19448,
-      "title": "Scheduled publish jobs are not deleted when their document is deleted (string id in the job, raw id in the cleanup)",
-      "url": "https://github.com/payloadcms/payload/issues/19448",
-      "labels": ["db: sqlite", "area: core", "Bug"],
-      "created_at": "2026-11-09T05:20:57Z",
-      "added_date": "2026-11-11",
-      "upstream_state_when_added": "open",
-      "status": "scoped_fix_in_branch",
-      "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
-    },
-    {
-      "number": 19459,
-      "title": "db-postgres: OR filters on two text fields in the same block throw a duplicate JOIN alias error",
-      "url": "https://github.com/payloadcms/payload/issues/19459",
-      "labels": ["db: postgres", "Bug"],
-      "created_at": "2026-11-09T13:37:21Z",
-      "added_date": "2026-11-11",
-      "upstream_state_when_added": "open",
-      "status": "scoped_fix_in_branch",
-      "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
-    },
-    {
-      "number": 19397,
-      "title": "[v4] Button: icon-only `dashed` loses its dashed border",
-      "url": "https://github.com/payloadcms/payload/issues/19397",
-      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
-      "created_at": "2026-11-06T15:27:05Z",
-      "added_date": "2026-11-11",
-      "upstream_state_when_added": "open",
-      "status": "scoped_fix_in_branch",
-      "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
-    },
-    {
-      "number": 19406,
-      "title": "[v4] Inactive document tabs use the ghost button color on Next.js (no Lexical): the `.doc-tab` color depends on stylesheet order",
-      "url": "https://github.com/payloadcms/payload/issues/19406",
-      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
-      "created_at": "2026-11-06T16:24:31Z",
-      "added_date": "2026-11-11",
-      "upstream_state_when_added": "open",
-      "status": "scoped_fix_in_branch",
-      "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
-    },
-    {
-      "number": 19412,
-      "title": "[v4] Upload edit view: a wide custom `filePreview` widens the file panel and collapses the fields column",
-      "url": "https://github.com/payloadcms/payload/issues/19412",
-      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
-      "created_at": "2026-11-06T16:46:56Z",
-      "added_date": "2026-11-11",
-      "upstream_state_when_added": "open",
-      "status": "scoped_fix_in_branch",
-      "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
-    },
-    {
-      "number": 19413,
-      "title": "[v4] Group field: the divider of a second group inside a collapsible is drawn through the group's label",
-      "url": "https://github.com/payloadcms/payload/issues/19413",
-      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
-      "created_at": "2026-11-06T16:49:49Z",
-      "added_date": "2026-11-11",
-      "upstream_state_when_added": "open",
-      "status": "scoped_fix_in_branch",
-      "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
-    },
-    {
-      "number": 19403,
-      "title": "[v4] Side drawer grows with its content instead of scrolling inside, so `position: sticky` in a Drawer never sticks",
-      "url": "https://github.com/payloadcms/payload/issues/19403",
-      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
-      "created_at": "2026-11-06T15:58:43Z",
-      "added_date": "2026-11-11",
-      "upstream_state_when_added": "open",
-      "status": "scoped_fix_in_branch",
-      "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
-    },
-    {
-      "number": 19395,
-      "title": "[v4] Document controls: empty `__icon-buttons` wrapper doubles the gap before Save",
-      "url": "https://github.com/payloadcms/payload/issues/19395",
-      "labels": ["status: needs-triage", "area: ui", "created-by: Contributor", "Bug", "v3"],
-      "created_at": "2026-11-06T14:52:31Z",
-      "added_date": "2026-11-11",
-      "upstream_state_when_added": "open",
-      "status": "scoped_fix_in_branch",
-      "verified_source_version": "4.0.0-beta.6",
-      "upstream_state_last_checked": "open",
-      "last_checked_date": "2026-11-11"
     }
   ],
-  "branch_fix_count": 201
+  "branch_fix_count": 235
 }

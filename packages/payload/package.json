@@ -223,6 +223,7 @@
     "range-parser": "1.2.1",
     "sanitize-filename": "1.6.4",
     "sax": "1.6.1",
+    "strtok3": "10.6.3",
     "ts-essentials": "10.0.3",
     "tsx": "4.23.15",
     "undici": "7.30.1",

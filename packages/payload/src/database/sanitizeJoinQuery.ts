@@ -24,7 +24,7 @@ const sanitizeJoinFieldQuery = async ({
   overrideAccess,
   promises,
   req,
-  validationWhere,
+  whereToValidate,
 }: {
   collectionSlug: string
   errors: { path: string }[]
@@ -33,10 +33,9 @@ const sanitizeJoinFieldQuery = async ({
   overrideAccess: boolean
   promises: Promise<void>[]
   req: PayloadRequest
-  validationWhere?: Where
+  whereToValidate?: Where
 }) => {
   const { joinPath } = join
-  const isPolymorphic = Array.isArray(join.field.collection)
 
   // TODO: fix any's in joinsQuery[joinPath]
 
@@ -53,11 +52,6 @@ const sanitizeJoinFieldQuery = async ({
       )
     : true
 
-  if (accessResult === false && !isPolymorphic) {
-    ;(joinsQuery as any)[joinPath] = false
-    return
-  }
-
   if (!(joinsQuery as any)[joinPath]) {
     ;(joinsQuery as any)[joinPath] = {}
   }
@@ -68,15 +62,19 @@ const sanitizeJoinFieldQuery = async ({
     joinQuery.where = {}
   }
 
-  if (join.field.where && !isPolymorphic) {
-    joinQuery.where = combineQueries(joinQuery.where, deepCopyObjectSimple(join.field.where))
+  if (accessResult === false) {
+    if (Array.isArray(join.field.collection)) {
+      joinQuery.where = combineQueries(joinQuery.where, {
+        relationTo: { not_equals: collectionSlug },
+      })
+    } else {
+      ;(joinsQuery as any)[joinPath] = false
+    }
+    return
   }
 
-  if (accessResult === false) {
-    joinQuery.where = combineQueries(joinQuery.where, {
-      relationTo: { not_equals: collectionSlug },
-    })
-    return
+  if (join.field.where) {
+    joinQuery.where = combineQueries(joinQuery.where, deepCopyObjectSimple(join.field.where))
   }
 
   promises.push(
@@ -87,7 +85,7 @@ const sanitizeJoinFieldQuery = async ({
       polymorphicJoin: Array.isArray(join.field.collection),
       req,
       // incoming where input, but we shouldn't validate generated from the access control.
-      where: validationWhere ?? joinQuery.where,
+      where: whereToValidate ?? joinQuery.where,
     }),
     validateSortQuery({
       collectionConfig: joinCollectionConfig,
@@ -103,12 +101,10 @@ const sanitizeJoinFieldQuery = async ({
       payload: req.payload,
       where: accessResult,
     })
-    joinQuery.where = combineQueries(
-      joinQuery.where,
-      isPolymorphic
-        ? { or: [{ relationTo: { not_equals: collectionSlug } }, accessResult] }
-        : accessResult,
-    )
+    const accessWhere = Array.isArray(join.field.collection)
+      ? { or: [{ relationTo: { not_equals: collectionSlug } }, accessResult] }
+      : accessResult
+    joinQuery.where = combineQueries(joinQuery.where, accessWhere)
   }
 }
 
@@ -149,22 +145,9 @@ export const sanitizeJoinQuery = async ({
   }
 
   for (const join of collectionConfig.polymorphicJoins) {
-    const joinQueries = joinsQuery as Record<string, { where?: Where } | false>
-    const incomingJoinQuery = joinQueries[join.joinPath]
-
-    if (incomingJoinQuery === false) {
-      continue
-    }
-
-    const joinQuery = incomingJoinQuery ?? {}
-    joinQueries[join.joinPath] = joinQuery
-    const validationWhere = combineQueries(
-      deepCopyObjectSimple(joinQuery.where ?? {}),
-      deepCopyObjectSimple(join.field.where ?? {}),
+    const whereToValidate = deepCopyObjectSimple(
+      combineQueries((joinsQuery as any)[join.joinPath]?.where || {}, join.field.where || {}),
     )
-
-    joinQuery.where = validationWhere
-
     for (const collectionSlug of join.field.collection) {
       await sanitizeJoinFieldQuery({
         collectionSlug,
@@ -174,7 +157,7 @@ export const sanitizeJoinQuery = async ({
         overrideAccess,
         promises,
         req,
-        validationWhere,
+        whereToValidate,
       })
     }
   }

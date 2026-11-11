@@ -1352,6 +1352,8 @@ await upgradeLexicalData({ payload })
 
 ### Rich text output schemas have been renamed
 
+JSON fields retain their validation-schema object form of `jsonSchema` and also accept the transform array shown above. To combine runtime validation with type-generation transforms, use `jsonSchema: { uri, fileMatch, schema, transforms: [...] }`. See [JSON schema transforms](../fields/json#schema-transforms).
+
 The Rich Text adapter's `outputSchema` property has been renamed to `jsonSchema`. The arguments object also gains `typeStringDefinitions: Set<string>` — a sink for raw TS source appended to `payload-types.ts`.
 
 ```diff

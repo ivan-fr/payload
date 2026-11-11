@@ -218,7 +218,7 @@ export async function computePaths(args: ComputePathsArgs): Promise<ComputePaths
     }
 
     const cache = context.hierarchyAncestorCache[collection.slug]
-    const cacheKey = `${parentID}_${locale || 'default'}`
+    const cacheKey = `${parentID}_${locale || 'default'}_${draft ? 'draft' : 'published'}`
 
     // Check cache first
     let parent = cache[cacheKey]
@@ -250,17 +250,16 @@ export async function computePaths(args: ComputePathsArgs): Promise<ComputePaths
       }
 
       // Fetch parent
-      // When locale === 'all', we need special handling because Payload doesn't support
-      // fetching all locales of a draft document (drafts are stored per-locale).
-      // Strategy: Try published first, fallback to fetching each locale separately for drafts.
+      // Preserve preview intent for all-locales reads, including moved draft-only ancestors.
       const fetchParent = async () => {
         if (locale === 'all') {
           try {
-            // First try to fetch published version with all locales
+            // Query the requested version with all locales before the per-locale fallback.
             return await req.payload.findByID({
               id: validParentID,
               collection: collection.slug,
               depth: 0,
+              draft,
               locale,
               overrideAccess: true,
               req: parentReq,
@@ -433,7 +432,7 @@ export async function computePaths(args: ComputePathsArgs): Promise<ComputePaths
     const docTitle = getTitleValue({ document: doc, isTitleLocalized, locale, req, titleFieldName })
 
     // Cache the current document (in its own collection's cache)
-    const currentDocCacheKey = `${doc.id}_${locale || 'default'}`
+    const currentDocCacheKey = `${doc.id}_${locale || 'default'}_${draft ? 'draft' : 'published'}`
     if (!context.hierarchyAncestorCache[collection.slug]) {
       context.hierarchyAncestorCache[collection.slug] = {}
     }

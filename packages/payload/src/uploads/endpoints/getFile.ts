@@ -1,6 +1,5 @@
 import type { Stats } from 'node:fs'
 
-import { fileTypeFromFile } from 'file-type'
 import fsPromises from 'node:fs/promises'
 import path from 'node:path'
 
@@ -15,6 +14,7 @@ import { getRequestCollection } from '../../utilities/getRequestEntity.js'
 import { headersWithCors } from '../../utilities/headersWithCors.js'
 import { httpStatus } from '../../utilities/httpStatus.js'
 import { checkFileAccess } from '../checkFileAccess.js'
+import { detectFileTypeFromFile } from '../detectFileTypeFromFile.js'
 import { streamFile } from '../fetchAPI-stream-file/index.js'
 import { resolveHistoricalFile } from '../fileVersioning/resolveHistoricalFile.js'
 import { getFileTypeFallback } from '../getFileTypeFallback.js'
@@ -166,7 +166,8 @@ export async function retrieveFileResponse({
     throw err
   }
 
-  const fileTypeResult = (await fileTypeFromFile(filePath)) || getFileTypeFallback(filePath)
+  const fileTypeResult =
+    (await detectFileTypeFromFile({ path: filePath })) || getFileTypeFallback(filePath)
   let mimeType = fileTypeResult.mime
 
   if (

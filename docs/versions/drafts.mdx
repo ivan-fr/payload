@@ -208,6 +208,79 @@ If you already have a collection with documents, and you _opt in_ to draft funct
 
 </Banner>
 
+### Enabling drafts on existing documents
+
+Adding the draft schema does not create version records for existing documents. Even if your read access permits a missing `_status`, draft queries and the Admin list can omit documents that have no latest version. Apply the schema migration first, then backfill their versions before switching traffic to draft-based reads.
+
+The following example uses the Local API to create a version for each document missing a latest version. Choose `status` explicitly according to whether the existing content should be public. Documents that already have a latest version are skipped, including documents with pending drafts. Run this against a backup-tested database while content writes are paused. Normal update hooks run; the `isDraftBackfill` context flag lets your own hooks identify this migration.
+
+```ts
+import type { CollectionSlug, Payload } from 'payload'
+
+export async function backfillDraftVersions({
+  collection,
+  payload,
+  status,
+}: {
+  collection: CollectionSlug
+  payload: Payload
+  status: 'draft' | 'published'
+}) {
+  const versions = payload.collections[collection]?.config.versions
+  const drafts = versions && versions.drafts
+
+  if (!drafts || (typeof drafts === 'object' && drafts.localizeStatus)) {
+    throw new Error('This example requires drafts without localized status.')
+  }
+
+  let page = 1
+  let hasNextPage = true
+
+  while (hasNextPage) {
+    const result = await payload.find({
+      collection,
+      depth: 0,
+      draft: false,
+      limit: 100,
+      overrideAccess: true,
+      page,
+      sort: 'id',
+      trash: false,
+    })
+
+    for (const doc of result.docs) {
+      const versions = await payload.findVersions({
+        collection,
+        depth: 0,
+        limit: 1,
+        overrideAccess: true,
+        where: {
+          and: [{ parent: { equals: doc.id } }, { latest: { equals: true } }],
+        },
+      })
+
+      if (versions.docs.length > 0) {
+        continue
+      }
+
+      await payload.update({
+        collection,
+        id: doc.id,
+        context: { isDraftBackfill: true },
+        data: { _status: status },
+        draft: status === 'draft',
+        overrideAccess: true,
+      })
+    }
+
+    hasNextPage = result.hasNextPage
+    page += 1
+  }
+}
+```
+
+For example, call `await backfillDraftVersions({ collection: 'posts', payload, status: 'published' })` from a Payload script for previously public content. The selected status applies only to documents without a latest version; it does not publish existing pending drafts. Verify both `draft: false` and `draft: true` reads after backfilling. Collections with localized status require a migration that preserves each locale's publication intent; this example rejects that configuration rather than publishing every locale.
+
 Here is an example for how to write an [Access Control](../access-control/overview) function that grants access to both documents where `_status` is equal to "published" and where `_status` does not exist:
 
 ```ts

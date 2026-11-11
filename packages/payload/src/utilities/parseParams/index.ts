@@ -16,7 +16,6 @@ export type RawParams = {
   draft?: string
   field?: string
   flattenLocales?: string
-  isLocalizedDataFlattened?: string
   joins?: JoinParams
   limit?: string
   overrideLock?: string
@@ -39,7 +38,6 @@ export type ParsedParams = {
   draft?: boolean
   field?: string
   flattenLocales?: boolean
-  isLocalizedDataFlattened?: boolean
   joins?: JoinQuery
   limit?: number
   overrideLock?: boolean
@@ -62,7 +60,6 @@ export const booleanParams = [
   'overrideLock',
   'pagination',
   'flattenLocales',
-  'isLocalizedDataFlattened',
   'publishAllLocales',
   'unpublishAllLocales',
 ]

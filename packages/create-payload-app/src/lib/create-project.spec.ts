@@ -3,9 +3,11 @@ import fse from 'fs-extra'
 import globby from 'globby'
 import * as os from 'node:os'
 import path from 'path'
+import { parse } from 'yaml'
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vitest } from 'vitest'
 import type { CliArgs, DbType, ProjectExample, ProjectTemplate } from '../types.js'
 
+import * as versionResolver from '../utils/resolvePackageVersion.js'
 import { createProject, updatePackageJSONDependencies } from './create-project.js'
 import { getValidTemplates } from './templates.js'
 
@@ -83,6 +85,46 @@ describe('createProject', () => {
 
       expect(importMapFile).not.toContain('plugin-package-name-placeholder')
       expect(importMapFile).toContain('my-custom-plugin')
+    })
+
+    it('should configure PostgreSQL Compose services in a generated blank project', async () => {
+      const template = getValidTemplates().find((entry) => entry.name === 'blank')!
+
+      const version = vitest
+        .spyOn(versionResolver, 'resolvePackageVersion')
+        .mockResolvedValue('4.0.0-beta.6')
+
+      try {
+        await createProject({
+          cliArgs: {
+            ...args,
+            '--db': 'postgres',
+            '--local-template': 'blank',
+            '--no-agent': true,
+            '--no-git': true,
+          },
+          dbDetails: {
+            type: 'postgres',
+            dbUri: 'postgres://postgres:test@localhost:5432/compose-test',
+          },
+          packageManager,
+          projectDir,
+          projectName: 'compose-test',
+          template,
+        })
+        const compose = parse(
+          await fse.readFile(path.join(projectDir, 'docker-compose.yml'), 'utf8'),
+        )
+
+        expect(compose.services.postgres.image).toBe('postgres:17-alpine')
+        expect(compose.services.postgres.environment.POSTGRES_DB).toBe('compose-test')
+        expect(compose.services.payload.environment.DATABASE_URL).toBe(
+          'postgres://postgres:test@postgres:5432/compose-test',
+        )
+        expect(compose.services.mongo).toBeUndefined()
+      } finally {
+        version.mockRestore()
+      }
     })
 
     it('creates example', async () => {

@@ -37,7 +37,7 @@ export type GlobalFindOneArgs = {
   req: PayloadRequest
   showHiddenFields?: boolean
   slug: string
-} & Pick<AfterReadArgs<JsonObject>, 'flattenLocales' | 'isLocalizedDataFlattened'> &
+} & Pick<AfterReadArgs<JsonObject>, 'flattenLocales'> &
   Pick<FindOptions<string, SelectType>, 'select'>
 
 export const findOneOperation = async <T extends Record<string, unknown>>(
@@ -51,7 +51,6 @@ export const findOneOperation = async <T extends Record<string, unknown>>(
     flattenLocales,
     globalConfig,
     includeLockStatus: includeLockStatusFromArgs,
-    isLocalizedDataFlattened,
     overrideAccess = false,
     populate,
     req: { fallbackLocale, locale },
@@ -252,7 +251,6 @@ export const findOneOperation = async <T extends Record<string, unknown>>(
     fallbackLocale: fallbackLocale!,
     flattenLocales,
     global: globalConfig,
-    isLocalizedDataFlattened: Boolean(args.data && isLocalizedDataFlattened),
     locale: locale!,
     overrideAccess,
     populate,

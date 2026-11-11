@@ -16,7 +16,7 @@ import { useLocale } from '../../providers/Locale/index.js'
 import { useOperation } from '../../providers/Operation/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { useUploadEdits } from '../../providers/UploadEdits/index.js'
-import { getNoFallbackLocaleParam } from '../../utilities/getNoFallbackLocaleParam.js'
+import { getFallbackLocaleQuery } from '../../utilities/getFallbackLocaleQuery.js'
 
 const baseClass = 'save-draft'
 
@@ -27,7 +27,6 @@ export function SaveDraftButton(props: SaveDraftButtonClientProps) {
       routes: { api },
     },
   } = useConfig()
-  const fallbackLocaleParam = getNoFallbackLocaleParam({ localization })
 
   const { id, collectionSlug, globalSlug, setUnpublishedVersionCount, uploadStatus } =
     useDocumentInfo()
@@ -53,7 +52,7 @@ export function SaveDraftButton(props: SaveDraftButtonClientProps) {
       {
         depth: 0,
         draft: true,
-        'fallback-locale': fallbackLocaleParam,
+        'fallback-locale': getFallbackLocaleQuery({ localization }),
         locale,
         uploadEdits: uploadEdits || undefined,
       },
@@ -94,7 +93,7 @@ export function SaveDraftButton(props: SaveDraftButtonClientProps) {
     collectionSlug,
     globalSlug,
     api,
-    fallbackLocaleParam,
+    localization,
     locale,
     id,
     disabled,

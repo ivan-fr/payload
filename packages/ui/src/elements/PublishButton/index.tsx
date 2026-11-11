@@ -18,7 +18,7 @@ import { useLocale } from '../../providers/Locale/index.js'
 import { useOperation } from '../../providers/Operation/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { useUploadEdits } from '../../providers/UploadEdits/index.js'
-import { getNoFallbackLocaleParam } from '../../utilities/getNoFallbackLocaleParam.js'
+import { getFallbackLocaleQuery } from '../../utilities/getFallbackLocaleQuery.js'
 import { traverseForLocalizedFields } from '../../utilities/traverseForLocalizedFields.js'
 import { PopupList } from '../Popup/index.js'
 import { FieldErrorsToast } from '../Toasts/fieldErrors.js'
@@ -53,7 +53,6 @@ export function PublishButton({
     localization,
     routes: { api },
   } = config
-  const fallbackLocaleParam = getNoFallbackLocaleParam({ localization })
 
   const { i18n, t } = useTranslation()
   const label = labelProp || t('version:publishChanges')
@@ -108,7 +107,7 @@ export function PublishButton({
       {
         depth: 0,
         draft: true,
-        'fallback-locale': fallbackLocaleParam,
+        'fallback-locale': getFallbackLocaleQuery({ localization }),
         locale: localeCode,
         uploadEdits: uploadEdits || undefined,
       },
@@ -143,17 +142,7 @@ export function PublishButton({
       },
       skipValidation: true,
     })
-  }, [
-    disabled,
-    fallbackLocaleParam,
-    localeCode,
-    collectionSlug,
-    globalSlug,
-    submit,
-    api,
-    id,
-    uploadEdits,
-  ])
+  }, [disabled, localeCode, collectionSlug, globalSlug, submit, api, id, uploadEdits, localization])
 
   useHotkey({ cmdCtrlKey: true, editDepth, keyCodes: ['s'] }, (e) => {
     e.preventDefault()

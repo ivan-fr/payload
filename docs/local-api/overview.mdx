@@ -445,12 +445,14 @@ const result = await payload.unlock({
 ### Verify
 
 ```js
-// Returned result will be a boolean representing success or failure
+// Returns true after successfully verifying the user.
 const result = await payload.verifyEmail({
   collection: 'users', // required
   token: 'afh3o2jf2p3f...', // the token saved on the user as `_verificationToken`
 })
 ```
+
+Invalid verification tokens reject with an `APIError` (HTTP 403). The method does not return `false` for an invalid token. Handle failures with `try` / `catch`; missing token data and a disabled local authentication strategy can also reject. REST and GraphQL retain their existing error responses.
 
 ## Globals
 

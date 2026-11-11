@@ -159,9 +159,13 @@ test.suite('Server regressions batch 12', { config: './config.ts' }, () => {
     const intents = new Map<string, Record<string, unknown>>()
     vi.stubGlobal(
       'fetch',
-      vi.fn(async (url: string, options: { method: string; body?: string }) => {
-        if (url.includes('/customers')) return Response.json({ data: [{ id: 'cus_test' }] })
-        if (options.method === 'GET') return Response.json(intents.get(url.split('/').at(-1)!))
+      vi.fn((url: string, options: { body?: string; method: string }) => {
+        if (url.includes('/customers')) {
+          return Promise.resolve(Response.json({ data: [{ id: 'cus_test' }] }))
+        }
+        if (options.method === 'GET') {
+          return Promise.resolve(Response.json(intents.get(url.split('/').at(-1)!)))
+        }
         const body = new URLSearchParams(options.body)
         const paymentIntent = {
           id: `pi_${++intent}`,
@@ -170,23 +174,26 @@ test.suite('Server regressions batch 12', { config: './config.ts' }, () => {
           customer: 'cus_test',
           status: 'succeeded',
           client_secret: 'client_secret',
-          metadata: {
-            cartID: body.get('metadata[cartID]'),
-            cartItemsHash: body.get('metadata[cartItemsHash]'),
-          },
+          metadata: Object.fromEntries(
+            [...body].flatMap(([key, value]) => {
+              const match = /^metadata\[(.+)\]$/.exec(key)
+              return match ? [[match[1], value]] : []
+            }),
+          ),
         }
         intents.set(paymentIntent.id, paymentIntent)
-        return Response.json(paymentIntent)
+        return Promise.resolve(Response.json(paymentIntent))
       }),
     )
     const adapter = stripeAdapter({ secretKey: randomUUID(), publishableKey: randomUUID() })
     const req = await createPayloadRequest({ payload })
-    for (let i = 0; i < 3; i++)
+    for (let i = 0; i < 3; i++) {
       await adapter.initiatePayment!({
         transactionsSlug,
         req,
         data: { cart, currency: 'usd', customerEmail: 'buyer@example.com' },
       } as never)
+    }
     const transactions = await payload.find({
       overrideAccess: true,
       collection: transactionsSlug,
@@ -199,9 +206,9 @@ test.suite('Server regressions batch 12', { config: './config.ts' }, () => {
     expect(rowIDs).not.toContain(cart.items![0]!.id)
     expect(transactions.docs.every((doc) => doc.items![0]!.deliveryOption === 'express')).toBe(true)
     req.user = { id: 999, collection: machinesSlug } as never
-    const finalizeOrder = vi.fn(async (_args: { orderData: Record<string, unknown> }) => ({
-      id: 'order',
-    }))
+    const finalizeOrder = vi.fn((_args: { orderData: Record<string, unknown> }) =>
+      Promise.resolve({ id: 'order' }),
+    )
     await adapter.confirmOrder!({
       req,
       transactionsSlug,

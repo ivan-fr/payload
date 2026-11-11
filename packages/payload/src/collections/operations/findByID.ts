@@ -54,7 +54,7 @@ export type FindByIDArgs = {
   req: PayloadRequest
   showHiddenFields?: boolean
   trash?: boolean
-} & Pick<AfterReadArgs<JsonObject>, 'flattenLocales' | 'isLocalizedDataFlattened'> &
+} & Pick<AfterReadArgs<JsonObject>, 'flattenLocales'> &
   Pick<FindOptions<string, SelectType>, 'select'>
 
 export const findByIDOperation = async <
@@ -86,7 +86,6 @@ export const findByIDOperation = async <
     draft: replaceWithVersion = false,
     flattenLocales,
     includeLockStatus: includeLockStatusFromArgs,
-    isLocalizedDataFlattened,
     joins,
     overrideAccess = false,
     populate,
@@ -367,7 +366,6 @@ export const findByIDOperation = async <
     fallbackLocale: fallbackLocale!,
     flattenLocales,
     global: null,
-    isLocalizedDataFlattened: Boolean(args.data && isLocalizedDataFlattened),
     locale: locale!,
     overrideAccess,
     populate,
@@ -387,6 +385,7 @@ export const findByIDOperation = async <
           collection: collectionConfig,
           context: req.context,
           doc: result,
+          draft: replaceWithVersion,
           overrideAccess,
           query,
           req,

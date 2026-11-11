@@ -81,7 +81,7 @@ type BaseFindOneOptions<TSlug extends GlobalSlug, TSelect extends SelectType> = 
    */
   user?: null | User
 } & Pick<FindOptions<string, SelectType>, 'select'> &
-  Pick<GlobalFindOneArgs, 'flattenLocales' | 'isLocalizedDataFlattened'> &
+  Pick<GlobalFindOneArgs, 'flattenLocales'> &
   Pick<SharedLocalAPIOptions, 'overrideAccess'>
 
 export type Options<TSlug extends GlobalSlug, TSelect extends SelectType> = BaseFindOneOptions<
@@ -105,7 +105,6 @@ export async function findOneGlobalLocal<
     draft = false,
     flattenLocales,
     includeLockStatus,
-    isLocalizedDataFlattened,
     overrideAccess = false,
     populate,
     select,
@@ -127,7 +126,6 @@ export async function findOneGlobalLocal<
     flattenLocales,
     globalConfig,
     includeLockStatus,
-    isLocalizedDataFlattened,
     overrideAccess,
     populate,
     req: await createPayloadRequest({

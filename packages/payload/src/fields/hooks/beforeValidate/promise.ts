@@ -13,6 +13,7 @@ import type { Block, Field, TabAsField } from '../../config/types.js'
 import { MissingEditorProp, ValidationError } from '../../../errors/index.js'
 import { fieldAffectsData, tabHasName, valueIsValueWithRelation } from '../../config/types.js'
 import { getFieldPaths } from '../../getFieldPaths.js'
+import { cloneDataFromOriginalDoc } from '../beforeChange/cloneDataFromOriginalDoc.js'
 import { getExistingRowDoc } from '../beforeChange/getExistingRowDoc.js'
 import { getFallbackValue } from './getFallbackValue.js'
 import { stripNullRows } from './stripNullRows.js'
@@ -359,18 +360,29 @@ export const promise = async <T>({
           )
 
       if (!accessResult) {
-        delete siblingData[field.name!]
+        if (req.context?.isRestoringVersion && operation === 'update') {
+          // A denied field keeps its current value, not a value from the snapshot.
+          siblingData[field.name!] = cloneDataFromOriginalDoc(siblingDoc[field.name!])
+        } else {
+          delete siblingData[field.name!]
+        }
       }
     }
 
     onFieldAccess?.({ accessResult, path })
 
-    // A restore must not backfill missing values from the current document: an absent value is
-    // part of the version. A value that field access just removed is different. The user may not
-    // change that field, so it keeps the value of the current document.
-    const shouldSkipDocumentFallback = Boolean(req.context?.isRestoringVersion) && accessResult
+    if (
+      req.context?.isRestoringVersion &&
+      accessResult &&
+      siblingData[field.name!] === undefined &&
+      (field.type === 'relationship' || field.type === 'upload') &&
+      field.hasMany
+    ) {
+      // MongoDB ignores undefined updates, so explicitly clear a relationship absent in the snapshot.
+      siblingData[field.name!] = []
+    }
 
-    if (siblingData[field.name!] === undefined && !shouldSkipDocumentFallback) {
+    if (siblingData[field.name!] === undefined && !req.context?.isRestoringVersion) {
       const isDocumentValueAllowed =
         operation === 'update' || operation === 'validate' || accessResult
 

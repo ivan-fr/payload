@@ -106,7 +106,7 @@ type BaseFindByIDOptions<
    * If you set `overrideAccess` to `false`, you can pass a user to use against the access control checks.
    */
   user?: null | User
-} & Pick<FindByIDArgs, 'flattenLocales' | 'isLocalizedDataFlattened'> &
+} & Pick<FindByIDArgs, 'flattenLocales'> &
   Pick<FindOptions<TSlug, TSelect>, 'select'> &
   Pick<SharedLocalAPIOptions, 'overrideAccess'>
 
@@ -134,7 +134,6 @@ export async function findByIDLocal<
     draft = false,
     flattenLocales,
     includeLockStatus,
-    isLocalizedDataFlattened,
     joins,
     overrideAccess = false,
     populate,
@@ -161,7 +160,6 @@ export async function findByIDLocal<
     draft,
     flattenLocales,
     includeLockStatus,
-    isLocalizedDataFlattened,
     joins,
     overrideAccess,
     populate,

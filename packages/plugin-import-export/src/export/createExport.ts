@@ -16,7 +16,6 @@ import { getSchemaColumns, mergeColumns } from '../utilities/getSchemaColumns.js
 import { getSelect } from '../utilities/getSelect.js'
 import { validateLimitValue } from '../utilities/validateLimitValue.js'
 import { createExportBatchProcessor, type ExportFindArgs } from './batchProcessor.js'
-import { createCSVStream } from './createCSVStream.js'
 
 export type Export = {
   /**
@@ -270,49 +269,11 @@ export const createExport = async (args: CreateExportArgs) => {
     if (limitErrorMsg) {
       throw new APIError(limitErrorMsg)
     }
+  }
 
-    if (isCSV) {
-      const processor = createExportBatchProcessor({ batchSize, debug })
-      const batches = processor.streamExport({
-        collectionSlug,
-        exportDoc,
-        findArgs: findArgs as ExportFindArgs,
-        format,
-        hooks: exportHooks,
-        maxDocs: maxExportDocuments ?? Number.POSITIVE_INFINITY,
-        req,
-        startPage: adjustedPage,
-        totalDocs,
-        transformDoc: (doc) =>
-          filterDisabledCSV(
-            flattenObject({
-              data: doc as Record<string, unknown>,
-              exportFieldHooks,
-              fields,
-              format,
-              req,
-            }),
-          ),
-      })
-      const stream = createCSVStream({
-        batches: accessDenied ? [] : batches,
-        getColumns: ({ dataColumns, hasRows }) => {
-          const mergedColumns = mergeColumns(inferCSVColumns({ dataColumns }), dataColumns)
-
-          return exportHooks?.before && hasRows
-            ? mergedColumns.filter((column) => dataColumns.includes(column))
-            : mergedColumns
-        },
-      })
-
-      return new Response(Readable.toWeb(stream) as ReadableStream, {
-        headers: {
-          'Content-Disposition': `attachment; filename="${name}"`,
-          'Content-Type': 'text/csv; charset=utf-8',
-        },
-      })
-    }
-
+  // CSV needs the columns of every batch before writing its header. Reuse the
+  // buffered export path so hooks run once and later array items are preserved.
+  if (download && !isCSV) {
     const encoder = new TextEncoder()
     let isFirstBatch = true
     let currentBatchPage = adjustedPage
@@ -330,10 +291,7 @@ export const createExport = async (args: CreateExportArgs) => {
         const remaining = Math.max(0, maxDocs - fetched)
 
         if (remaining === 0) {
-          if (!isCSV) {
-            // If first batch with no remaining, output empty array; otherwise just close
-            this.push(encoder.encode(isFirstBatch ? '[]' : ']'))
-          }
+          this.push(encoder.encode(isFirstBatch ? '[]' : ']'))
           this.push(null)
           return
         }
@@ -351,11 +309,7 @@ export const createExport = async (args: CreateExportArgs) => {
         }
 
         if (result.docs.length === 0) {
-          // Close JSON array properly if JSON
-          if (!isCSV) {
-            // If first batch with no docs, output empty array; otherwise just close
-            this.push(encoder.encode(isFirstBatch ? '[]' : ']'))
-          }
+          this.push(encoder.encode(isFirstBatch ? '[]' : ']'))
           this.push(null)
           return
         }
@@ -421,9 +375,7 @@ export const createExport = async (args: CreateExportArgs) => {
           if (debug) {
             req.payload.logger.debug('Stream complete - no more pages')
           }
-          if (!isCSV) {
-            this.push(encoder.encode(']'))
-          }
+          this.push(encoder.encode(']'))
           this.push(null) // End the stream
         }
       },
@@ -432,12 +384,12 @@ export const createExport = async (args: CreateExportArgs) => {
     return new Response(Readable.toWeb(stream) as ReadableStream, {
       headers: {
         'Content-Disposition': `attachment; filename="${name}"`,
-        'Content-Type': isCSV ? 'text/csv; charset=utf-8' : 'application/json',
+        'Content-Type': 'application/json',
       },
     })
   }
 
-  // Non-download path (buffered export)
+  // Saved exports and CSV downloads collect columns across every batch.
   if (debug) {
     req.payload.logger.debug('Starting file generation')
   }
@@ -538,6 +490,15 @@ export const createExport = async (args: CreateExportArgs) => {
   const buffer = Buffer.from(content.length > 0 ? content : '\n')
   if (debug) {
     req.payload.logger.debug(`${format} file generation complete`)
+  }
+
+  if (download) {
+    return new Response(buffer, {
+      headers: {
+        'Content-Disposition': `attachment; filename="${name}"`,
+        'Content-Type': 'text/csv; charset=utf-8',
+      },
+    })
   }
 
   if (!id) {

@@ -366,6 +366,7 @@ export const findOperation = async <
               collection: collectionConfig,
               context: req.context,
               doc: docRef,
+              draft: draftsEnabled ?? false,
               findMany: true,
               overrideAccess: overrideAccess!,
               query: fullWhere,

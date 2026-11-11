@@ -71,9 +71,24 @@ The Stripe payment adapter takes the following configuration options:
 | webhooks       | `object` | (Optional) An object where the keys are Stripe event types and the values are functions that will be called when that event is received. See [Webhooks](#stripe-webhooks) for more details. |
 | groupOverrides | `object` | (Optional) An object to override the default fields of the payment group. See [Payment Fields](./advanced#payment-fields) for more details.                                                 |
 
-Stripe limits every PaymentIntent metadata value to 500 characters. The adapter therefore stores only the cart ID and a SHA-256 hash of the cart items (`cartItemsHash`) in the metadata. The items and the shipping address are saved on the transaction, in its `items` and `shippingAddress` fields, and the order is created from the transaction once the hash has been verified.
+### Custom charge amounts
 
-The `shippingAddress` group on the transactions collection is added whenever address fields are configured. On SQL databases, create and run a migration after upgrading so the new columns exist.
+Stripe uses `cart.subtotal` unless you configure a server-side `resolveAmount` callback. It receives `{ cart, data, req }` and may return a number or a promise. Return a positive safe integer in the currency's minor unit. The resolved amount is sent to Stripe, and the amount returned by Stripe is stored on the transaction and used during settlement.
+
+```ts
+stripeAdapter({
+  publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
+  secretKey: process.env.STRIPE_SECRET_KEY!,
+  resolveAmount: async ({ cart, req }) => {
+    // Example fixed shipping charge in minor units for a single-currency shop.
+    // Real pricing can load trusted rates or discounts using req.payload.
+    const shipping = 500
+    return (cart.subtotal ?? 0) + shipping
+  },
+})
+```
+
+Calculate shipping, taxes and discounts from trusted server-side data. Extra request fields are available through `data`, but client-supplied prices or discounts are not authoritative. Resolver errors and invalid amounts stop initiation before a Stripe request. This callback does not change the cart subtotal or implement inventory reservation.
 
 ### Confirmation retries
 

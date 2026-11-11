@@ -327,7 +327,8 @@ describe('Locked Documents', () => {
         'Unable to update 1 out of 11 Posts.',
       )
 
-      await page.locator('.edit-many__header__close').click()
+      // Successful rows refresh the list and close the drawer even when a locked row failed.
+      await expect(page.locator('.edit-many__header__close')).toBeHidden()
 
       await page.reload()
 

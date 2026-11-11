@@ -1,7 +1,8 @@
-import type { Locator } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
 
 import { expect, test } from '@playwright/test'
 import { randomUUID } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { formatAdminURL } from 'payload/shared'
 import * as qs from 'qs-esm'
@@ -20,6 +21,7 @@ import {
   deleteWorkflowPostsByTitle,
   enterWorkflowGrid,
   expectFocusInside,
+  expectTextContrast,
   expectNoPageOverflow,
   expectPersistedWorkflowPost,
   getFocusIndicatorStyle,
@@ -1571,4 +1573,292 @@ async function expectSidebarTabFocus({ tab }: { tab: Locator }) {
       })
     })
     .toBe(true)
+}
+
+// Low-level browser contracts for the production styles. These intentionally isolate the
+// CSS cascade/geometry from app bootstrapping; the full Admin journeys above remain separate.
+test.describe('Shared layout CSS regressions', () => {
+  for (const { theme, enhancedContrast } of [
+    { theme: 'light', enhancedContrast: false },
+    { theme: 'dark', enhancedContrast: false },
+    { theme: 'light', enhancedContrast: true },
+    { theme: 'dark', enhancedContrast: true },
+  ] as const) {
+    test.describe(`${theme}, enhanced contrast: ${enhancedContrast}`, () => {
+      test('should distinguish link button states and preserve keyboard focus (#19396)', async ({
+        page,
+      }) => {
+        await renderLayoutContract({
+          page,
+          theme,
+          enhancedContrast,
+          styles: ['css/utilities.css', 'elements/Button/index.css'],
+          markup: `<button class="btn btn--style-link">Enabled</button>
+            <button class="btn btn--style-link btn--disabled" disabled>Disabled</button>
+            <button class="btn btn--style-link btn--selected" aria-pressed="true">Selected</button>`,
+        })
+        await page.addStyleTag({
+          content: 'body { background: var(--color-bg); color: var(--color-text) }',
+        })
+        const enabled = page.getByRole('button', { name: 'Enabled' })
+        const disabled = page.getByRole('button', { name: 'Disabled' })
+        const selected = page.getByRole('button', { name: 'Selected' })
+        const brand = await enabled.evaluate((el) =>
+          getComputedStyle(el).getPropertyValue('--color-text-brand').trim(),
+        )
+        const expectedColor = await enabled.evaluate((el) => {
+          const probe = document.createElement('span')
+          probe.style.color = 'var(--color-text-brand)'
+          el.append(probe)
+          const color = getComputedStyle(probe).color
+          probe.remove()
+          return color
+        })
+        expect(brand).not.toBe('')
+        await expect(enabled).toHaveCSS('color', expectedColor)
+        // The underline identifies an action independently of color.
+        await expect(enabled).toHaveCSS('text-decoration-line', 'underline')
+        if (enhancedContrast) {
+          await expectTextContrast({ targets: enabled })
+          await expectTextContrast({ targets: selected })
+        }
+        await expect(disabled).not.toHaveCSS('color', expectedColor)
+        await expect(disabled).toBeDisabled()
+        await expect(selected).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+        await page.mouse.move(1900, 900)
+        const normalBackground = await enabled.evaluate(
+          (el) => getComputedStyle(el).backgroundColor,
+        )
+        await enabled.hover()
+        await expect(enabled).not.toHaveCSS('background-color', normalBackground)
+        if (enhancedContrast) {
+          await expectTextContrast({ targets: enabled })
+        }
+        await page.mouse.move(0, 0)
+        await page.keyboard.press('Tab')
+        await expect(enabled).toBeFocused()
+        await expect(enabled).toBeInViewport()
+        await expect(enabled).not.toHaveCSS('outline-style', 'none')
+        await page.keyboard.press('Tab')
+        await expect(selected).toBeFocused()
+      })
+
+      test('should retain the icon-only dashed frame (#19397)', async ({ page }) => {
+        await renderLayoutContract({
+          page,
+          theme,
+          enhancedContrast,
+          styles: ['elements/Button/index.css'],
+          markup: `
+          <button aria-label="Add" class="btn btn--style-dashed btn--icon-only btn--size-medium">+</button>
+          <button aria-label="Secondary" class="btn btn--style-secondary btn--icon-only btn--size-medium">+</button>
+          <button aria-label="Ghost" class="btn btn--style-ghost btn--icon-only btn--size-medium">+</button>`,
+        })
+        const button = page.getByRole('button', { name: 'Add', exact: true })
+        await expect(button).toHaveCSS('border-top-style', 'dashed')
+        await expect(button).toHaveCSS('border-top-width', '1px')
+        await expect(page.getByRole('button', { name: 'Secondary' })).toHaveCSS(
+          'border-top-width',
+          '1px',
+        )
+        await expect(page.getByRole('button', { name: 'Ghost' })).toHaveCSS(
+          'border-top-width',
+          '0px',
+        )
+      })
+
+      test('should keep inactive tab colors independent of CSS order (#19406)', async ({
+        page,
+      }) => {
+        for (const styles of [
+          ['elements/DocumentHeader/Tabs/Tab/index.css', 'elements/Button/index.css'],
+          ['elements/Button/index.css', 'elements/DocumentHeader/Tabs/Tab/index.css'],
+        ]) {
+          await renderLayoutContract({
+            page,
+            theme,
+            enhancedContrast,
+            styles,
+            markup: `
+            <a href="#versions" aria-current="false" class="btn doc-tab btn--style-ghost">Versions</a>
+            <a href="#edit" aria-current="page" class="btn doc-tab doc-tab--active btn--style-pill">Edit</a>
+            <span id="secondary" style="color:var(--color-text-secondary)">Secondary</span>
+            <span id="primary" style="color:var(--color-text)">Primary</span>`,
+          })
+          const inactive = page.getByRole('link', { name: 'Versions' })
+          await page.mouse.move(1900, 900)
+          const secondary = await page
+            .locator('#secondary')
+            .evaluate((el) => getComputedStyle(el).color)
+          const primary = await page
+            .locator('#primary')
+            .evaluate((el) => getComputedStyle(el).color)
+          await expect(inactive).toHaveCSS('color', secondary)
+          await expect(page.getByRole('link', { name: 'Edit' })).toHaveCSS('color', primary)
+          await inactive.hover()
+          await expect(inactive).toHaveCSS('color', primary)
+          await inactive.focus()
+          await expect(inactive).toBeFocused()
+          await inactive.press('Enter')
+          await expect(page).toHaveURL(/#versions$/)
+        }
+      })
+
+      test('should preserve the fields column beside a wide file preview (#19412)', async ({
+        page,
+      }) => {
+        await renderLayoutContract({
+          page,
+          theme,
+          enhancedContrast,
+          styles: ['views/Edit/index.css'],
+          markup: `
+          <form class="collection-edit__form" style="width:1645px">
+            <div class="collection-edit__main-wrapper collection-edit__main-wrapper--has-upload-panel">
+              <div class="collection-edit__main"><div class="document-fields"><div class="field-type">
+                <label for="alt">Alt</label><input id="alt" style="box-sizing:border-box;width:100%" />
+              </div></div></div>
+              <div class="file-manager"><div style="overflow:auto"><div style="width:3000px;height:100px">Wide preview</div></div></div>
+            </div>
+          </form>`,
+        })
+        await expect(async () => {
+          const panel = await page.locator('.file-manager').boundingBox()
+          const fields = await page.locator('.collection-edit__main').boundingBox()
+          expect(panel!.width).toBeLessThan(1645 * 0.75)
+          expect(fields!.width).toBeGreaterThan(1645 * 0.25)
+        }).toPass()
+        await page.getByRole('textbox', { name: 'Alt' }).fill('Still editable')
+        await expect(page.getByRole('textbox', { name: 'Alt' })).toHaveValue('Still editable')
+        await page.setViewportSize({ width: 390, height: 844 })
+        await page.locator('form').evaluate((el) => {
+          el.style.width = '100%'
+        })
+        await expect
+          .poll(async () => (await page.locator('.file-manager').boundingBox())!.width)
+          .toBeLessThanOrEqual(390)
+      })
+
+      test('should place adjacent collapsible group separators between labels (#19413)', async ({
+        page,
+      }) => {
+        await renderLayoutContract({
+          page,
+          theme,
+          enhancedContrast,
+          styles: ['forms/RenderFields/index.css', 'fields/Group/index.css'],
+          markup: `
+          <div class="render-fields" style="display:flow-root">
+            <div id="first-group" class="field-type group-field group-field--within-collapsible" style="height:80px"><h2 style="margin:0">First group</h2></div>
+            <div id="second-group" class="field-type group-field group-field--within-collapsible" style="height:80px"><h2 style="margin:0">Second group</h2></div>
+          </div>`,
+        })
+        await expect(async () => {
+          const separator = await page
+            .locator('#second-group')
+            .evaluate(
+              (el) =>
+                el.getBoundingClientRect().top + parseFloat(getComputedStyle(el, '::before').top),
+            )
+          const previous = await page.locator('#first-group').boundingBox()
+          const title = await page.getByRole('heading', { name: 'Second group' }).boundingBox()
+          expect(separator).toBeGreaterThan(previous!.y + previous!.height)
+          expect(separator).toBeLessThan(title!.y)
+        }).toPass()
+        await expect(page.locator('#first-group')).toHaveCSS('padding-top', '0px')
+      })
+
+      test('should scroll inside a viewport-height drawer with sticky actions (#19403)', async ({
+        page,
+      }) => {
+        await renderLayoutContract({
+          page,
+          theme,
+          enhancedContrast,
+          styles: ['elements/Drawer/index.css'],
+          markup: `
+          <style>.payload__modal-item { position:absolute; }</style>
+          <dialog open aria-label="Long drawer" class="payload__modal-item drawer drawer--is-open" style="margin:0;padding:0;border:0;max-height:none;max-width:none;width:100%;box-sizing:border-box">
+            <div class="drawer__content"><div class="drawer__content-children">
+              <div style="flex:none;height:1600px">Long content</div>
+              <button style="flex:none;position:sticky;bottom:0;height:40px">Confirm</button>
+            </div></div>
+          </dialog>`,
+        })
+        const drawer = page.getByRole('dialog', { name: 'Long drawer' })
+        const viewportHeight = page.viewportSize()!.height
+        await expect.poll(async () => (await drawer.boundingBox())!.height).toBe(viewportHeight)
+        const scroller = page.locator('.drawer__content-children')
+        await expect
+          .poll(() => scroller.evaluate((el) => el.scrollHeight > el.clientHeight))
+          .toBe(true)
+        const confirm = page.getByRole('button', { name: 'Confirm' })
+        await expect
+          .poll(async () => (await confirm.boundingBox())!.y + 40)
+          .toBeLessThanOrEqual(viewportHeight)
+        await confirm.focus()
+        await expect(confirm).toBeFocused()
+        await scroller.hover()
+        await page.mouse.wheel(0, 500)
+        await expect.poll(() => scroller.evaluate((el) => el.scrollTop)).toBeGreaterThan(0)
+      })
+
+      test('should omit the empty icon group from document control spacing (#19395)', async ({
+        page,
+      }) => {
+        for (const content of [
+          '',
+          '<button aria-label="Preview" style="width:24px;height:24px"></button>',
+        ]) {
+          await renderLayoutContract({
+            page,
+            theme,
+            enhancedContrast,
+            styles: ['elements/DocumentControls/index.css'],
+            markup: `
+            <div class="doc-controls__controls">
+              <span id="custom-control" style="width:32px;height:24px"></span>
+              <div class="doc-controls__icon-buttons">${content}</div>
+              <button id="save">Save</button>
+            </div>`,
+          })
+          await expect(async () => {
+            const before = await page.locator('#custom-control').boundingBox()
+            const save = await page.locator('#save').boundingBox()
+            expect(save!.x - before!.x - before!.width).toBe(content ? 40 : 8)
+          }).toPass()
+        }
+      })
+    })
+  }
+})
+
+async function renderLayoutContract({
+  page,
+  theme,
+  enhancedContrast,
+  styles,
+  markup,
+}: {
+  enhancedContrast: boolean
+  markup: string
+  page: Page
+  styles: string[]
+  theme: 'dark' | 'light'
+}) {
+  const root = new URL('../../packages/ui/src/', import.meta.url)
+  const paths = [
+    'css/design-tokens.css',
+    'css/spacing.css',
+    'css/theme.css',
+    'css/colors.css',
+    ...styles,
+  ]
+  const css = await Promise.all(paths.map((file) => readFile(new URL(file, root), 'utf8')))
+  await page.setViewportSize({ width: 1920, height: 945 })
+  await page.goto('about:blank')
+  await page.setContent(`<!doctype html><html lang="en" data-theme="${theme}" ${enhancedContrast ? 'data-enhanced-contrast' : ''}><head>
+    <style>${css.join('\n')}</style><style>html { font-size:16px } body { margin:0 }</style>
+    </head><body>${markup}</body></html>`)
+  await expect(page.locator('html[data-enhanced-contrast]')).toHaveCount(enhancedContrast ? 1 : 0)
 }

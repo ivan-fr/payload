@@ -11,7 +11,7 @@ import { useDocumentInfo } from '../../providers/DocumentInfo/index.js'
 import { useLocale } from '../../providers/Locale/index.js'
 import { useTranslation } from '../../providers/Translation/index.js'
 import { requests } from '../../utilities/api.js'
-import { getNoFallbackLocaleParam } from '../../utilities/getNoFallbackLocaleParam.js'
+import { getFallbackLocaleQuery } from '../../utilities/getFallbackLocaleQuery.js'
 import { Button } from '../Button/index.js'
 import { ConfirmationModal } from '../ConfirmationModal/index.js'
 import './index.css'
@@ -40,7 +40,6 @@ export const Status: React.FC = () => {
       routes: { api },
     },
   } = useConfig()
-  const fallbackLocaleParam = getNoFallbackLocaleParam({ localization })
 
   const { reset: resetForm } = useForm()
   const currentLocale = useLocale()
@@ -68,17 +67,15 @@ export const Status: React.FC = () => {
   const performAction = useCallback(async () => {
     let url
     let method
-
-    const fallbackQuery = qs.stringify({
-      depth: 0,
-      'fallback-locale': fallbackLocaleParam,
-      locale,
-    })
+    const search = qs.stringify(
+      { depth: 0, 'fallback-locale': getFallbackLocaleQuery({ localization }), locale },
+      { addQueryPrefix: true },
+    )
 
     if (collectionSlug) {
       url = formatAdminURL({
         apiRoute: api,
-        path: `/${collectionSlug}/${id}?${fallbackQuery}`,
+        path: `/${collectionSlug}/${id}${search}`,
       })
       method = 'patch'
     }
@@ -86,7 +83,7 @@ export const Status: React.FC = () => {
     if (globalSlug) {
       url = formatAdminURL({
         apiRoute: api,
-        path: `/globals/${globalSlug}?${fallbackQuery}`,
+        path: `/globals/${globalSlug}${search}`,
       })
       method = 'post'
     }
@@ -145,12 +142,12 @@ export const Status: React.FC = () => {
   }, [
     api,
     collectionSlug,
-    fallbackLocaleParam,
     globalSlug,
     id,
     i18n.language,
     incrementVersionCount,
     locale,
+    localization,
     resetForm,
     setUnpublishedVersionCount,
     setMostRecentVersionIsAutosaved,

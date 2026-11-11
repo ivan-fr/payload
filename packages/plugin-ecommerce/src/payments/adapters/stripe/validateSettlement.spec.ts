@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  getCartItemsHash,
   getRelationshipID,
   normalizeCartItems,
   normalizeEmail,
@@ -375,5 +376,57 @@ describe('validateSettlement', () => {
         }),
       ),
     ).toThrow('completed')
+  })
+})
+
+describe('Stripe item digests (#19055)', () => {
+  it('should ignore root row IDs, populated relationships, key order and null variants', () => {
+    expect(
+      getCartItemsHash({
+        items: [
+          { id: 'row', product: { id: 12 }, variant: null, quantity: 1, custom: { b: 2, a: 1 } },
+        ],
+      }),
+    ).toBe(getCartItemsHash({ items: [{ custom: { a: 1, b: 2 }, quantity: 1, product: '12' }] }))
+  })
+  it('should reject changed quantities and custom properties even when the amount matches', () => {
+    const originalItems = [{ product: 'product-123', quantity: 1, custom: { gift: true } }]
+    const cartItemsHash = getCartItemsHash({ items: originalItems })
+    for (const items of [
+      [{ ...originalItems[0], quantity: 2 }],
+      [{ ...originalItems[0], custom: { gift: false } }],
+    ]) {
+      expect(() =>
+        validateSettlement(
+          createAuthenticatedValidation({
+            cartItemsSnapshot: undefined,
+            paymentIntent: createPaymentIntent({ metadata: { cartID: 'cart-123', cartItemsHash } }),
+            transaction: createTransaction({ items }),
+          }),
+        ),
+      ).toThrow('Stripe cart items do not match')
+    }
+  })
+  it('should accept a matching digest without the old snapshot and reject malformed digests', () => {
+    const items = createTransaction().items
+    const cartItemsHash = getCartItemsHash({ items })
+    expect(() =>
+      validateSettlement(
+        createAuthenticatedValidation({
+          cartItemsSnapshot: undefined,
+          paymentIntent: createPaymentIntent({ metadata: { cartID: 'cart-123', cartItemsHash } }),
+        }),
+      ),
+    ).not.toThrow()
+    expect(() =>
+      validateSettlement(
+        createAuthenticatedValidation({
+          cartItemsSnapshot: undefined,
+          paymentIntent: createPaymentIntent({
+            metadata: { cartID: 'cart-123', cartItemsHash: 123 },
+          }),
+        }),
+      ),
+    ).toThrow('Stripe cart items do not match')
   })
 })

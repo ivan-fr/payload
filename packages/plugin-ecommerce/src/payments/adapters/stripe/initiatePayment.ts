@@ -4,11 +4,12 @@ import type { PaymentAdapter } from '../../../types/index.js'
 import type { InitiatePaymentReturnType, StripeAdapterArgs } from './index.js'
 
 import { getCustomer } from '../../../utilities/getCustomer.js'
-import { createCartItemsHash } from './validateSettlement.js'
+import { getCartItemsHash } from './validateSettlement.js'
 
 type Props = {
   apiVersion?: Stripe.StripeConfig['apiVersion']
   appInfo?: Stripe.StripeConfig['appInfo']
+  resolveAmount?: NonNullable<StripeAdapterArgs['resolveAmount']>
   secretKey: StripeAdapterArgs['secretKey']
 }
 
@@ -17,12 +18,11 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
   async ({ customersSlug, data, req, transactionsSlug }) => {
     const payload = req.payload
     const authenticatedCustomer = getCustomer({ customersSlug, req })
-    const { apiVersion, appInfo, secretKey } = props || {}
+    const { apiVersion, appInfo, resolveAmount, secretKey } = props || {}
 
     const customerEmail = data.customerEmail
     const currency = data.currency
     const cart = data.cart
-    const amount = cart.subtotal
     const billingAddressFromData = data.billingAddress
     const shippingAddressFromData = data.shippingAddress
 
@@ -42,7 +42,9 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
       throw new Error('A valid customer email is required to make a purchase.')
     }
 
-    if (!amount || typeof amount !== 'number' || amount <= 0) {
+    const amount = resolveAmount ? await resolveAmount({ cart, data, req }) : cart.subtotal
+
+    if (typeof amount !== 'number' || !Number.isSafeInteger(amount) || amount <= 0) {
       throw new Error('A valid amount is required to initiate a payment.')
     }
 
@@ -91,15 +93,6 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
         }
       })
 
-      // Stripe limits every metadata value to 500 characters, which a full address can exceed. The
-      // address is stored on the transaction instead. Only transactions collections without a
-      // `shippingAddress` field keep the previous metadata storage, so the address is not lost.
-      const canStoreShippingAddressOnTransaction = Boolean(
-        payload.collections?.[transactionsSlug]?.config.flattenedFields.some(
-          (field) => field.name === 'shippingAddress',
-        ),
-      )
-
       const paymentIntent = await stripe.paymentIntents.create({
         amount,
         automatic_payment_methods: {
@@ -109,10 +102,7 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
         customer: customer.id,
         metadata: {
           cartID: cart.id,
-          cartItemsHash: await createCartItemsHash({ items: flattenedCart }),
-          ...(canStoreShippingAddressOnTransaction || shippingAddressFromData === undefined
-            ? {}
-            : { shippingAddress: JSON.stringify(shippingAddressFromData) }),
+          cartItemsHash: getCartItemsHash({ items: flattenedCart }),
         },
       })
 
@@ -127,9 +117,7 @@ export const initiatePayment: (props: Props) => NonNullable<PaymentAdapter>['ini
           currency: paymentIntent.currency.toUpperCase(),
           items: flattenedCart,
           paymentMethod: 'stripe',
-          ...(canStoreShippingAddressOnTransaction && shippingAddressFromData
-            ? { shippingAddress: shippingAddressFromData }
-            : {}),
+          shippingAddress: shippingAddressFromData,
           status: 'pending',
           stripe: {
             customerID: customer.id,

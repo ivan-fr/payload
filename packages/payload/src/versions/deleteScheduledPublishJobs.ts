@@ -1,6 +1,6 @@
-import type { Payload } from '../index.js'
 import type { PayloadRequest } from '../types/index.js'
 
+import { type Payload } from '../index.js'
 import { jobsCollectionSlug } from '../queues/config/collection.js'
 
 type Args = {
@@ -22,14 +22,9 @@ export const deleteScheduledPublishJobs = async ({
   req,
 }: Args): Promise<void> => {
   const documentIDs = ids ?? (id === undefined ? [] : [id])
-
   if (documentIDs.length === 0) {
     return
   }
-
-  const documentIDValues = [
-    ...new Set(documentIDs.flatMap((id) => (typeof id === 'number' ? [id, String(id)] : [id]))),
-  ]
 
   try {
     await payload.db.deleteMany({
@@ -49,9 +44,12 @@ export const deleteScheduledPublishJobs = async ({
             },
           },
           {
-            'input.doc.value': {
-              in: documentIDValues,
-            },
+            // Queue callers may persist a numeric ID or its string representation in JSON.
+            or: documentIDs.flatMap((docID) =>
+              [...new Set([docID, String(docID)])].map((value) => ({
+                'input.doc.value': { equals: value },
+              })),
+            ),
           },
           {
             'input.doc.relationTo': {

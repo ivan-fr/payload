@@ -60,9 +60,12 @@ export const MyCollapsibleField: Field = {
 
 The Collapsible Field inherits all of the default admin options from the base [Field Admin Config](./overview#admin-options), plus the following additional options:
 
-| Option              | Description                     |
-| ------------------- | ------------------------------- |
-| **`initCollapsed`** | Set the initial collapsed state |
+| Option                      | Description                                                                                               |
+| --------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **`initCollapsed`**         | Set the initial collapsed state                                                                           |
+| **`persistCollapsedState`** | Set to `false` to ignore saved collapsed state and use `initCollapsed` on each mount. Defaults to `true`. |
+
+Set `admin.persistCollapsedState: false` with `admin.initCollapsed: false` to open the panel expanded on every mount. Editors can still toggle it during that visit; the field does not read or overwrite their saved preference.
 
 ## Example
 

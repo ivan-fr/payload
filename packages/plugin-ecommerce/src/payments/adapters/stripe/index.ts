@@ -41,13 +41,20 @@ export type StripeAdapterArgs = {
   apiVersion?: Stripe.StripeConfig['apiVersion']
   appInfo?: Stripe.StripeConfig['appInfo']
   publishableKey: string
+  /** Resolve the charge in minor currency units using trusted server-side pricing. */
+  resolveAmount?: (args: {
+    cart: Parameters<PaymentAdapter['initiatePayment']>[0]['data']['cart']
+    data: Parameters<PaymentAdapter['initiatePayment']>[0]['data'] & Record<string, unknown>
+    req: PayloadRequest
+  }) => number | Promise<number>
   secretKey: string
   webhooks?: StripeWebhookHandlers
   webhookSecret?: string
 } & PaymentAdapterArgs
 
 export const stripeAdapter: (props: StripeAdapterArgs) => PaymentAdapter = (props) => {
-  const { apiVersion, appInfo, groupOverrides, secretKey, webhooks, webhookSecret } = props
+  const { apiVersion, appInfo, groupOverrides, resolveAmount, secretKey, webhooks, webhookSecret } =
+    props
   const label = props?.label || 'Stripe'
 
   const baseFields: Field[] = [
@@ -93,6 +100,7 @@ export const stripeAdapter: (props: StripeAdapterArgs) => PaymentAdapter = (prop
     initiatePayment: initiatePayment({
       apiVersion,
       appInfo,
+      resolveAmount,
       secretKey,
     }),
     label,

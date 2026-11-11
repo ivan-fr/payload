@@ -188,7 +188,9 @@ describe('Hooks', () => {
 
       await page.locator('#confirm-delete-many-docs [data-dialog-action="confirm"]').click()
 
-      await expect(page.locator('.payload-toast-container')).toContainText('Something went wrong.')
+      await expect(page.locator('.payload-toast-container')).toContainText(
+        'An unknown error has occurred.',
+      )
       await expect(page.locator('.payload-toast-container')).not.toContainText(
         `Test error: cannot delete document with ID ${doc.id}`,
       )

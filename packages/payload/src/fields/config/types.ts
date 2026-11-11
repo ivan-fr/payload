@@ -891,6 +891,8 @@ export type CollapsibleField = {
           >
         } & FieldAdmin['components']
         initCollapsed?: boolean
+        /** Set to false to use initCollapsed on each mount without saving the collapsed state. @default true */
+        persistCollapsedState?: boolean
       } & FieldAdmin
       label?: Required<FieldBase['label']>
     }
@@ -905,6 +907,8 @@ export type CollapsibleField = {
           >
         } & FieldAdmin['components']
         initCollapsed?: boolean
+        /** Set to false to use initCollapsed on each mount without saving the collapsed state. @default true */
+        persistCollapsedState?: boolean
       } & FieldAdmin
       label: Required<FieldBase['label']>
     }
@@ -917,6 +921,8 @@ export type CollapsibleField = {
 export type CollapsibleFieldClient = {
   admin?: {
     initCollapsed?: boolean
+    /** Set to false to use initCollapsed on each mount without saving the collapsed state. @default true */
+    persistCollapsedState?: boolean
   } & AdminClient
   fields: ClientField[]
   label: StaticLabel
@@ -1133,6 +1139,14 @@ export type CodeFieldClient = {
 } & Omit<FieldBaseClient, 'admin'> &
   Pick<CodeField, 'maxLength' | 'minLength' | 'type'>
 
+export type JSONFieldValidationSchema = {
+  fileMatch: string[]
+  schema?: JSONSchema4
+  /** Type-generation transforms, applied after the validation schema. */
+  transforms?: NonNullable<FieldBase['jsonSchema']>
+  uri: string
+}
+
 export type JSONField = {
   admin?: {
     components?: {
@@ -1145,11 +1159,7 @@ export type JSONField = {
     maxHeight?: number
   } & FieldAdmin
 
-  jsonSchema?: {
-    fileMatch: string[]
-    schema?: JSONSchema4
-    uri: string
-  }
+  jsonSchema?: JSONFieldValidationSchema | NonNullable<FieldBase['jsonSchema']>
   type: 'json'
   validate?: JSONFieldValidation
 } & Omit<FieldBase, 'admin' | 'jsonSchema' | 'validate'>
@@ -1157,8 +1167,9 @@ export type JSONField = {
 export type JSONFieldClient = {
   // @ts-expect-error - vestiges of when tsconfig was not strict. Feel free to improve
   admin?: AdminClient & Pick<JSONField['admin'], 'editorOptions' | 'maxHeight'>
+  jsonSchema?: Omit<JSONFieldValidationSchema, 'transforms'>
 } & Omit<FieldBaseClient, 'admin'> &
-  Pick<JSONField, 'jsonSchema' | 'type'>
+  Pick<JSONField, 'type'>
 
 export type SelectField = {
   admin?: {

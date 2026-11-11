@@ -6,7 +6,6 @@ import {
   and,
   eq,
   exists,
-  getTableName,
   isNotNull,
   isNull,
   like,
@@ -16,7 +15,7 @@ import {
   sql,
 } from 'drizzle-orm'
 import { PgUUID } from 'drizzle-orm/pg-core'
-import { APIError, getFieldByPath, QueryError } from 'payload'
+import { getFieldByPath, QueryError } from 'payload'
 import {
   hasManyRelationshipOperatorSet,
   isNestedRelationshipQuery,
@@ -31,9 +30,9 @@ import type { DrizzleResolvedOperator } from './operatorMap.js'
 
 import { escapeSQLValue } from '../utilities/escapeSQLValue.js'
 import { getNameFromDrizzleTable } from '../utilities/getNameFromDrizzleTable.js'
-import { isValidStringID } from '../utilities/isValidStringID.js'
 import { DistinctSymbol, isRawConstraint } from '../utilities/rawConstraint.js'
 import { buildAndOrConditions } from './buildAndOrConditions.js'
+import { buildLimitedIDList } from './buildLimitedIDList.js'
 import { buildOperatorConstraint } from './buildOperatorConstraint.js'
 import { escapeLike } from './escapeLike.js'
 import { getTableAlias } from './getTableAlias.js'
@@ -452,44 +451,24 @@ export function parseParams({
                   break
                 }
 
-                // Drafts queries rewrite `id` to the version's `parent` relationship, which holds
-                // the same document IDs and must be inlined for the same reason.
-                const isVersionParentPath =
-                  relationOrPath === 'parent' &&
-                  field.type === 'relationship' &&
-                  typeof field.relationTo === 'string' &&
-                  !field.hasMany
-                const isInlinableIDList =
-                  Array.isArray(queryValue) &&
-                  queryValue.every(
-                    (val) =>
-                      typeof val === 'number' ||
-                      val === null ||
-                      (typeof val === 'string' && isValidStringID(val)),
-                  )
-
-                const shouldInlineVersionParents =
-                  Boolean(adapter.limitedBoundParameters) &&
-                  isVersionParentPath &&
-                  isInlinableIDList
-
-                if (
-                  shouldInlineVersionParents &&
-                  Array.isArray(queryValue) &&
-                  queryOperator === 'not_in'
-                ) {
-                  constraints.push(
-                    sql`(${buildInlineIDList({ column: resolvedColumn, ids: queryValue, operator: 'not_in' })} OR ${resolvedColumn} IS NULL)`,
-                  )
-
-                  break
-                }
-
                 if (
                   (field.type === 'relationship' || field.type === 'upload') &&
                   Array.isArray(queryValue) &&
                   queryOperator === 'not_in'
                 ) {
+                  if (adapter.limitedBoundParameters && relationOrPath === 'parent') {
+                    constraints.push(
+                      or(
+                        isNull(resolvedColumn),
+                        buildLimitedIDList({
+                          column: resolvedColumn,
+                          operator: 'not_in',
+                          values: queryValue,
+                        }),
+                      ),
+                    )
+                    break
+                  }
                   constraints.push(
                     sql`(${notInArray(table[columnName], queryValue)} OR
                     ${table[columnName]}
@@ -610,15 +589,17 @@ export function parseParams({
                 if (
                   adapter.limitedBoundParameters &&
                   (operator === 'in' || operator === 'not_in') &&
-                  Array.isArray(queryValue) &&
-                  (relationOrPath === 'id' || shouldInlineVersionParents)
+                  (relationOrPath === 'id' ||
+                    (relationOrPath === 'parent' && field.type === 'relationship')) &&
+                  Array.isArray(queryValue)
                 ) {
-                  if (!isInlinableIDList) {
-                    throw new APIError(`Invalid ID value in ${JSON.stringify(queryValue)}`)
-                  }
-
+                  const inlineConstraint = buildLimitedIDList({
+                    column: resolvedColumn,
+                    operator: operator as 'in' | 'not_in',
+                    values: resolvedQueryValue as unknown[],
+                  })
                   constraints.push(
-                    buildInlineIDList({ column: resolvedColumn, ids: queryValue, operator }),
+                    orConditions.length ? or(...orConditions, inlineConstraint) : inlineConstraint,
                   )
                   break
                 }
@@ -834,32 +815,3 @@ function buildHasManyRelationshipCondition({
       return notExists(buildRelationshipRowsSubquery(exists(relatedDocumentSubquery)))
   }
 }
-
-/**
- * Writes an ID list into the SQL text instead of binding one parameter per ID, for databases
- * that limit the number of bound parameters. Callers must validate the IDs first.
- */
-const buildInlineIDList = ({
-  column,
-  ids,
-  operator,
-}: {
-  column: { name: string; table: Parameters<typeof getTableName>[0] }
-  ids: unknown[]
-  operator: 'in' | 'not_in'
-}): SQL =>
-  sql.raw(
-    `"${getTableName(column.table)}"."${column.name}" ${operator === 'in' ? 'IN' : 'NOT IN'} (${ids
-      .map((id) => {
-        if (id === null) {
-          return `NULL`
-        }
-
-        if (typeof id === 'number') {
-          return id
-        }
-
-        return `'${String(id)}'`
-      })
-      .join(',')})`,
-  )

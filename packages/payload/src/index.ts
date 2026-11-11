@@ -2070,6 +2070,8 @@ export {
 export { getLocalI18n } from './translations/getLocalI18n.js'
 export * from './types/index.js'
 export type { ValidationResult } from './types/validation.js'
+export { processMultipartFormdata } from './uploads/fetchAPI-multipart/index.js'
+export type { FetchAPIFileUploadResponse } from './uploads/fetchAPI-multipart/index.js'
 export { generatePayloadFileURL } from './uploads/generatePayloadFileURL.js'
 export { getFileByPath } from './uploads/getFileByPath.js'
 export { _internal_safeFetchGlobal } from './uploads/safeFetch.js'

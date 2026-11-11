@@ -79,13 +79,11 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
-    posts: Post;
-    organizations: Organization;
-    authors: Author;
-    articles: Article;
-    documents: Document;
+    people: Person;
+    reports: Report;
+    'trace-media': TraceMedia;
     'payload-kv': PayloadKv;
+    users: User;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -93,13 +91,11 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    posts: PostsSelect<false> | PostsSelect<true>;
-    organizations: OrganizationsSelect<false> | OrganizationsSelect<true>;
-    authors: AuthorsSelect<false> | AuthorsSelect<true>;
-    articles: ArticlesSelect<false> | ArticlesSelect<true>;
-    documents: DocumentsSelect<false> | DocumentsSelect<true>;
+    people: PeopleSelect<false> | PeopleSelect<true>;
+    reports: ReportsSelect<false> | ReportsSelect<true>;
+    'trace-media': TraceMediaSelect<false> | TraceMediaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -117,6 +113,7 @@ export interface Config {
     collections: CollectionsWidget;
     'collection-query': CollectionQueryWidget;
     activity: ActivityWidget;
+    'upload-dropzone': UploadDropzoneWidget;
   };
   user: User;
   jobs: {
@@ -141,6 +138,24 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "people".
+ */
+export interface Person {
+  id: number;
+  name?: string | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: number | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: number | User;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -178,13 +193,13 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
+ * via the `definition` "reports".
  */
-export interface Post {
+export interface Report {
   id: number;
-  title?: string | null;
-  category: string;
-  internalNote?: string | null;
+  owners?: (number | Person)[] | null;
+  owners2?: (number | Person)[] | null;
+  reviewers?: (number | Person)[] | null;
   createdBy?: {
     relationTo: 'users';
     value: number | User;
@@ -198,11 +213,10 @@ export interface Post {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "organizations".
+ * via the `definition` "trace-media".
  */
-export interface Organization {
+export interface TraceMedia {
   id: number;
-  name?: string | null;
   createdBy?: {
     relationTo: 'users';
     value: number | User;
@@ -213,112 +227,25 @@ export interface Organization {
   } | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "authors".
- */
-export interface Author {
-  id: number;
-  name?: string | null;
-  bio?: string | null;
-  organization?: (number | null) | Organization;
-  organizationName?: string | null;
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "articles".
- */
-export interface Article {
-  id: number;
-  title?: string | null;
-  author?: (number | null) | Author;
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents".
- */
-export interface Document {
-  id: number;
-  title?: string | null;
-  featured?: (number | Organization)[] | null;
-  rows?:
-    | {
-        label?: string | null;
-        related?: (number | Organization)[] | null;
-        owner?:
-          | ({
-              relationTo: 'organizations';
-              value: number | Organization;
-            } | null)
-          | ({
-              relationTo: 'authors';
-              value: number | Author;
-            } | null);
-        tags?: string[] | null;
-        scores?: number[] | null;
-        id?: string | null;
-      }[]
-    | null;
-  rows_extra?:
-    | {
-        tags?: string[] | null;
-        id?: string | null;
-      }[]
-    | null;
-  layout?: Content[] | null;
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "Content".
- */
-export interface Content {
-  label?: string | null;
-  related?: (number | Organization)[] | null;
-  owner?:
-    | ({
-        relationTo: 'organizations';
-        value: number | Organization;
-      } | null)
-    | ({
-        relationTo: 'authors';
-        value: number | Author;
-      } | null);
-  tags?: string[] | null;
-  scores?: number[] | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'content';
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  original?: {
+    filename?: string | null;
+    url?: string | null;
+    mimeType?: string | null;
+    filesize?: number | null;
+    width?: number | null;
+    height?: number | null;
+    prefix?: string | null;
+    _objectKey?: string | null;
+  };
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -345,28 +272,20 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'people';
+        value: number | Person;
+      } | null)
+    | ({
+        relationTo: 'reports';
+        value: number | Report;
+      } | null)
+    | ({
+        relationTo: 'trace-media';
+        value: number | TraceMedia;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
-      } | null)
-    | ({
-        relationTo: 'posts';
-        value: number | Post;
-      } | null)
-    | ({
-        relationTo: 'organizations';
-        value: number | Organization;
-      } | null)
-    | ({
-        relationTo: 'authors';
-        value: number | Author;
-      } | null)
-    | ({
-        relationTo: 'articles';
-        value: number | Article;
-      } | null)
-    | ({
-        relationTo: 'documents';
-        value: number | Document;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -434,6 +353,69 @@ export interface PayloadLlmInstruction {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "people_select".
+ */
+export interface PeopleSelect<T extends boolean = true> {
+  name?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reports_select".
+ */
+export interface ReportsSelect<T extends boolean = true> {
+  owners?: T;
+  owners2?: T;
+  reviewers?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "trace-media_select".
+ */
+export interface TraceMediaSelect<T extends boolean = true> {
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  original?:
+    | T
+    | {
+        filename?: T;
+        url?: T;
+        mimeType?: T;
+        filesize?: T;
+        width?: T;
+        height?: T;
+        prefix?: T;
+        _objectKey?: T;
+      };
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv_select".
+ */
+export interface PayloadKvSelect<T extends boolean = true> {
+  key?: T;
+  data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
@@ -456,107 +438,6 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts_select".
- */
-export interface PostsSelect<T extends boolean = true> {
-  title?: T;
-  category?: T;
-  internalNote?: T;
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "organizations_select".
- */
-export interface OrganizationsSelect<T extends boolean = true> {
-  name?: T;
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "authors_select".
- */
-export interface AuthorsSelect<T extends boolean = true> {
-  name?: T;
-  bio?: T;
-  organization?: T;
-  organizationName?: T;
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "articles_select".
- */
-export interface ArticlesSelect<T extends boolean = true> {
-  title?: T;
-  author?: T;
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents_select".
- */
-export interface DocumentsSelect<T extends boolean = true> {
-  title?: T;
-  featured?: T;
-  rows?:
-    | T
-    | {
-        label?: T;
-        related?: T;
-        owner?: T;
-        tags?: T;
-        scores?: T;
-        id?: T;
-      };
-  rows_extra?:
-    | T
-    | {
-        tags?: T;
-        id?: T;
-      };
-  layout?:
-    | T
-    | {
-        content?:
-          | T
-          | {
-              label?: T;
-              related?: T;
-              owner?: T;
-              tags?: T;
-              scores?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-kv_select".
- */
-export interface PayloadKvSelect<T extends boolean = true> {
-  key?: T;
-  data?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -633,7 +514,7 @@ export interface CollectionsWidget {
 export interface CollectionQueryWidget {
   data?: {
     title?: string | null;
-    relatedCollection: 'users' | 'posts' | 'organizations' | 'authors' | 'articles' | 'documents';
+    relatedCollection: 'people' | 'reports' | 'trace-media' | 'users';
     where?:
       | {
           [k: string]: unknown;
@@ -655,9 +536,19 @@ export interface CollectionQueryWidget {
  */
 export interface ActivityWidget {
   data?: {
-    excludedCollections?: ('users' | 'posts' | 'organizations' | 'authors' | 'articles' | 'documents')[] | null;
+    excludedCollections?: ('people' | 'reports' | 'trace-media' | 'users')[] | null;
   };
   width: 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "upload-dropzone_widget".
+ */
+export interface UploadDropzoneWidget {
+  data?: {
+    excludedCollections?: 'trace-media'[] | null;
+  };
+  width: 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -755,6 +646,6 @@ export interface LexicalRichText<TNode> {
 
 
 declare module 'payload' {
-  // @ts-ignore 
+  // @ts-ignore
   export interface GeneratedTypes extends Config {}
 }

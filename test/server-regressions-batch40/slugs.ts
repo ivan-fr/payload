@@ -1,0 +1,7 @@
+export const usersSlug = 'users'
+export const postsSlug = 'posts'
+export const lockedDocumentsSlug = 'payload-locked-documents'
+export const authorsSlug = 'authors'
+export const organizationsSlug = 'organizations'
+export const articlesSlug = 'articles'
+export const documentsSlug = 'documents'

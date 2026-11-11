@@ -62,6 +62,37 @@ export default buildConfig({
   for a Docker Neon DB setup.
 </Banner>
 
+## Point fields and PostGIS
+
+Postgres stores [Point fields](../fields/point) as PostGIS geometry. Your PostgreSQL server must have the PostGIS extension available. Payload registers `postgis` automatically when building a schema containing a Point field; you can also declare it explicitly in the adapter's `extensions` option:
+
+```ts
+import { postgresAdapter } from '@payloadcms/db-postgres'
+import { buildConfig } from 'payload'
+
+export default buildConfig({
+  secret: process.env.PAYLOAD_SECRET || '',
+  db: postgresAdapter({
+    pool: { connectionString: process.env.DATABASE_URL },
+    extensions: ['postgis'],
+  }),
+  collections: [
+    {
+      slug: 'places',
+      fields: [{ name: 'location', type: 'point' }],
+    },
+  ],
+})
+```
+
+The database role used for setup needs permission to create the extension. If your application role cannot do this, ask your database administrator or hosting provider to enable PostGIS in the target database before applying the schema or running migrations:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS postgis;
+```
+
+`extensions` can enable an extension already available on the server; it cannot install the server's PostGIS software. For managed PostgreSQL, check that your plan supports PostGIS. Provision it in each target database before applying migrations that create geometry columns. The Payload API uses `[longitude, latitude]` values, for example `[2.3522, 48.8566]`, rather than a PostGIS geometry object. SQLite adapters do not support Point fields.
+
 ## Options
 
 | Option                           | Description                                                                                                                                                                                                                                                                                                                                               |

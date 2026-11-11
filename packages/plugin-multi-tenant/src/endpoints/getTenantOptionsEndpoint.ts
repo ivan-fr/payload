@@ -36,7 +36,9 @@ export const getTenantOptionsEndpoint = ({
       userHasAccessToAllTenants,
     })
 
-    return new Response(JSON.stringify({ tenantOptions }))
+    return new Response(
+      JSON.stringify({ canAccessAllTenants: userHasAccessToAllTenants(user), tenantOptions }),
+    )
   },
   method: 'get',
   path: '/populate-tenant-options',

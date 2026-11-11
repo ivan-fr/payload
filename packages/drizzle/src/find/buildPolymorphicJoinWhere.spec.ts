@@ -227,13 +227,18 @@ describe('buildPolymorphicJoinWhere', () => {
       wherePlan,
     })
 
-    expect(query.sql).toContain('where ? = ?')
+    expect(query.sql).toContain('where cast(? as text) = ?')
     expect(query.params).toEqual(['notes', 'notes'])
   })
 
   it.each([
-    ['exists', { exists: 'false' }, 'where ? is null', ['notes']],
-    ['in', { in: 'articles,notes' }, 'where ? in (?, ?)', ['notes', 'articles', 'notes']],
+    ['exists', { exists: 'false' }, 'where cast(? as text) is null', ['notes']],
+    [
+      'in',
+      { in: 'articles,notes' },
+      'where cast(? as text) in (?, ?)',
+      ['notes', 'articles', 'notes'],
+    ],
   ] as const)(
     'normalizes a REST %s value for relationTo',
     (_operator, constraint, expectedSQL, expectedParams) => {

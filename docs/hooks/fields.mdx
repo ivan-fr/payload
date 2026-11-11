@@ -186,8 +186,6 @@ notifying them about changes in their membership benefits.
 
 ### afterRead
 
-Field read access is checked before `afterRead` hooks. Fields denied by read access, and hidden fields omitted from the response, do not run these hooks or their nested field hooks. Read access functions receive the sanitized field data before hook transformations.
-
 The `afterRead` hook is invoked after a field value is read from the database. This is ideal for formatting or
 transforming the field data for output.
 

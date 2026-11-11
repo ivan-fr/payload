@@ -67,6 +67,8 @@ export type FormProps = {
   isInitializing?: boolean
   log?: boolean
   onChange?: ((args: { formState: FormState; submitted?: boolean }) => Promise<FormState>)[]
+  /** Called when a failed bulk response contains documents that were successfully updated. */
+  onPartialSuccess?: FormOnSuccess
   onSubmit?: (fields: FormState, data: Data) => void
   onSuccess?: FormOnSuccess
   redirect?: string

@@ -277,16 +277,12 @@ export const EditManyDrawerContent: React.FC<EditManyDrawerContentProps> = (prop
   }, [collection, searchParams, selectAll, ids, locale, where])
 
   const onSuccess = () => {
-    void router.replace(
-      qs.stringify(
-        {
-          ...parseSearchParams(searchParams),
-          _r: Date.now(), // Cache buster to force fresh data fetch. Prevents an e2e race condition where sometimes the data is not updated.
-          page: selectAll ? '1' : undefined,
-        },
-        { addQueryPrefix: true },
-      ),
-    )
+    const params = new URLSearchParams(window.location.search)
+    params.set('_r', String(Date.now()))
+    if (selectAll) {
+      params.set('page', '1')
+    }
+    void router.replace(`?${params.toString()}`)
     closeModal(drawerSlug)
 
     if (typeof onSuccessFromProps === 'function') {
@@ -349,6 +345,7 @@ export const EditManyDrawerContent: React.FC<EditManyDrawerContentProps> = (prop
           className={`${baseClass}__form`}
           isInitializing={isInitializing}
           onChange={[onChange]}
+          onPartialSuccess={onSuccess}
           onSuccess={onSuccess}
         >
           <div className={`${baseClass}__header`}>

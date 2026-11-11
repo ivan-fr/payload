@@ -12,6 +12,7 @@ import type { MongooseAdapter } from '../index.js'
 
 import { buildQuery } from '../queries/buildQuery.js'
 import { buildSortParam } from '../queries/buildSortParam.js'
+import { specializeJoinQuery } from './specializeJoinQuery.js'
 import { transform } from './transform.js'
 
 export type ResolveJoinsArgs = {
@@ -103,13 +104,7 @@ export async function resolveJoins({
         localizationConfig &&
         localizationConfig.defaultLocale)
 
-    // Extract relationTo filter from the where clause to determine which collections to query
-    const relationToFilter = extractRelationToFilter(joinQuery.where || {})
-
-    // Determine which collections to query based on relationTo filter
-    const collections = relationToFilter
-      ? allCollections.filter((col) => relationToFilter.includes(col))
-      : allCollections
+    const collections = allCollections
 
     // Check if this is a polymorphic collection join (where field.collection is an array)
     const isPolymorphicJoin = Array.isArray(joinDef.field.collection)
@@ -143,13 +138,15 @@ export async function resolveJoins({
 
       // Build the base query
       let whereQuery: null | Record<string, unknown> = null
-      whereQuery = isPolymorphicJoin
-        ? filterWhereForCollection(
-            joinQuery.where || {},
-            targetConfig.flattenedFields,
-            true, // exclude relationTo for individual collections
-          )
+      const collectionWhere = isPolymorphicJoin
+        ? specializeJoinQuery({ collection: joinCollectionSlug, where: joinQuery.where || {} })
         : joinQuery.where || {}
+      if (collectionWhere === null) {
+        return null
+      }
+      whereQuery = isPolymorphicJoin
+        ? filterWhereForCollection(collectionWhere, targetConfig.flattenedFields, true)
+        : collectionWhere
 
       // Skip this collection if the WHERE clause cannot be satisfied for polymorphic collection joins
       if (whereQuery === null) {
@@ -444,71 +441,6 @@ export async function resolveJoins({
 }
 
 /**
- * Extracts relationTo filter values from a WHERE clause
- *
- * @purpose When you have a polymorphic join field that can reference multiple collection types (e.g. the documentsAndFolders join field on
- * folders that points to all folder-enabled collections), Payload needs to decide which collections to actually query. Without filtering,
- * it would query ALL possible collections even when the WHERE clause clearly indicates it only needs specific ones.
- *
- * extractRelationToFilter analyzes the WHERE clause to extract relationTo conditions and returns only the collection slugs that
- * could possibly match, avoiding unnecessary database queries.
- *
- * @description The function recursively traverses a WHERE clause looking for relationTo conditions in these patterns:
- *
- * 1. Direct conditions: { relationTo: { equals: 'posts' } }
- * 2. IN conditions: { relationTo: { in: ['posts', 'media'] } }
- * 3. Nested in AND/OR: Recursively searches through logical operators
-
- * @param where - The WHERE clause to search
- * @returns Array of collection slugs if relationTo filter found, null otherwise
- */
-function extractRelationToFilter(where: Record<string, unknown>): null | string[] {
-  if (!where || typeof where !== 'object') {
-    return null
-  }
-
-  // Check for direct relationTo conditions
-  if (where.relationTo && typeof where.relationTo === 'object') {
-    const relationTo = where.relationTo as Record<string, unknown>
-    if (relationTo.in && Array.isArray(relationTo.in)) {
-      return relationTo.in as string[]
-    }
-    if (relationTo.equals) {
-      return [relationTo.equals as string]
-    }
-  }
-
-  // Check for relationTo in logical operators
-  if (where.and && Array.isArray(where.and)) {
-    const allResults: string[] = []
-    for (const condition of where.and) {
-      const result = extractRelationToFilter(condition)
-      if (result) {
-        allResults.push(...result)
-      }
-    }
-    if (allResults.length > 0) {
-      return [...new Set(allResults)] // Remove duplicates
-    }
-  }
-
-  if (where.or && Array.isArray(where.or)) {
-    const allResults: string[] = []
-    for (const condition of where.or) {
-      const result = extractRelationToFilter(condition)
-      if (result) {
-        allResults.push(...result)
-      }
-    }
-    if (allResults.length > 0) {
-      return [...new Set(allResults)] // Remove duplicates
-    }
-  }
-
-  return null
-}
-
-/**
  * Filters a WHERE clause to only include fields that exist in the target collection
  * This is needed for polymorphic joins where different collections have different fields
  * @param where - The original WHERE clause
@@ -563,16 +495,17 @@ function filterWhereForCollection(
     } else if (key === 'or') {
       // Handle OR operator - at least one condition must be satisfiable
       if (Array.isArray(value)) {
-        const filteredConditions = value
-          .map((condition) =>
-            filterWhereForCollection(condition, availableFields, excludeRelationTo),
-          )
-          .filter((condition) => condition !== null && Object.keys(condition).length > 0)
-
-        if (filteredConditions.length > 0) {
-          filtered[key] = filteredConditions
+        const branches = value.map((condition) =>
+          filterWhereForCollection(condition, availableFields, excludeRelationTo),
+        )
+        if (branches.some((condition) => condition && Object.keys(condition).length === 0)) {
+          continue
         }
-        // If no OR conditions can be satisfied, we still continue (OR is more permissive)
+        const filteredConditions = branches.filter((condition) => condition !== null)
+        if (filteredConditions.length === 0) {
+          return null
+        }
+        filtered[key] = filteredConditions
       }
     } else if (key === 'relationTo' && excludeRelationTo) {
       // Skip relationTo field for non-polymorphic collections

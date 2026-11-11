@@ -6,12 +6,7 @@ import type { PaymentAdapter } from '../../../types/index.js'
 import type { StripeAdapterArgs } from './index.js'
 
 import { getCustomer } from '../../../utilities/getCustomer.js'
-import {
-  createCartItemsHash,
-  getOrderItemsFromTransaction,
-  normalizeEmail,
-  validateSettlement,
-} from './validateSettlement.js'
+import { normalizeEmail, validateSettlement } from './validateSettlement.js'
 
 type Props = {
   apiVersion?: Stripe.StripeConfig['apiVersion']
@@ -60,21 +55,20 @@ export const confirmOrder: (props: Props) => NonNullable<PaymentAdapter>['confir
         value: transaction.id,
       })
       const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentID)
-      const cartItemsHash = paymentIntent.metadata.cartItemsHash
-      const hasCartItemsHash = cartItemsHash !== undefined
-      // PaymentIntents created before the hash was introduced carry the full snapshot.
-      const cartItemsSnapshot = hasCartItemsHash
-        ? undefined
-        : parseRequiredMetadata({
-            fieldName: 'cartItemsSnapshot',
-            value: paymentIntent.metadata.cartItemsSnapshot,
-          })
-      // PaymentIntents created before the address moved to the transaction carry it in metadata.
+      const cartItemsSnapshot =
+        paymentIntent.metadata.cartItemsSnapshot === undefined
+          ? undefined
+          : parseRequiredMetadata({
+              fieldName: 'cartItemsSnapshot',
+              value: paymentIntent.metadata.cartItemsSnapshot,
+            })
       const shippingAddress =
-        parseOptionalMetadata({
-          fieldName: 'shippingAddress',
-          value: paymentIntent.metadata.shippingAddress,
-        }) ?? getTransactionShippingAddress({ transaction })
+        paymentIntent.metadata.shippingAddress === undefined
+          ? transaction.shippingAddress
+          : parseOptionalMetadata({
+              fieldName: 'shippingAddress',
+              value: paymentIntent.metadata.shippingAddress,
+            })
       const purchaser =
         user === null || user === undefined
           ? { customerEmail: normalizeEmail(data.customerEmail) }
@@ -87,15 +81,11 @@ export const confirmOrder: (props: Props) => NonNullable<PaymentAdapter>['confir
 
       validateSettlement({
         canonicalCartID: data.cartID,
-        cartItemsHash,
         cartItemsSnapshot,
         customerEmail: data.customerEmail,
         paymentIntent,
         paymentIntentID,
         transaction,
-        transactionItemsHash: hasCartItemsHash
-          ? await createCartItemsHash({ items: transaction.items })
-          : undefined,
         user,
       })
 
@@ -104,9 +94,7 @@ export const confirmOrder: (props: Props) => NonNullable<PaymentAdapter>['confir
           amount: transaction.amount,
           currency: transaction.currency,
           ...purchaser,
-          items: hasCartItemsHash
-            ? getOrderItemsFromTransaction({ items: transaction.items })
-            : cartItemsSnapshot,
+          items: transaction.items,
           shippingAddress,
           status: 'processing',
         },
@@ -162,24 +150,6 @@ const findTransaction = async ({
   }
 
   return result.docs[0]
-}
-
-const getTransactionShippingAddress = ({
-  transaction,
-}: {
-  transaction: RecordValue
-}): RecordValue | undefined => {
-  const { shippingAddress } = transaction
-
-  if (!isRecord(shippingAddress)) {
-    return undefined
-  }
-
-  const hasAddressValue = Object.values(shippingAddress).some(
-    (value) => value !== null && value !== undefined && value !== '',
-  )
-
-  return hasAddressValue ? shippingAddress : undefined
 }
 
 const parseOptionalMetadata = ({

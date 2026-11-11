@@ -10,7 +10,7 @@ import type { DocumentInfoContext, DocumentInfoProps } from './types.js'
 import { useControllableState } from '../../hooks/useControllableState.js'
 import { useAuth } from '../../providers/Auth/index.js'
 import { requests } from '../../utilities/api.js'
-import { getNoFallbackLocaleParam } from '../../utilities/getNoFallbackLocaleParam.js'
+import { getFallbackLocaleQuery } from '../../utilities/getFallbackLocaleQuery.js'
 import { useConfig } from '../Config/index.js'
 import { DocumentTitleProvider } from '../DocumentTitle/index.js'
 import { useLocale, useLocaleLoading } from '../Locale/index.js'
@@ -69,7 +69,6 @@ const DocumentInfo: React.FC<
     },
     getEntityConfig,
   } = useConfig()
-  const fallbackLocaleParam = getNoFallbackLocaleParam({ localization })
 
   const collectionConfig = getEntityConfig({ collectionSlug })
   const globalConfig = getEntityConfig({ globalSlug })
@@ -365,7 +364,7 @@ const DocumentInfo: React.FC<
       path: `${docPath}${qs.stringify(
         {
           depth: 0,
-          'fallback-locale': fallbackLocaleParam,
+          'fallback-locale': getFallbackLocaleQuery({ localization }),
           locale,
           uploadEdits: uploadEdits || undefined,
         },
@@ -374,7 +373,7 @@ const DocumentInfo: React.FC<
         },
       )}` as `/${string}`,
     })
-  }, [api, fallbackLocaleParam, locale, pluralType, id, slug, uploadEdits])
+  }, [api, locale, localization, pluralType, id, slug, uploadEdits])
 
   const value: DocumentInfoContext = {
     ...props,

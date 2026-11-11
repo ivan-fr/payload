@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+
 type RecordValue = Record<string, unknown>
 
 type SettlementPaymentIntent = {
@@ -24,20 +26,11 @@ type SettlementTransaction = {
 
 type SettlementValidationArgs = {
   canonicalCartID: unknown
-  /**
-   * SHA-256 digest of the cart items recorded in the PaymentIntent metadata.
-   * When present it is compared with `transactionItemsHash`.
-   */
-  cartItemsHash?: unknown
-  /**
-   * Legacy full cart snapshot from PaymentIntents created before the digest was introduced.
-   */
   cartItemsSnapshot?: unknown
   customerEmail: unknown
   paymentIntent: SettlementPaymentIntent
   paymentIntentID: string
   transaction: SettlementTransaction
-  transactionItemsHash?: string
   user?: { id?: unknown } | null
 }
 
@@ -113,56 +106,13 @@ export const normalizeCartItems = (items: unknown): unknown[] => {
   })
 }
 
-/**
- * Stripe limits every metadata value to 500 characters, so the PaymentIntent carries a
- * fixed-length digest of the cart items instead of the items themselves.
- */
-export const createCartItemsHash = async ({ items }: { items: unknown }): Promise<string> => {
-  // The JSON round trip mirrors how the items are persisted, e.g. dates become strings.
-  const serializedItems = stableSerialize(normalizeCartItems(JSON.parse(JSON.stringify(items))))
-  const digest = await globalThis.crypto.subtle.digest(
-    'SHA-256',
-    new TextEncoder().encode(serializedItems),
-  )
-
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
-}
-
-/**
- * Order items are read from the transaction, which stores the cart exactly as it was charged.
- * Row IDs belong to the transaction and are not copied to the order.
- */
-export const getOrderItemsFromTransaction = ({ items }: { items: unknown }): RecordValue[] => {
-  if (!Array.isArray(items) || items.length === 0) {
-    throw new Error('Cart items are missing or invalid')
-  }
-
-  return items.map((item) => {
-    if (!isRecord(item)) {
-      throw new Error('Cart items are missing or invalid')
-    }
-
-    const { id: _id, product, variant, ...customProperties } = item
-
-    return {
-      ...customProperties,
-      product: isRecord(product) ? product.id : product,
-      ...(variant === null || variant === undefined
-        ? {}
-        : { variant: isRecord(variant) ? variant.id : variant }),
-    }
-  })
-}
-
 export const validateSettlement = ({
   canonicalCartID,
-  cartItemsHash,
   cartItemsSnapshot,
   customerEmail,
   paymentIntent,
   paymentIntentID,
   transaction,
-  transactionItemsHash,
   user,
 }: SettlementValidationArgs): void => {
   if (
@@ -184,6 +134,42 @@ export const validateSettlement = ({
     throw new Error('Canonical cart does not match the PaymentIntent cart')
   }
 
+  validatePurchaser({ customerEmail, transaction, user })
+
+  const stripeCustomerID = getNestedString(transaction, 'stripe', 'customerID')
+
+  if (!stripeCustomerID || stripeCustomerID !== getRelationshipID(paymentIntent.customer)) {
+    throw new Error('Stripe customer does not match the transaction')
+  }
+
+  if (paymentIntent.amount !== transaction.amount) {
+    throw new Error('Stripe amount does not match the transaction amount')
+  }
+
+  if (
+    typeof paymentIntent.currency !== 'string' ||
+    typeof transaction.currency !== 'string' ||
+    paymentIntent.currency.toUpperCase() !== transaction.currency
+  ) {
+    throw new Error('Stripe currency does not match the transaction currency')
+  }
+
+  validateCartItems({
+    cartItemsHash: metadata?.cartItemsHash,
+    cartItemsSnapshot,
+    items: transaction.items,
+  })
+
+  if (paymentIntent.status !== 'succeeded') {
+    throw new Error('Payment not completed.')
+  }
+}
+
+const validatePurchaser = ({
+  customerEmail,
+  transaction,
+  user,
+}: Pick<SettlementValidationArgs, 'customerEmail' | 'transaction' | 'user'>): void => {
   const transactionCustomerID = getRelationshipID(transaction.customer)
 
   if (user !== null && user !== undefined) {
@@ -210,44 +196,36 @@ export const validateSettlement = ({
       throw new Error('Guest email does not match the transaction email')
     }
   }
+}
 
-  const stripeCustomerID = getNestedString(transaction, 'stripe', 'customerID')
+/** Fixed-size metadata binds normalized persisted items to the cart priced at initiation. */
+export const getCartItemsHash = ({ items }: { items: unknown }): string =>
+  createHash('sha256')
+    .update(stableSerialize(normalizeCartItems(items)))
+    .digest('hex')
 
-  if (!stripeCustomerID || stripeCustomerID !== getRelationshipID(paymentIntent.customer)) {
-    throw new Error('Stripe customer does not match the transaction')
-  }
-
-  if (paymentIntent.amount !== transaction.amount) {
-    throw new Error('Stripe amount does not match the transaction amount')
-  }
-
-  if (
-    typeof paymentIntent.currency !== 'string' ||
-    typeof transaction.currency !== 'string' ||
-    paymentIntent.currency.toUpperCase() !== transaction.currency
-  ) {
-    throw new Error('Stripe currency does not match the transaction currency')
-  }
-
+const validateCartItems = ({
+  cartItemsHash,
+  cartItemsSnapshot,
+  items,
+}: {
+  cartItemsHash: unknown
+  cartItemsSnapshot: unknown
+  items: unknown
+}): void => {
+  const normalizedItems = normalizeCartItems(items)
   if (cartItemsHash !== undefined) {
-    if (
-      typeof cartItemsHash !== 'string' ||
-      !cartItemsHash ||
-      cartItemsHash !== transactionItemsHash
-    ) {
+    if (typeof cartItemsHash !== 'string' || cartItemsHash !== getCartItemsHash({ items })) {
       throw new Error('Stripe cart items do not match the transaction items')
     }
-  } else {
-    const normalizedSnapshot = normalizeCartItems(cartItemsSnapshot)
-    const normalizedTransactionItems = normalizeCartItems(transaction.items)
-
-    if (stableSerialize(normalizedSnapshot) !== stableSerialize(normalizedTransactionItems)) {
-      throw new Error('Stripe cart items do not match the transaction items')
-    }
+    return
   }
-
-  if (paymentIntent.status !== 'succeeded') {
-    throw new Error('Payment not completed.')
+  // Old intents may carry a snapshot; releases between the snapshot and digest formats do not.
+  if (
+    cartItemsSnapshot !== undefined &&
+    stableSerialize(normalizeCartItems(cartItemsSnapshot)) !== stableSerialize(normalizedItems)
+  ) {
+    throw new Error('Stripe cart items do not match the transaction items')
   }
 }
 

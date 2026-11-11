@@ -1,69 +1,48 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { _internal_jobSystemGlobals } from '../utilities/getCurrentDate.js'
 import { calculateBackoffWaitUntil } from './calculateBackoffWaitUntil.js'
 
-const now = new Date('2026-01-01T00:00:00.000Z')
+afterEach(() => vi.restoreAllMocks())
 
-const getDelay = ({
-  jitter,
-  totalTried,
-  type = 'exponential',
-}: {
-  jitter?: boolean
-  totalTried: number
-  type?: 'exponential' | 'fixed'
-}) =>
-  calculateBackoffWaitUntil({
-    retriesConfig: { attempts: 5, backoff: { type, delay: 1000, jitter } },
-    totalTried,
-  }).getTime() - now.getTime()
+describe('exponential backoff jitter (#16318)', () => {
+  const now = new Date('2026-11-10T00:00:00.000Z')
+  it.each([0, 0.5, 0.999])('should spread exponential retries for random sample %s', (sample) => {
+    vi.spyOn(_internal_jobSystemGlobals, 'getCurrentDate').mockReturnValue(now)
+    vi.spyOn(Math, 'random').mockReturnValue(sample)
+    const result = calculateBackoffWaitUntil({
+      retriesConfig: { attempts: 5, backoff: { type: 'exponential', delay: 1000, jitter: true } },
+      totalTried: 3,
+    })
 
-describe('calculateBackoffWaitUntil', () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
-    vi.setSystemTime(now)
+    expect(result.getTime() - now.getTime()).toBe(Math.floor(8000 * (0.5 + sample * 0.5)))
   })
 
-  afterEach(() => {
-    vi.useRealTimers()
-    vi.restoreAllMocks()
-  })
+  it.each(['fixed', 'exponential'] as const)(
+    'should retain deterministic %s retries by default',
+    (type) => {
+      vi.spyOn(_internal_jobSystemGlobals, 'getCurrentDate').mockReturnValue(now)
+      const random = vi.spyOn(Math, 'random')
+      const result = calculateBackoffWaitUntil({
+        retriesConfig: { attempts: 5, backoff: { type, delay: 1000 } },
+        totalTried: 3,
+      })
 
-  it('should keep the exponential delay deterministic when jitter is not enabled', () => {
-    const random = vi.spyOn(Math, 'random').mockReturnValue(0)
+      expect(result.getTime() - now.getTime()).toBe(type === 'fixed' ? 1000 : 8000)
+      expect(random).not.toHaveBeenCalled()
+    },
+  )
 
-    expect([0, 1, 2, 3].map((totalTried) => getDelay({ totalTried }))).toEqual([
-      1000, 2000, 4000, 8000,
-    ])
-    expect(random).not.toHaveBeenCalled()
-  })
-
-  it('should spread a jittered exponential delay between half and all of the exponential delay', () => {
+  it('should keep fixed backoff unaffected when jitter is enabled', () => {
+    vi.spyOn(_internal_jobSystemGlobals, 'getCurrentDate').mockReturnValue(now)
     const random = vi.spyOn(Math, 'random')
 
-    random.mockReturnValue(0)
-    expect(getDelay({ jitter: true, totalTried: 2 })).toBe(2000)
-
-    random.mockReturnValue(0.5)
-    expect(getDelay({ jitter: true, totalTried: 2 })).toBe(3000)
-
-    random.mockReturnValue(0.999999)
-    expect(getDelay({ jitter: true, totalTried: 2 })).toBeLessThan(4000)
-    expect(getDelay({ jitter: true, totalTried: 2 })).toBeGreaterThanOrEqual(3999)
-  })
-
-  it('should give jobs that failed together different retry times when jitter is enabled', () => {
-    const delays = new Set(
-      Array.from({ length: 20 }, () => getDelay({ jitter: true, totalTried: 3 })),
-    )
-
-    expect(delays.size).toBeGreaterThan(1)
-  })
-
-  it('should not apply jitter to the fixed strategy', () => {
-    const random = vi.spyOn(Math, 'random').mockReturnValue(0)
-
-    expect(getDelay({ jitter: true, totalTried: 3, type: 'fixed' })).toBe(1000)
+    expect(
+      calculateBackoffWaitUntil({
+        retriesConfig: { attempts: 5, backoff: { type: 'fixed', delay: 1000, jitter: true } },
+        totalTried: 3,
+      }).getTime() - now.getTime(),
+    ).toBe(1000)
     expect(random).not.toHaveBeenCalled()
   })
 })

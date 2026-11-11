@@ -1,8 +1,8 @@
 # Payload v4 maintenance: core, storage and plugin regressions
 
-This fork contains **201 scoped fixes** for official Payload reports against **4.0.0-beta.6**. This batch starts from `eaaff6f` on `codex/six-more-payload-fixes-20261111`. Details and verification limits for the new reports are recorded in [batch 33](batch-33.md), following [batch 32](batch-32.md), [batch 31](batch-31.md), [batch 30](batch-30.md) and [batch 29](batch-29.md) on the same branch. The upstream state of the batch 33 reports could not be read in that session; they are open in the 2026-11-02 snapshot. No PR is opened and no official issue is closed.
+This branch fixes 138 reported core, storage and plugin regressions against Payload **4.0.0-beta.6**, based on upstream commit `ec351643011603cf75dc91db5d03f80ff120f1e9`. The npm `beta` tag was checked on 2026-11-02; `latest` still points to 3.92.1. This is a beta fork, not a stable Payload 4 release.
 
-The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests: **174 snapshot issues have scoped fixes; 391 remain unassessed**. Another **27 scoped fixes** concern reports opened after that snapshot. Counts describe changes in this fork, not upstream closures. Historical validation below applies to the revisions stated in each batch.
+The [inventory](issues.json) preserves the historical snapshot of **565 open issues**, excluding pull requests. **129 snapshot issues have scoped fixes here; 436 snapshot issues remain unassessed**. Nine reports opened after that snapshot are tracked under `additional_issues`, bringing this fork to **138 scoped fixes**. Inventorying a report does not establish that it still reproduces on v4, and no upstream issue has been closed.
 
 ## Changes and evidence
 
@@ -299,3 +299,47 @@ The current inventory contains **134 scoped fixes + 431 unassessed** in the orig
 ## PR #7 review follow-up
 
 [The review follow-up](pr-7-review.md) records the CI failures on `af08312`: upload request proxies lost file rollback ownership, cloud metadata tests assumed request object identity, and grouping excluded relationship-backed virtual scalar paths. The corrective changes retain file isolation while sharing cleanup ownership and restore eligible virtual options. This review adds no upstream issue to the count.
+
+## Batch 29: six shared admin layout regressions
+
+On `fix/payload-six-issues-20261108`, based on merged `main` at `3a9b73836f5839143cad367a4b273c0e33e2e22b`: six more official reports checked open on 2026-11-08. Fixes cover empty document-control spacing (#19395), icon-only dashed button borders (#19397), drawer viewport scrolling (#19403), order-independent inactive tab colors (#19406), wide custom file previews (#19412), and adjacent collapsible-group separators (#19413).
+
+[Batch 29 scope, reproduction and accessibility evidence](batch-29.md): all 12 initial native-browser CSS contracts failed before correction; the final 24 pass in light/dark, ordinary/enhanced-contrast modes. These isolate production CSS cascade and geometry from the full Admin app; live Admin integration and assistive-technology verification remain separate. Inventory: 152 historical + 22 later scoped fixes = **174 scoped fork fixes**. No new PR is opened by this batch.
+
+## Batch 30: six additional access, query and checkout reports
+
+The same branch adds #18331 (unreadable field hooks), #18332 (per-target polymorphic join access), #16659 (repeated list-column URL encoding), #15686 (numeric relationship titles), #19017 (large Stripe carts) and #19055 (cart digests and transaction shipping addresses). See [batch-30.md](batch-30.md) for regressions, compatibility, schema-migration implications and evidence limits.
+
+This brings the branch to **12 scoped reports** and the fork inventory to **180 scoped fixes**: 158 historical and 22 later reports. SQLite integration, complete unit checks, affected package types and targeted quality checks are recorded in the report. No new PR is opened by this batch.
+
+## Batch 31 — scheduling and Admin state
+
+[Batch 31](./batch-31.md) adds six scoped fixes on `fix/payload-six-issues-20261108`: #19448, #17779, #17684, #17833, #17639 and #19396. Validation includes 4,680 passing unit tests, 7 component contracts, 28 layout CSS browser contracts and 2 real SQLite integration cases, plus package TypeScript, lint, formatting and local SonarJS checks. Full Admin/AT verification and SonarCloud remain outside this batch's evidence. The fork now has 186 scoped fixes (162 historical plus 24 later reports); this branch contains 18 reports. No PR was created.
+
+## Batch 32 — query limits, cascade failures and Admin feedback
+
+[Batch 32](./batch-32.md) adds #18162, #18837, #16308, #17493, #17457 and #16952 on `fix/payload-six-issues-20261108`. Validation: 4,706 passing unit tests, 15 component cases, 3 transactional SQLite integration cases, package TypeScript, lint/formatting and local helper SonarJS checks. Collapsible preference persistence remains enabled by default; `admin.persistCollapsedState: false` enables the requested reset-on-mount behavior. The fork now has 192 scoped fixes (168 historical plus 24 later reports), including 24 reports on this branch. Full Admin/AT verification, live D1 and SonarCloud are not claimed. No PR was created.
+
+## Batch 33 — standalone uploads, list state and public Markdown API
+
+[Batch 33](./batch-33.md) addresses #17667, #17778, #13851, #13694, #18588 and #16955: five code fixes and a tested relationship-rename migration guide. Validation includes 4,711 passing unit tests, 29 component cases, 2 SQLite/REST integration cases, package TypeScript, lint/formatting, a Next file-trace regression and local SonarJS checks. The fork now tracks 198 scoped fixes (174 historical plus 24 later reports), including 30 on this branch. Full standalone deployment, full Admin/AT verification and SonarCloud are not claimed. No PR was created.
+
+## Batch 34 — localized preview, block joins, version ties and CSV completeness
+
+[Batch 34](./batch-34.md) starts `fix/payload-six-issues-20261110` from merged fork `main` at `8d033ff6ee075bed5c6a3243943b097760bde216`. It addresses #19481, #19479, #19459, #17406, #19451 and #19140. Validation includes six reproduced baseline failures, 4,714 passing unit tests, seven integration cases on each of numeric SQLite, UUID SQLite and the PostgreSQL adapter through PGlite, plus affected package types. The report records CSV buffering and version-concurrency evidence limits. The inventory now has 204 scoped fixes (176 historical plus 28 later reports). No PR is created.
+
+## Batch 35 — hook dependencies, restoration and optional pricing/retry controls
+
+[Batch 35](./batch-35.md) adds #15959, #16718, #19401, #16318, #15784 and #16730 to `fix/payload-six-issues-20261110`: three bug fixes, optional retry jitter and Stripe amount resolution, and an executed draft-backfill guide. Validation includes 4,731 passing unit tests, eight integration cases on each of numeric SQLite, UUID SQLite and PostgreSQL through PGlite, core/ecommerce/UI types, the actual documentation example's types, lint/formatting and scoped local SonarJS rules. The report records publication/access behavior and live-service limits. The fork inventory reaches 210 scoped fixes (181 historical and 29 later reports), with 12 reports on this branch. No PR is created.
+
+## Batch 36 — context isolation, callback defaults and developer utilities
+
+[Batch 36](./batch-36.md) adds #10250, #11871, #10605, #17119, #10125 and #17262 to `fix/payload-six-issues-20261110`: three bug fixes, a Next.js peer-version warning, a public multipart parser and PostGIS documentation. Validation includes 4,749 passing unit tests, 27 integration executions, date-validator type assertions, affected package declarations, actual documentation snippets, a published-layout CommonJS smoke, lint/formatting and scoped local SonarJS checks. The report records native-service and offline installation limits. The fork inventory reaches 216 scoped fixes (187 historical and 29 later reports), with 18 reports on this branch. No PR is created.
+
+## Batch 37 — hierarchy intent, JSON refs, metadata and project scaffolding
+
+[Batch 37](./batch-37.md) adds #17223, #11383, #11580, #12764, #16054 and #14682: five code/configuration fixes and a verification API documentation correction. Validation includes 4,775 passing unit tests, 31 integration executions, affected package types, an actual generated-project regression, lint/formatting and scoped local SonarJS. Production browser/AT, native database and Docker limits are recorded. The fork inventory reaches 222 scoped fixes (193 historical plus 29 later reports). The requested PR covers all 24 reports on `fix/payload-six-issues-20261110`.
+
+## Batch 38 — sessions, locks, nested rows, selects and query fixes
+
+[Batch 38](./batch-38.md) adds #18132, #18160, #17724, #16647, #13089, #18200, #17249, #17858, #16195, #18273, #18312, #18355 and #19490. It was developed on a branch cut before batches 29 to 37 and merged afterwards: seven further reports fixed on that branch were already fixed on `main` and `main`'s implementation was kept. Validation ran on SQLite and unit tests only; PostgreSQL, MongoDB and D1 are not verified.

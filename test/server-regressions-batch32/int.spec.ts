@@ -1,85 +1,100 @@
 import { expect } from 'vitest'
 
 import { test } from '../__helpers/int/vitest.js'
-import { autoLoginEmail, otherEmail, usersSlug } from './slugs.js'
+import { pagesSlug } from './slugs.js'
 
-const password = 'test-password'
-
-test.suite('batch 32 regressions', { config: './config.ts' }, () => {
-  test.describe('autoLogin token refresh with sessions (#17249)', () => {
-    test('should refresh the token of the autoLogin user and start a session', async ({
+test.suite('nested document child failures (#17457)', { config: './config.ts' }, () => {
+  for (const isGrandchild of [false, true]) {
+    test(`should reject a failed descendant save and respect transaction support (grandchild: ${isGrandchild})`, async ({
       payload,
-      restClient,
     }) => {
-      const user = await payload.create({
-        collection: usersSlug,
-        data: { email: autoLoginEmail, password },
+      const transactionID = await payload.db.beginTransaction()
+      const hasTransactions = transactionID !== null
+      if (transactionID !== null) {
+        await payload.db.rollbackTransaction(transactionID)
+      }
+
+      const parent = await payload.create({
+        collection: pagesSlug,
+        data: { title: 'Original parent' },
         overrideAccess: true,
       })
-
-      const response = await restClient.POST(`/${usersSlug}/refresh-token`)
-      const result = await response.json()
-
-      expect(response.status).toBe(200)
-      expect(result.refreshedToken).toEqual(expect.any(String))
-      expect(result.user.email).toBe(autoLoginEmail)
-
-      const storedUser = await payload.db.findOne<{ sessions?: { id: string }[] }>({
-        collection: usersSlug,
-        where: { id: { equals: user.id } },
-      })
-
-      expect(storedUser?.sessions).toHaveLength(1)
-
-      const refreshedAgain = await restClient.POST(`/${usersSlug}/refresh-token`, {
-        auth: false,
-        headers: { Authorization: `JWT ${result.refreshedToken}` },
-      })
-
-      expect(refreshedAgain.status).toBe(200)
-    })
-
-    test('should still forbid refreshing without a token when autoLogin is not applied', async ({
-      payload,
-      restClient,
-    }) => {
-      await payload.create({
-        collection: usersSlug,
-        data: { email: autoLoginEmail, password },
+      const child = await payload.create({
+        collection: pagesSlug,
+        data: { title: 'Child', parent: parent.id },
         overrideAccess: true,
       })
-
-      const response = await restClient.POST(`/${usersSlug}/refresh-token`, { auth: false })
-
-      expect(response.status).toBe(403)
-    })
-
-    test('should still forbid refreshing another user whose token has no session', async ({
-      payload,
-      restClient,
-    }) => {
-      const otherUser = await payload.create({
-        collection: usersSlug,
-        data: { email: otherEmail, password },
+      const failing = isGrandchild
+        ? await payload.create({
+            collection: pagesSlug,
+            data: { title: 'Grandchild', parent: child.id },
+            overrideAccess: true,
+          })
+        : child
+      const before = await payload.findByID({
+        collection: pagesSlug,
+        id: parent.id,
         overrideAccess: true,
       })
-      const login = await payload.login({
-        collection: usersSlug,
-        data: { email: otherEmail, password },
+      await expect(
+        payload.update({
+          collection: pagesSlug,
+          id: parent.id,
+          data: { title: 'Rejected parent' },
+          context: { failChildID: failing.id },
+          overrideAccess: true,
+        }),
+      ).rejects.toMatchObject({ message: 'Child save was rejected', status: 409 })
+      const stored = await payload.findByID({
+        collection: pagesSlug,
+        id: parent.id,
+        overrideAccess: true,
       })
-
-      await payload.db.updateOne({
-        id: otherUser.id,
-        collection: usersSlug,
-        data: { sessions: [] },
+      expect(stored).toMatchObject({
+        title: hasTransactions ? 'Original parent' : 'Rejected parent',
+        ...(hasTransactions ? { updatedAt: before.updatedAt } : {}),
       })
-
-      const response = await restClient.POST(`/${usersSlug}/refresh-token`, {
-        auth: false,
-        headers: { Authorization: `JWT ${login.token}` },
+      const storedChild = await payload.findByID({
+        collection: pagesSlug,
+        id: child.id,
+        overrideAccess: true,
       })
-
-      expect(response.status).toBe(403)
+      expect(storedChild.breadcrumbs?.map(({ label }) => label)).toEqual([
+        hasTransactions || !isGrandchild ? 'Original parent' : 'Rejected parent',
+        'Child',
+      ])
+      const rejected = isGrandchild
+        ? await payload.findByID({ collection: pagesSlug, id: failing.id, overrideAccess: true })
+        : storedChild
+      expect(rejected.breadcrumbs?.map(({ label }) => label)).toEqual(
+        isGrandchild ? ['Original parent', 'Child', 'Grandchild'] : ['Original parent', 'Child'],
+      )
     })
+  }
+  test('should still persist a valid parent change and refresh child breadcrumbs', async ({
+    payload,
+  }) => {
+    const parent = await payload.create({
+      collection: pagesSlug,
+      data: { title: 'Original' },
+      overrideAccess: true,
+    })
+    const child = await payload.create({
+      collection: pagesSlug,
+      data: { title: 'Child', parent: parent.id },
+      overrideAccess: true,
+    })
+    await payload.update({
+      collection: pagesSlug,
+      id: parent.id,
+      data: { title: 'Updated' },
+      overrideAccess: true,
+    })
+    const stored = await payload.findByID({
+      collection: pagesSlug,
+      id: child.id,
+      overrideAccess: true,
+    })
+    expect(stored.breadcrumbs?.map(({ label }) => label)).toEqual(['Updated', 'Child'])
   })
 })

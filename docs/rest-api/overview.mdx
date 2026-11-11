@@ -747,6 +747,35 @@ import { headersWithCors } from 'payload'
 }
 ```
 
+### Parsing multipart requests
+
+Custom endpoints can import `processMultipartFormdata` from `payload` to parse file uploads using Payload's upload settings. Pass the endpoint request and `req.payload.config.upload` to retain configured file, field, timeout, and total request size limits:
+
+```ts
+import type { Endpoint } from 'payload'
+
+import { processMultipartFormdata } from 'payload'
+
+export const inspectUploads: Endpoint = {
+  path: '/inspect-uploads',
+  method: 'post',
+  handler: async (req) => {
+    const { error, fields, files } = await processMultipartFormdata({
+      request: req as Request,
+      options: req.payload.config.upload,
+    })
+
+    if (error) {
+      throw error
+    }
+
+    return Response.json({ fields, fileFields: Object.keys(files || {}) })
+  },
+}
+```
+
+For example, a multipart body can contain separate `front` and `back` file fields alongside text fields. The helper consumes the request body once and returns parsed data; it does not create upload documents or change the built-in collection upload endpoints. When using `useTempFiles`, the custom handler is responsible for consuming and removing its temporary files. Apply the same authentication and authorization as for any custom endpoint.
+
 ## Method Override for GET Requests
 
 Payload supports a method override feature that allows you to send GET requests using the HTTP POST method. This can be particularly useful in scenarios when the query string in a regular GET request is too long.

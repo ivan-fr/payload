@@ -79,45 +79,23 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    'batch31-documents': Batch31Document;
-    'batch31-pages': Batch31Page;
-    'batch31-articles': Batch31Article;
-    'batch31-notes': Batch31Note;
-    'batch31-holders': Batch31Holder;
-    'batch31-categories': Batch31Category;
-    'batch31-posts': Batch31Post;
-    'batch31-uuid-documents': Batch31UuidDocument;
-    'batch31-uuid-groups': Batch31UuidGroup;
-    'batch31-uuid-users': Batch31UuidUser;
+    'scheduled-posts': ScheduledPost;
+    'other-scheduled-posts': OtherScheduledPost;
     'payload-kv': PayloadKv;
     users: User;
+    'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
     'payload-llm-instructions': PayloadLlmInstruction;
   };
-  collectionsJoins: {
-    'batch31-documents': {
-      listedOn: 'batch31-pages';
-      listedInGroups: 'batch31-pages';
-    };
-    'batch31-holders': {
-      entries: 'batch31-articles' | 'batch31-notes';
-    };
-  };
+  collectionsJoins: {};
   collectionsSelect: {
-    'batch31-documents': Batch31DocumentsSelect<false> | Batch31DocumentsSelect<true>;
-    'batch31-pages': Batch31PagesSelect<false> | Batch31PagesSelect<true>;
-    'batch31-articles': Batch31ArticlesSelect<false> | Batch31ArticlesSelect<true>;
-    'batch31-notes': Batch31NotesSelect<false> | Batch31NotesSelect<true>;
-    'batch31-holders': Batch31HoldersSelect<false> | Batch31HoldersSelect<true>;
-    'batch31-categories': Batch31CategoriesSelect<false> | Batch31CategoriesSelect<true>;
-    'batch31-posts': Batch31PostsSelect<false> | Batch31PostsSelect<true>;
-    'batch31-uuid-documents': Batch31UuidDocumentsSelect<false> | Batch31UuidDocumentsSelect<true>;
-    'batch31-uuid-groups': Batch31UuidGroupsSelect<false> | Batch31UuidGroupsSelect<true>;
-    'batch31-uuid-users': Batch31UuidUsersSelect<false> | Batch31UuidUsersSelect<true>;
+    'scheduled-posts': ScheduledPostsSelect<false> | ScheduledPostsSelect<true>;
+    'other-scheduled-posts': OtherScheduledPostsSelect<false> | OtherScheduledPostsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -127,8 +105,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'payload-jobs-stats': PayloadJobsStat;
+  };
+  globalsSelect: {
+    'payload-jobs-stats': PayloadJobsStatsSelect<false> | PayloadJobsStatsSelect<true>;
+  };
   locale: null;
   widgets: {
     welcome: WelcomeWidget;
@@ -138,7 +120,13 @@ export interface Config {
   };
   user: User;
   jobs: {
-    tasks: unknown;
+    tasks: {
+      schedulePublish: TaskSchedulePublish;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
 }
@@ -162,21 +150,11 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-documents".
+ * via the `definition` "scheduled-posts".
  */
-export interface Batch31Document {
+export interface ScheduledPost {
   id: number;
   title?: string | null;
-  listedOn?: {
-    docs?: (number | Batch31Page)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  listedInGroups?: {
-    docs?: (number | Batch31Page)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
   createdBy?: {
     relationTo: 'users';
     value: number | User;
@@ -187,78 +165,7 @@ export interface Batch31Document {
   } | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-pages".
- */
-export interface Batch31Page {
-  id: number;
-  title?: string | null;
-  lineup?:
-    | {
-        performers?: (Artist | Guest)[] | null;
-        id?: string | null;
-      }[]
-    | null;
-  otherPerformers?: Guest[] | null;
-  layout?: (Text | List)[] | null;
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "Artist".
- */
-export interface Artist {
-  artist?: (number | null) | Batch31Document;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'artist';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "Guest".
- */
-export interface Guest {
-  name?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'guest';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "Text".
- */
-export interface Text {
-  text?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'text';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "List".
- */
-export interface List {
-  targets?: (number | Batch31Document)[] | null;
-  groups?:
-    | {
-        targets?: (number | Batch31Document)[] | null;
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'list';
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -296,12 +203,11 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-articles".
+ * via the `definition` "other-scheduled-posts".
  */
-export interface Batch31Article {
+export interface OtherScheduledPost {
   id: number;
   title?: string | null;
-  owner?: (number | null) | Batch31Holder;
   createdBy?: {
     relationTo: 'users';
     value: number | User;
@@ -312,172 +218,7 @@ export interface Batch31Article {
   } | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-holders".
- */
-export interface Batch31Holder {
-  id: number;
-  entries?: {
-    docs?: (
-      | {
-          relationTo?: 'batch31-articles';
-          value: number | Batch31Article;
-        }
-      | {
-          relationTo?: 'batch31-notes';
-          value: number | Batch31Note;
-        }
-    )[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-notes".
- */
-export interface Batch31Note {
-  id: number;
-  title?: string | null;
-  visibility?: ('public' | 'private') | null;
-  owner?: (number | null) | Batch31Holder;
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-categories".
- */
-export interface Batch31Category {
-  id: number;
-  slug?: string | null;
-  state?: string | null;
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-posts".
- */
-export interface Batch31Post {
-  id: number;
-  title?: string | null;
-  score?: number | null;
-  category?: (number | null) | Batch31Category;
-  entity?:
-    | ({
-        relationTo: 'batch31-categories';
-        value: number | Batch31Category;
-      } | null)
-    | ({
-        relationTo: 'batch31-documents';
-        value: number | Batch31Document;
-      } | null);
-  secret?: string | null;
-  internal?: string | null;
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-uuid-documents".
- */
-export interface Batch31UuidDocument {
-  id: number;
-  permissions?:
-    | {
-        entity?:
-          | ({
-              relationTo: 'batch31-uuid-groups';
-              value: number | Batch31UuidGroup;
-            } | null)
-          | ({
-              relationTo: 'batch31-uuid-users';
-              value: number | Batch31UuidUser;
-            } | null);
-        id?: string | null;
-      }[]
-    | null;
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-uuid-groups".
- */
-export interface Batch31UuidGroup {
-  id: number;
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-uuid-users".
- */
-export interface Batch31UuidUser {
-  id: number;
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -498,50 +239,128 @@ export interface PayloadKv {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: number;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  meta?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'schedulePublish';
+        taskID: string;
+        input:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        parent?: {
+          taskSlug?: ('inline' | 'schedulePublish') | null;
+          taskID?: string | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'schedulePublish') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processingUntil?: string | null;
+  processingToken?: string | null;
+  /**
+   * Used for concurrency control. Jobs with the same key are subject to exclusive/supersedes rules.
+   */
+  concurrencyKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'batch31-documents';
-        value: number | Batch31Document;
+        relationTo: 'scheduled-posts';
+        value: number | ScheduledPost;
       } | null)
     | ({
-        relationTo: 'batch31-pages';
-        value: number | Batch31Page;
-      } | null)
-    | ({
-        relationTo: 'batch31-articles';
-        value: number | Batch31Article;
-      } | null)
-    | ({
-        relationTo: 'batch31-notes';
-        value: number | Batch31Note;
-      } | null)
-    | ({
-        relationTo: 'batch31-holders';
-        value: number | Batch31Holder;
-      } | null)
-    | ({
-        relationTo: 'batch31-categories';
-        value: number | Batch31Category;
-      } | null)
-    | ({
-        relationTo: 'batch31-posts';
-        value: number | Batch31Post;
-      } | null)
-    | ({
-        relationTo: 'batch31-uuid-documents';
-        value: number | Batch31UuidDocument;
-      } | null)
-    | ({
-        relationTo: 'batch31-uuid-groups';
-        value: number | Batch31UuidGroup;
-      } | null)
-    | ({
-        relationTo: 'batch31-uuid-users';
-        value: number | Batch31UuidUser;
+        relationTo: 'other-scheduled-posts';
+        value: number | OtherScheduledPost;
       } | null)
     | ({
         relationTo: 'users';
@@ -613,185 +432,27 @@ export interface PayloadLlmInstruction {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-documents_select".
+ * via the `definition` "scheduled-posts_select".
  */
-export interface Batch31DocumentsSelect<T extends boolean = true> {
+export interface ScheduledPostsSelect<T extends boolean = true> {
   title?: T;
-  listedOn?: T;
-  listedInGroups?: T;
   createdBy?: T;
   updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-pages_select".
+ * via the `definition` "other-scheduled-posts_select".
  */
-export interface Batch31PagesSelect<T extends boolean = true> {
+export interface OtherScheduledPostsSelect<T extends boolean = true> {
   title?: T;
-  lineup?:
-    | T
-    | {
-        performers?:
-          | T
-          | {
-              artist?:
-                | T
-                | {
-                    artist?: T;
-                    id?: T;
-                    blockName?: T;
-                  };
-              guest?:
-                | T
-                | {
-                    name?: T;
-                    id?: T;
-                    blockName?: T;
-                  };
-            };
-        id?: T;
-      };
-  otherPerformers?:
-    | T
-    | {
-        guest?:
-          | T
-          | {
-              name?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
-  layout?:
-    | T
-    | {
-        text?:
-          | T
-          | {
-              text?: T;
-              id?: T;
-              blockName?: T;
-            };
-        list?:
-          | T
-          | {
-              targets?: T;
-              groups?:
-                | T
-                | {
-                    targets?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-      };
   createdBy?: T;
   updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-articles_select".
- */
-export interface Batch31ArticlesSelect<T extends boolean = true> {
-  title?: T;
-  owner?: T;
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-notes_select".
- */
-export interface Batch31NotesSelect<T extends boolean = true> {
-  title?: T;
-  visibility?: T;
-  owner?: T;
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-holders_select".
- */
-export interface Batch31HoldersSelect<T extends boolean = true> {
-  entries?: T;
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-categories_select".
- */
-export interface Batch31CategoriesSelect<T extends boolean = true> {
-  slug?: T;
-  state?: T;
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-posts_select".
- */
-export interface Batch31PostsSelect<T extends boolean = true> {
-  title?: T;
-  score?: T;
-  category?: T;
-  entity?: T;
-  secret?: T;
-  internal?: T;
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-uuid-documents_select".
- */
-export interface Batch31UuidDocumentsSelect<T extends boolean = true> {
-  permissions?:
-    | T
-    | {
-        entity?: T;
-        id?: T;
-      };
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-uuid-groups_select".
- */
-export interface Batch31UuidGroupsSelect<T extends boolean = true> {
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "batch31-uuid-users_select".
- */
-export interface Batch31UuidUsersSelect<T extends boolean = true> {
-  createdBy?: T;
-  updatedBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -825,6 +486,46 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  meta?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        parent?:
+          | T
+          | {
+              taskSlug?: T;
+              taskID?: T;
+            };
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processingUntil?: T;
+  processingToken?: T;
+  concurrencyKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -876,6 +577,34 @@ export interface PayloadLlmInstructionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs-stats".
+ */
+export interface PayloadJobsStat {
+  id: number;
+  stats?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs-stats_select".
+ */
+export interface PayloadJobsStatsSelect<T extends boolean = true> {
+  stats?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "welcome_widget".
  */
 export interface WelcomeWidget {
@@ -901,18 +630,7 @@ export interface CollectionsWidget {
 export interface CollectionQueryWidget {
   data?: {
     title?: string | null;
-    relatedCollection:
-      | 'batch31-documents'
-      | 'batch31-pages'
-      | 'batch31-articles'
-      | 'batch31-notes'
-      | 'batch31-holders'
-      | 'batch31-categories'
-      | 'batch31-posts'
-      | 'batch31-uuid-documents'
-      | 'batch31-uuid-groups'
-      | 'batch31-uuid-users'
-      | 'users';
+    relatedCollection: 'scheduled-posts' | 'other-scheduled-posts' | 'users';
     where?:
       | {
           [k: string]: unknown;
@@ -934,23 +652,34 @@ export interface CollectionQueryWidget {
  */
 export interface ActivityWidget {
   data?: {
-    excludedCollections?:
-      | (
-          | 'batch31-documents'
-          | 'batch31-pages'
-          | 'batch31-articles'
-          | 'batch31-notes'
-          | 'batch31-holders'
-          | 'batch31-categories'
-          | 'batch31-posts'
-          | 'batch31-uuid-documents'
-          | 'batch31-uuid-groups'
-          | 'batch31-uuid-users'
-          | 'users'
-        )[]
-      | null;
+    excludedCollections?: ('scheduled-posts' | 'other-scheduled-posts' | 'users')[] | null;
   };
   width: 'small' | 'medium' | 'large' | 'x-large' | 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSchedulePublish".
+ */
+export interface TaskSchedulePublish {
+  input: {
+    type?: ('publish' | 'unpublish') | null;
+    locale?: string | null;
+    doc?:
+      | ({
+          relationTo: 'scheduled-posts';
+          value: number | ScheduledPost;
+        } | null)
+      | ({
+          relationTo: 'other-scheduled-posts';
+          value: number | OtherScheduledPost;
+        } | null);
+    global?: string | null;
+    user?: {
+      relationTo: 'users';
+      value: number | User;
+    } | null;
+  };
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
