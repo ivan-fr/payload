@@ -1,4 +1,4 @@
-import type { SQL } from 'drizzle-orm'
+import type { Column, SQL } from 'drizzle-orm'
 import type { SQLiteTableWithColumns } from 'drizzle-orm/sqlite-core'
 import type {
   FlattenedBlock,
@@ -192,7 +192,7 @@ export const getTableColumnFromPath = ({
           fields: field.flattenedFields,
           joins,
           locale,
-          parentAliasTable: aliasTable,
+          parentAliasTable: parentAliasTable ?? aliasTable,
           parentIsLocalized: parentIsLocalized || field.localized,
           pathSegments: pathSegments.slice(1),
           rootTableName,
@@ -222,66 +222,84 @@ export const getTableColumnFromPath = ({
 
             newTableName = resolveBlockTableName(
               block,
-              adapter.tableNameMap.get(`${tableName}_blocks_${toSnakeCase(block.slug)}`),
+              adapter.tableNameMap.get(`${rootTableName}_blocks_${toSnakeCase(block.slug)}`),
             )
 
             const { newAliasTable } = getTableAlias({ adapter, tableName: newTableName })
 
             joins.push({
-              condition: eq(adapter.tables[tableName].id, newAliasTable._parentID),
+              condition: eq(tableContainingField.id, newAliasTable._parentID),
               table: newAliasTable,
             })
             constraints.push({
               columnName: '_path',
               table: newAliasTable,
-              value: `${constraintPath}${pathSegments[0]}`,
+              value: fieldStoragePath.slice(0, -2),
             })
           })
           return {
             constraints,
             field,
             getNotNullColumnByValue: () => 'id',
-            table: adapter.tables[tableName],
+            table: tableContainingField,
           }
         }
+
+        const hasBlockFieldInPath = field.blocks.some((_block) => {
+          const block = typeof _block === 'string' ? adapter.payload.blocks[_block] : _block
+
+          return block.flattenedFields.some(({ name }) => name === pathSegments[1])
+        })
+        const hasBlockSlugInPath =
+          !hasBlockFieldInPath &&
+          pathSegments.length > 2 &&
+          field.blocks.some(
+            (block) => (typeof block === 'string' ? block : block.slug) === pathSegments[1],
+          )
 
         const hasBlockField = field.blocks.some((_block) => {
           const block = typeof _block === 'string' ? adapter.payload.blocks[_block] : _block
 
+          if (hasBlockSlugInPath && block.slug !== pathSegments[1]) {
+            return false
+          }
+
           newTableName = resolveBlockTableName(
             block,
-            adapter.tableNameMap.get(`${tableName}_blocks_${toSnakeCase(block.slug)}`),
+            adapter.tableNameMap.get(`${rootTableName}_blocks_${toSnakeCase(block.slug)}`),
           )
 
           let result: TableColumn
           const blockConstraints = []
           const blockSelectFields = {}
 
-          let blockJoin: BuildQueryJoinAliases[0]
-          if (isFieldLocalized && adapter.payload.config.localization) {
-            const conditions = [
-              eq(
-                (aliasTable || adapter.tables[tableName]).id,
-                adapter.tables[newTableName]._parentID,
-              ),
-            ]
+          const blockQueryPrefix = `block:${newTableName}:`
+          const blockQueryPath = `${blockQueryPrefix}${fieldStoragePath}:${locale ?? ''}`
+          const existingBlockJoin = joins.find(({ queryPath }) => queryPath === blockQueryPath)
+          const blockTable =
+            existingBlockJoin?.table ??
+            (joins.some(({ queryPath }) => queryPath?.startsWith(blockQueryPrefix))
+              ? getTableAlias({ adapter, tableName: newTableName }).newAliasTable
+              : adapter.tables[newTableName])
+          const conditions = [
+            eq(tableContainingField.id, blockTable._parentID),
+            storagePathCondition({ column: blockTable._path, path: fieldStoragePath.slice(0, -2) }),
+          ]
 
-            if (locale !== 'all') {
-              conditions.push(eq(adapter.tables[newTableName]._locale, locale))
-            }
+          if (
+            (isFieldLocalized || parentIsLocalized) &&
+            blockTable._locale &&
+            adapter.payload.config.localization &&
+            locale !== 'all'
+          ) {
+            conditions.push(eq(blockTable._locale, locale))
+          }
 
-            blockJoin = {
-              condition: and(...conditions),
-              table: adapter.tables[newTableName],
-            }
-          } else {
-            blockJoin = {
-              condition: eq(
-                (aliasTable || adapter.tables[tableName]).id,
-                adapter.tables[newTableName]._parentID,
-              ),
-              table: adapter.tables[newTableName],
-            }
+          const blockJoin: BuildQueryJoinAliases[0] = {
+            condition: and(...conditions),
+            isOneToMany: true,
+            queryPath: blockQueryPath,
+            table: blockTable,
           }
 
           // Create a new reference for nested joins
@@ -290,14 +308,16 @@ export const getTableColumnFromPath = ({
           try {
             result = getTableColumnFromPath({
               adapter,
+              aliasTable: blockTable,
               collectionPath,
               constraintPath: `${fieldStoragePath}.`,
               constraints: blockConstraints,
               fields: block.flattenedFields,
               joins: newJoins,
               locale,
+              parentAliasTable: tableContainingField,
               parentIsLocalized: parentIsLocalized || field.localized,
-              pathSegments: pathSegments.slice(1),
+              pathSegments: pathSegments.slice(hasBlockSlugInPath ? 2 : 1),
               rootTableName,
               selectFields: blockSelectFields,
               selectLocale,
@@ -686,7 +706,10 @@ export const getTableColumnFromPath = ({
           ) {
             const conditions = [
               eq(tableContainingField.id, aliasRelationshipTable.parent),
-              like(aliasRelationshipTable.path, relationshipPath.path),
+              storagePathCondition({
+                column: aliasRelationshipTable.path,
+                path: relationshipPath.path,
+              }),
             ]
 
             conditions.push(eq(aliasRelationshipTable.locale, relationshipPath.locale))
@@ -702,7 +725,10 @@ export const getTableColumnFromPath = ({
             addJoinTable({
               condition: and(
                 eq(tableContainingField.id, aliasRelationshipTable.parent),
-                like(aliasRelationshipTable.path, relationshipPath.path),
+                storagePathCondition({
+                  column: aliasRelationshipTable.path,
+                  path: relationshipPath.path,
+                }),
               ),
               joins,
               queryPath: `${constraintPath}.${field.name}`,
@@ -1093,4 +1119,12 @@ export const getTableColumnFromPath = ({
   }
 
   throw new APIError(`Cannot find field for path at ${fieldPath}`)
+}
+
+function storagePathCondition({ column, path }: { column: Column; path: string }): SQL {
+  // SQL LIKE's % also matches dots. Keep an array position from consuming nested schema paths.
+  return and(
+    like(column, path),
+    sql`length(${column}) - length(replace(${column}, '.', '')) = ${path.split('.').length - 1}`,
+  )
 }

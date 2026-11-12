@@ -385,7 +385,10 @@ export function parseParams({
                 // Handle polymorphic relationships by value
                 if (queryColumns) {
                   if (!queryColumns.length) {
-                    break
+                    constraints.push(
+                      ['not_equals', 'not_in'].includes(queryOperator) ? sql`true` : sql`false`,
+                    )
+                    continue
                   }
 
                   let wrapOperator = or

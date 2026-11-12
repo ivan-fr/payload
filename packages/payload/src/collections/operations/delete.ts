@@ -15,6 +15,7 @@ import { validateQueryPaths } from '../../database/queryValidation/validateQuery
 import { sanitizeWhereQuery } from '../../database/sanitizeWhereQuery.js'
 import { APIError, Locked } from '../../errors/index.js'
 import { afterRead } from '../../fields/hooks/afterRead/index.js'
+import { deleteUserDocumentLocks } from '../../locked-documents/deleteUserDocumentLocks.js'
 import { deleteUserPreferences } from '../../preferences/deleteUserPreferences.js'
 import { getUserPreferenceIDs } from '../../preferences/getUserPreferenceIDs.js'
 import { deleteAssociatedFiles } from '../../uploads/deleteAssociatedFiles.js'
@@ -333,6 +334,7 @@ export const deleteOperation = async <
         }
 
         const preferenceIDs = await getUserPreferenceIDs({ collectionConfig, ids: [doc.id], req })
+        await deleteUserDocumentLocks({ collectionConfig, ids: [doc.id], req })
         await payload.db.deleteOne({
           collection: collectionConfig.slug,
           req,
@@ -471,6 +473,7 @@ export const deleteOperation = async <
       // /////////////////////////////////////
 
       const preferenceIDs = await getUserPreferenceIDs({ collectionConfig, ids, req })
+      await deleteUserDocumentLocks({ collectionConfig, ids, req })
       try {
         await payload.db.deleteMany({
           collection: collectionConfig.slug,

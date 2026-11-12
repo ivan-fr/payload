@@ -106,7 +106,8 @@ export const getIsLocked = async ({
     const currentEditor = docs[0].user?.value
     const lastUpdateTime = new Date(docs[0].updatedAt).getTime()
 
-    if (extractID(currentEditor) !== req.user.id) {
+    // A lock whose owner no longer exists (e.g. a deleted user) locks nobody out
+    if (currentEditor && extractID(currentEditor) !== req.user.id) {
       return {
         currentEditor,
         isLocked: true,

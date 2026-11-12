@@ -89,6 +89,7 @@ export const checkDocumentLockStatus = async ({
 
       // document is locked by another user and the lock hasn't expired
       if (
+        hasLockOwner(lockedDoc) &&
         lockedDoc.user?.value !== currentUserId &&
         now - lastEditedAt <= lockDurationInMilliseconds
       ) {
@@ -205,6 +206,7 @@ export const getLockedDocumentIds = async ({
 
       // document is locked by another user and the lock hasn't expired
       if (
+        hasLockOwner(lockedDoc) &&
         lockedDoc.user?.value !== currentUserId &&
         now - lastEditedAt <= lockDurationInMilliseconds
       ) {
@@ -240,3 +242,10 @@ export const deleteDocumentLocks = async ({
     })
   }
 }
+
+/**
+ * A lock whose owner no longer exists, e.g. a deleted user, cannot be released by anyone and
+ * therefore must not lock other users out.
+ */
+const hasLockOwner = (lockedDoc: JsonObject): boolean =>
+  lockedDoc.user?.value !== undefined && lockedDoc.user?.value !== null

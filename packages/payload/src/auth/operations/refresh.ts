@@ -13,8 +13,9 @@ import { initTransaction } from '../../utilities/initTransaction.js'
 import { killTransaction } from '../../utilities/killTransaction.js'
 import { applyUserReadAccess } from '../applyUserReadAccess.js'
 import { getFieldsToSign } from '../getFieldsToSign.js'
+import { isAutoLoginUser } from '../isAutoLoginUser.js'
 import { jwtSign } from '../jwt.js'
-import { extendSession } from '../sessions.js'
+import { addSessionToUser, extendSession } from '../sessions.js'
 
 export type Result = {
   exp: number
@@ -80,13 +81,26 @@ export const refreshOperation = async (incomingArgs: Arguments): Promise<Result>
       throw new Forbidden(args.req.t)
     }
 
-    const sid = args.req.user._sid
+    let sid = args.req.user._sid
 
     if (collectionConfig.auth.useSessions && !collectionConfig.auth.disableLocalStrategy) {
-      const session = sid && (await extendSession({ collectionConfig, req, sid, user }))
+      if (!sid && isAutoLoginUser({ collectionConfig, config, user })) {
+        // `admin.autoLogin` authenticates this user without a token, so there is no session to
+        // extend yet. Start one, exactly like a regular login would have.
+        const autoLoginSession = await addSessionToUser({
+          collectionConfig,
+          payload: req.payload,
+          req,
+          user,
+        })
 
-      if (!session) {
-        throw new Forbidden(args.req.t)
+        sid = autoLoginSession.sid
+      } else {
+        const session = sid && (await extendSession({ collectionConfig, req, sid, user }))
+
+        if (!session) {
+          throw new Forbidden(args.req.t)
+        }
       }
     }
 

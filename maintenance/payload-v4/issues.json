@@ -466,8 +466,10 @@
       "url": "https://github.com/payloadcms/payload/issues/13089",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 13097,
@@ -1952,8 +1954,10 @@
       "url": "https://github.com/payloadcms/payload/issues/16195",
       "labels": ["status: needs-triage", "stale", "area: core"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 16199,
@@ -2513,8 +2517,10 @@
       "url": "https://github.com/payloadcms/payload/issues/16647",
       "labels": ["status: needs-triage", "db: postgres", "stale", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 16659,
@@ -3009,8 +3015,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17249",
       "labels": ["created-by: Contributor"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 17262,
@@ -3410,8 +3418,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17724",
       "labels": ["db: postgres", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 17731,
@@ -3613,8 +3623,10 @@
       "url": "https://github.com/payloadcms/payload/issues/17858",
       "labels": [],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 17866,
@@ -3864,8 +3876,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18132",
       "labels": ["Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 18139,
@@ -3891,8 +3905,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18160",
       "labels": ["Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 18161,
@@ -3971,8 +3987,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18200",
       "labels": ["db: postgres", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 18201,
@@ -4071,8 +4089,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18273",
       "labels": ["db: postgres", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 18275,
@@ -4160,8 +4180,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18312",
       "labels": ["db: postgres", "Bug"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 18316,
@@ -4306,8 +4328,10 @@
       "url": "https://github.com/payloadcms/payload/issues/18355",
       "labels": ["status: needs-triage", "db: mongodb", "area: core", "Bug", "v3"],
       "upstream_state_at_snapshot": "open",
-      "status": "unassessed",
-      "verified_source_version": null
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "not_verified",
+      "last_checked_date": "2026-11-11"
     },
     {
       "number": 18361,
@@ -5906,7 +5930,20 @@
       "upstream_state_last_checked": "open",
       "last_checked_date": "2026-11-10",
       "fix_batch": 35
+    },
+    {
+      "number": 19490,
+      "title": "PageConfigProvider remounts the whole admin page after a client-side login (focus and client state lost)",
+      "url": "https://github.com/payloadcms/payload/issues/19490",
+      "labels": ["Bug"],
+      "created_at": "2026-11-10T19:52:20Z",
+      "added_date": "2026-11-11",
+      "upstream_state_when_added": "open",
+      "status": "scoped_fix_in_branch",
+      "verified_source_version": "4.0.0-beta.6",
+      "upstream_state_last_checked": "open",
+      "last_checked_date": "2026-11-11"
     }
   ],
-  "branch_fix_count": 222
+  "branch_fix_count": 235
 }

@@ -333,7 +333,37 @@ jobs:
         with:
           restore-build: true
 
+      # The artifact service occasionally answers with a transient 404 or an HTML error page.
+      # The action's own retries all happen within seconds, so retry twice more after a pause.
       - name: Download prepared test environment
+        id: download-e2e-prep
+        continue-on-error: true
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: e2e-prep-${{ github.sha }}
+          path: .
+
+      - name: Wait before retrying the download
+        if: steps.download-e2e-prep.outcome == 'failure'
+        shell: bash
+        run: sleep 60
+
+      - name: Download prepared test environment (retry 1)
+        id: download-e2e-prep-retry-1
+        if: steps.download-e2e-prep.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: e2e-prep-${{ github.sha }}
+          path: .
+
+      - name: Wait before the last download attempt
+        if: steps.download-e2e-prep-retry-1.outcome == 'failure'
+        shell: bash
+        run: sleep 180
+
+      - name: Download prepared test environment (retry 2)
+        if: steps.download-e2e-prep-retry-1.outcome == 'failure'
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: e2e-prep-${{ github.sha }}
@@ -447,7 +477,37 @@ jobs:
         with:
           restore-build: true
 
+      # The artifact service occasionally answers with a transient 404 or an HTML error page.
+      # The action's own retries all happen within seconds, so retry twice more after a pause.
       - name: Download prepared test environment
+        id: download-e2e-prep
+        continue-on-error: true
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: e2e-prep-${{ github.sha }}
+          path: .
+
+      - name: Wait before retrying the download
+        if: steps.download-e2e-prep.outcome == 'failure'
+        shell: bash
+        run: sleep 60
+
+      - name: Download prepared test environment (retry 1)
+        id: download-e2e-prep-retry-1
+        if: steps.download-e2e-prep.outcome == 'failure'
+        continue-on-error: true
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: e2e-prep-${{ github.sha }}
+          path: .
+
+      - name: Wait before the last download attempt
+        if: steps.download-e2e-prep-retry-1.outcome == 'failure'
+        shell: bash
+        run: sleep 180
+
+      - name: Download prepared test environment (retry 2)
+        if: steps.download-e2e-prep-retry-1.outcome == 'failure'
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: e2e-prep-${{ github.sha }}
@@ -586,8 +646,16 @@ jobs:
       - name: Install dependencies
         run: |
           docker exec visual-regression bash -lc "
-            apt-get update -qq -o Acquire::Retries=5 &&
-            apt-get install -y -qq -o Acquire::Retries=5 build-essential python3 > /dev/null &&
+            # Acquire::Retries does not cover DNS failures: apt-get update then only warns and
+            # the install fails with an unknown package. Retry both together.
+            for attempt in 1 2 3 4 5; do
+              apt-get update -qq -o Acquire::Retries=5 &&
+                apt-get install -y -qq -o Acquire::Retries=5 build-essential python3 > /dev/null &&
+                break
+              if [ \"\$attempt\" = 5 ]; then exit 1; fi
+              echo \"apt-get attempt \$attempt/5 failed, retrying in 20s...\"
+              sleep 20
+            done &&
             npm install -g pnpm@\$(grep '^pnpm ' .tool-versions | awk '{print \$2}') &&
             # --location=user avoids writing storeDir into pnpm-workspace.yaml, which pnpm
             # does by default when the cwd is a workspace root.

@@ -19,6 +19,51 @@ export const removeExpiredSessions = (sessions: UserSession[]): UserSession[] =>
 }
 
 /**
+ * Removes expired sessions from the stored user.
+ *
+ * Adapters have no way to remove single array rows, so this rewrites the list. It reads the list
+ * right before writing it, which keeps the window in which a concurrently added session could be
+ * overwritten as short as possible, and it only runs when there is something to remove.
+ */
+const pruneExpiredSessions = async ({
+  collectionConfig,
+  req,
+  userID,
+}: {
+  collectionConfig: SanitizedCollectionConfig
+  req: PayloadRequest
+  userID: number | string
+}): Promise<void> => {
+  const storedUser = await req.payload.db.findOne<{
+    id: number | string
+    sessions?: UserSession[]
+  }>({
+    collection: collectionConfig.slug,
+    req,
+    select: { sessions: true },
+    where: { id: { equals: userID } },
+  })
+  const storedSessions = storedUser?.sessions ?? []
+  const activeSessions = removeExpiredSessions(storedSessions)
+
+  if (activeSessions.length === storedSessions.length) {
+    return
+  }
+
+  await req.payload.db.updateOne({
+    id: userID,
+    collection: collectionConfig.slug,
+    data: {
+      sessions: activeSessions,
+      // Prevent updatedAt from being updated when only removing sessions
+      updatedAt: null,
+    },
+    req,
+    returning: false,
+  })
+}
+
+/**
  * Adds a session to the user and removes expired sessions
  * @returns The session and its ID (sid) if sessions are used
  */
@@ -52,24 +97,28 @@ export const addSessionToUser = async ({
 
     session = { id: sid, createdAt: now, expiresAt }
 
-    if (!user.sessions?.length) {
-      user.sessions = [session]
-    } else {
-      user.sessions = removeExpiredSessions(user.sessions)
-      user.sessions.push(session)
-    }
+    const storedSessions = user.sessions ?? []
+    const activeSessions = removeExpiredSessions(storedSessions)
 
+    // Append the session instead of rewriting the whole list. `user.sessions` was read earlier in
+    // the request, so writing it back would drop every session that another login added since.
     await payload.db.updateOne({
       id: user.id,
       collection: collectionConfig.slug,
       data: {
-        sessions: user.sessions,
+        sessions: { $push: session },
         // Prevent updatedAt from being updated when only adding a session
         updatedAt: null,
       },
       req,
       returning: false,
     })
+
+    if (activeSessions.length !== storedSessions.length) {
+      await pruneExpiredSessions({ collectionConfig, req, userID: user.id })
+    }
+
+    user.sessions = [...activeSessions, session]
 
     user.collection = collectionConfig.slug
     user._strategy = 'local-jwt'

@@ -119,6 +119,23 @@ describe('sanitizeConfig', () => {
       locales: [],
     })
   })
+
+  it('should reject a locale object without a code before the config is used (#17858)', () => {
+    expect(() =>
+      sanitizeConfig({
+        ...configDefaults,
+        localization: {
+          defaultLocale: 'en',
+          locales: [
+            // @ts-expect-error locale objects from an untyped config using the wrong key
+            { label: 'English', value: 'en' },
+            // @ts-expect-error locale objects from an untyped config using the wrong key
+            { label: 'French', value: 'fr' },
+          ],
+        },
+      }),
+    ).toThrow('localization.locales[0] is missing a "code"')
+  })
 })
 
 describe('slug uniqueness (#18584)', () => {

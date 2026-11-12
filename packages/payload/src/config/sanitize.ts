@@ -44,6 +44,7 @@ import { flattenAllFields, flattenBlock } from '../utilities/flattenAllFields.js
 import { hasScheduledPublishEnabled } from '../utilities/getVersionsConfig.js'
 import { validateTimezones } from '../utilities/validateTimezones.js'
 import { getSchedulePublishTask } from '../versions/schedule/job.js'
+import { assertValidLocales } from './assertValidLocales.js'
 import { addDefaultsToConfig } from './defaults.js'
 import { addOrderableEndpoint, addOrderableFieldsAndHook } from './orderable/index.js'
 
@@ -337,6 +338,8 @@ export const sanitizeConfig = (incomingConfig: Config): SanitizedConfig => {
   }
 
   if (config.localization) {
+    assertValidLocales({ locales: config.localization.locales })
+
     // clone localization config so to not break everything
     const firstLocale = config.localization.locales[0]
     if (typeof firstLocale === 'string') {

@@ -12,6 +12,7 @@ import { hasWhereAccessResult } from '../../auth/types.js'
 import { combineQueries } from '../../database/combineQueries.js'
 import { Forbidden, NotFound } from '../../errors/index.js'
 import { afterRead } from '../../fields/hooks/afterRead/index.js'
+import { deleteUserDocumentLocks } from '../../locked-documents/deleteUserDocumentLocks.js'
 import { deleteUserPreferences } from '../../preferences/deleteUserPreferences.js'
 import { getUserPreferenceIDs } from '../../preferences/getUserPreferenceIDs.js'
 import { deleteAssociatedFiles } from '../../uploads/deleteAssociatedFiles.js'
@@ -229,6 +230,7 @@ export const deleteByIDOperation = async <TSlug extends CollectionSlug, TSelect 
     // /////////////////////////////////////
 
     const preferenceIDs = await getUserPreferenceIDs({ collectionConfig, ids: [id], req })
+    await deleteUserDocumentLocks({ collectionConfig, ids: [id], req })
 
     let result: DataFromCollectionSlug<TSlug> = await req.payload.db.deleteOne({
       collection: collectionConfig.slug,

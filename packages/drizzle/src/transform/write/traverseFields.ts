@@ -116,6 +116,32 @@ export const traverseFields = ({
 }: Args) => {
   let fieldsMatched = false
 
+  /**
+   * An array or blocks field is always written as a whole. Rows that its previous items stored in
+   * the relationship, text and number tables are keyed by item index and would otherwise survive
+   * the removal of an item, and then be read as values of whichever item takes that index next.
+   */
+  const markNestedRowsForDeletion = ({
+    fieldName,
+    isAppend = false,
+    locale,
+  }: {
+    fieldName: string
+    /** A `$push` adds rows to the field and leaves its existing items in place. */
+    isAppend?: boolean
+    locale?: string
+  }): void => {
+    if (isAppend) {
+      return
+    }
+
+    const nestedRowsToDelete = { isPathPrefix: true, locale, path: `${path || ''}${fieldName}.` }
+
+    relationshipsToDelete.push({ ...nestedRowsToDelete })
+    textsToDelete.push({ ...nestedRowsToDelete })
+    numbersToDelete.push({ ...nestedRowsToDelete })
+  }
+
   if (row._uuid) {
     data._uuid = row._uuid
   }
@@ -164,6 +190,12 @@ export const traverseFields = ({
             }
 
             if (Array.isArray(localeData)) {
+              markNestedRowsForDeletion({
+                fieldName: field.name,
+                isAppend: push,
+                locale: localeKey,
+              })
+
               const newRows = transformArray({
                 adapter,
                 arrayTableName,
@@ -206,6 +238,12 @@ export const traverseFields = ({
           value = Array.isArray(value.$push) ? value.$push : [value.$push]
           push = true
         }
+
+        markNestedRowsForDeletion({
+          fieldName: field.name,
+          isAppend: push,
+          locale: withinArrayOrBlockLocale,
+        })
 
         const newRows = transformArray({
           adapter,
@@ -250,6 +288,8 @@ export const traverseFields = ({
         if (typeof data[field.name] === 'object' && data[field.name] !== null) {
           Object.entries(data[field.name]).forEach(([localeKey, localeData]) => {
             if (Array.isArray(localeData)) {
+              markNestedRowsForDeletion({ fieldName: field.name, locale: localeKey })
+
               transformBlocks({
                 adapter,
                 baseTableName,
@@ -273,6 +313,8 @@ export const traverseFields = ({
           })
         }
       } else if (isArrayOfRows(fieldData)) {
+        markNestedRowsForDeletion({ fieldName: field.name, locale: withinArrayOrBlockLocale })
+
         transformBlocks({
           adapter,
           baseTableName,

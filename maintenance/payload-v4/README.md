@@ -339,3 +339,7 @@ This brings the branch to **12 scoped reports** and the fork inventory to **180 
 ## Batch 37 — hierarchy intent, JSON refs, metadata and project scaffolding
 
 [Batch 37](./batch-37.md) adds #17223, #11383, #11580, #12764, #16054 and #14682: five code/configuration fixes and a verification API documentation correction. Validation includes 4,775 passing unit tests, 31 integration executions, affected package types, an actual generated-project regression, lint/formatting and scoped local SonarJS. Production browser/AT, native database and Docker limits are recorded. The fork inventory reaches 222 scoped fixes (193 historical plus 29 later reports). The requested PR covers all 24 reports on `fix/payload-six-issues-20261110`.
+
+## Batch 38 — sessions, locks, nested rows, selects and query fixes
+
+[Batch 38](./batch-38.md) adds #18132, #18160, #17724, #16647, #13089, #18200, #17249, #17858, #16195, #18273, #18312, #18355 and #19490. It was developed on a branch cut before batches 29 to 37 and merged afterwards: seven further reports fixed on that branch were already fixed on `main` and `main`'s implementation was kept. Validation ran on SQLite and unit tests only; PostgreSQL, MongoDB and D1 are not verified.
